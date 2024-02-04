@@ -1,0 +1,32 @@
+version: '3'
+services:
+  postgres:
+    image: postgres:latest
+    container_name: devsoc-db
+    ports:
+      - '6500:5432'
+    volumes:
+      - postgresDB:/var/lib/postgresql/data
+    env_file:
+      - .env
+
+  redis:
+    image: redis:latest
+    container_name: devsoc-redis
+    ports:
+      - '6379:6379'
+    env_file:
+      - .env
+
+  api:
+    build: .
+    ports:
+      - "8001:8080"
+    volumes:
+      - .:/app
+    env_file:
+      - .env
+    restart: on-failure
+
+volumes:
+  postgresDB:
