@@ -8,6 +8,8 @@ import (
 
 	"github.com/CodeChefVIT/devsoc-backend-24/config"
 	"github.com/CodeChefVIT/devsoc-backend-24/internal/database"
+	"github.com/CodeChefVIT/devsoc-backend-24/internal/utils"
+	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
@@ -22,6 +24,7 @@ func init() {
 
 func main() {
 	app := echo.New()
+	app.Validator = &utils.Validator{Validator: validator.New(validator.WithRequiredStructEnabled())}
 
 	app.Use(middleware.Logger())
 
