@@ -11,7 +11,26 @@ type User struct {
 	Phone      string    `json:"phone"`
 	College    string    `json:"college"`
 	Gender     string    `json:"gender"`
-	IsVitian   bool      `json:"is_vitian"`
-	IsVerified bool      `json:"is_verified"`
+	Role       string    `json:"role"`
+	Country    string    `json:"country"`
+	Github     string    `json:"github"`
+	Bio        string    `json:"bio"`
+	IsBanned   bool      `json:"-"`
+	IsAdded    bool      `json:"-"`
+	IsVitian   bool      `json:"-"`
+	IsVerified bool      `json:"-"`
 	TeamID     int       `json:"team_id"`
+}
+
+type CreateUserRequest struct {
+	FirstName string `json:"first_name" validate:"required,min=1,max=20"`
+	LastName  string `json:"last_name" validate:"required,min=1,max=20"`
+	Email     string `json:"email" validate:"required,email"`
+	Password  string `json:"password" validate:"required,min=6"`
+	Phone     string `json:"phone" validate:"required"`
+	College   string `json:"college" validate:"required"`
+	Gender    string `json:"gender" validate:"required"`
+	Country   string `json:"country" validate:"required"`
+	Github    string `json:"github" validate:"required"`
+	Bio       string `json:"bio" validate:"required,min=50,max=200"`
 }

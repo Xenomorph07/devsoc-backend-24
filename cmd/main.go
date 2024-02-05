@@ -8,6 +8,7 @@ import (
 
 	"github.com/CodeChefVIT/devsoc-backend-24/config"
 	"github.com/CodeChefVIT/devsoc-backend-24/internal/database"
+	"github.com/CodeChefVIT/devsoc-backend-24/internal/routes"
 	"github.com/CodeChefVIT/devsoc-backend-24/internal/utils"
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
@@ -51,6 +52,8 @@ func main() {
 			"message": message,
 		})
 	}
+
+	routes.UserRoutes(app)
 
 	// Graceful quit
 	c := make(chan os.Signal, 1)
