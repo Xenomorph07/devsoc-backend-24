@@ -16,7 +16,7 @@ import (
 )
 
 func init() {
-	config.SanityCheck()
+	config.CheckEnv()
 	appConfig := config.LoadConfig()
 	database.InitDB(appConfig.DatabaseConfig)
 	database.InitialiseGoogleSheetsClient()
@@ -64,5 +64,5 @@ func main() {
 	}()
 	signal.Notify(c, os.Interrupt)
 
-	app.Logger.Fatal(app.Start(":8080"))
+	app.Logger.Fatal(app.Start(":" + os.Getenv("PORT")))
 }

@@ -6,7 +6,7 @@ import (
 	"os"
 )
 
-func SanityCheck() {
+func CheckEnv() {
 	envProps := []string{
 		"POSTGRES_USER",
 		"POSTGRES_PASSWORD",
