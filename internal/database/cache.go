@@ -15,8 +15,7 @@ type RedisRepository struct {
 
 var RedisClient *RedisRepository
 
-func NewRepository(redisConfig config.RedisConfig) error {
-
+func InitRedis(redisConfig config.RedisConfig) error {
 	client := redis.NewClient(&redis.Options{
 		Addr: fmt.Sprintf("%s:%s", redisConfig.REDIS_HOST, redisConfig.REDIS_PORT),
 		DB:   0,
