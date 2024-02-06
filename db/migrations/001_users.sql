@@ -6,7 +6,7 @@ CREATE TABLE users (
     last_name TEXT NOT NULL,
     email TEXT NOT NULL,
     password TEXT NOT NULL,
-    phone_number TEXT NOT NULL,
+    phone TEXT NOT NULL,
     college TEXT NOT NULL,
     gender TEXT NOT NULL,
     role TEXT NOT NULL,
