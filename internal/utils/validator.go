@@ -13,7 +13,7 @@ type Validator struct {
 
 func (v *Validator) Validate(i interface{}) error {
 	if err := v.Validator.Struct(i); err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+		return echo.NewHTTPError(http.StatusUnprocessableEntity, err.Error())
 	}
 	return nil
 }

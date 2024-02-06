@@ -13,3 +13,10 @@ func Protected() echo.MiddlewareFunc {
 		TokenLookup: "cookie:access_token",
 	})
 }
+
+func Refresh() echo.MiddlewareFunc {
+	return echojwt.WithConfig(echojwt.Config{
+		SigningKey:  []byte(os.Getenv("REFRESH_SECRET_KEY")),
+		TokenLookup: "cookie:refresh_token",
+	})
+}

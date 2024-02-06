@@ -6,6 +6,7 @@ type User struct {
 	ID         uuid.UUID `json:"id"`
 	FirstName  string    `json:"first_name"`
 	LastName   string    `json:"last_name"`
+	RegNo      string    `json:"reg_no"`
 	Email      string    `json:"email"`
 	Password   string    `json:"password"`
 	Phone      string    `json:"phone"`
@@ -25,6 +26,7 @@ type User struct {
 type CreateUserRequest struct {
 	FirstName string `json:"first_name" validate:"required,min=1,max=20"`
 	LastName  string `json:"last_name" validate:"required,min=1,max=20"`
+	RegNo     string `json:"reg_no" validate:"required"`
 	Email     string `json:"email" validate:"required,email"`
 	Password  string `json:"password" validate:"required,min=6"`
 	Phone     string `json:"phone" validate:"required"`
