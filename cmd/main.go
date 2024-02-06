@@ -38,7 +38,7 @@ func main() {
 
 	app.HTTPErrorHandler = func(err error, c echo.Context) {
 		code := http.StatusInternalServerError
-		message := "Not found"
+		message := "Route Not found"
 
 		if he, ok := err.(*echo.HTTPError); ok {
 			code = he.Code
@@ -54,6 +54,7 @@ func main() {
 	}
 
 	routes.UserRoutes(app)
+	routes.AuthRoutes(app)
 
 	// Graceful quit
 	c := make(chan os.Signal, 1)

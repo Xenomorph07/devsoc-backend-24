@@ -72,7 +72,7 @@ func Login(ctx echo.Context) error {
 		Exp:          time.Minute * 5,
 		Email:        user.Email,
 		Role:         user.Role,
-		TokenVersion: tokenVersion,
+		TokenVersion: tokenVersion + 1,
 	}, utils.ACCESS_TOKEN)
 	if err != nil {
 		return ctx.JSON(http.StatusInternalServerError, map[string]string{

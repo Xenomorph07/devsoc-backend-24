@@ -1,11 +1,16 @@
 package middleware
 
 import (
-	"log/slog"
+	"database/sql"
+	"errors"
 	"net/http"
+	"strconv"
 
+	"github.com/CodeChefVIT/devsoc-backend-24/internal/database"
+	services "github.com/CodeChefVIT/devsoc-backend-24/internal/services/user"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/labstack/echo/v4"
+	"github.com/redis/go-redis/v9"
 )
 
 func AuthUser(next echo.HandlerFunc) echo.HandlerFunc {
@@ -26,11 +31,41 @@ func AuthUser(next echo.HandlerFunc) echo.HandlerFunc {
 			})
 		}
 
-		slog.Info("The claims for the passed in JWT are: ")
-
-		for key, value := range claims {
-			slog.Info(key + ":" + value.(string))
+		email := claims["sub"].(string)
+		tokenVersionStr, err := database.RedisClient.Get(email)
+		if err != nil {
+			if err == redis.Nil {
+				return c.JSON(http.StatusUnauthorized, map[string]string{
+					"message": "token expired",
+					"status":  "failure",
+				})
+			}
+			return c.JSON(http.StatusInternalServerError, map[string]string{
+				"message": err.Error(),
+				"status":  "get from redis",
+			})
 		}
+
+		tokenVersion, _ := strconv.Atoi(tokenVersionStr)
+
+		if int(claims["version"].(float64)) != tokenVersion {
+			return c.JSON(http.StatusForbidden, map[string]string{
+				"messsage": "invalid token",
+				"status":   "failure",
+			})
+		}
+
+		user, err := services.FindUserByEmail(email)
+		if err != nil {
+			if errors.Is(err, sql.ErrNoRows) {
+				return c.JSON(http.StatusNotFound, map[string]string{
+					"message": "user does not exist",
+					"status":  "failure",
+				})
+			}
+		}
+
+		c.Set("user", user)
 
 		return next(c)
 	}

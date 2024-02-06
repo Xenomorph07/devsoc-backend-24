@@ -9,7 +9,7 @@ import (
 
 func Protected() echo.MiddlewareFunc {
 	return echojwt.WithConfig(echojwt.Config{
-		SigningKey:  os.Getenv("ACCESS_SECRET_KEY"),
-		TokenLookup: "header:Authorization:Bearer ,cookie:access_token",
+		SigningKey:  []byte(os.Getenv("ACCESS_SECRET_KEY")),
+		TokenLookup: "cookie:access_token",
 	})
 }
