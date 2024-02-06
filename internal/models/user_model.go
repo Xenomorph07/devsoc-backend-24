@@ -31,6 +31,11 @@ type CreateUserRequest struct {
 	College   string `json:"college" validate:"required"`
 	Gender    string `json:"gender" validate:"required"`
 	Country   string `json:"country" validate:"required"`
-	Github    string `json:"github" validate:"required"`
+	Github    string `json:"github" validate:"required,url"`
 	Bio       string `json:"bio" validate:"required,min=50,max=200"`
+}
+
+type LoginRequest struct {
+	Email    string `json:"email" validate:"required,email"`
+	Password string `json:"password" validate:"required,min=4"`
 }

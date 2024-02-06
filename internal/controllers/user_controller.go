@@ -22,10 +22,7 @@ func CreateUser(ctx echo.Context) error {
 	}
 
 	if err := ctx.Validate(&payload); err != nil {
-		return ctx.JSON(http.StatusBadRequest, map[string]string{
-			"status":  "validation error",
-			"message": err.Error(),
-		})
+		return err
 	}
 
 	isVitian := strings.HasSuffix(payload.Email, "vitstudent.ac.in")

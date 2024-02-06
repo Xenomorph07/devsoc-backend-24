@@ -4,7 +4,7 @@ services:
     image: postgres:latest
     container_name: devsoc-db
     ports:
-      - '6500:5432'
+      - '5432:5432'
     volumes:
       - postgresDB:/var/lib/postgresql/data
     env_file:
@@ -21,7 +21,7 @@ services:
   api:
     build: .
     ports:
-      - "8001:8080"
+      - "8080:8080"
     volumes:
       - .:/app
     env_file:

@@ -4,10 +4,13 @@ go 1.21.5
 
 require (
 	github.com/go-playground/validator/v10 v10.17.0
+	github.com/golang-jwt/jwt/v5 v5.2.0
 	github.com/google/uuid v1.4.0
 	github.com/jackc/pgx/v5 v5.5.3
+	github.com/labstack/echo-jwt/v4 v4.2.0
 	github.com/labstack/echo/v4 v4.11.4
 	github.com/redis/go-redis/v9 v9.4.0
+	golang.org/x/crypto v0.18.0
 	golang.org/x/oauth2 v0.15.0
 	google.golang.org/api v0.153.0
 )
@@ -38,10 +41,9 @@ require (
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasttemplate v1.2.2 // indirect
 	go.opencensus.io v0.24.0 // indirect
-	golang.org/x/crypto v0.17.0 // indirect
-	golang.org/x/net v0.19.0 // indirect
+	golang.org/x/net v0.20.0 // indirect
 	golang.org/x/sync v0.5.0 // indirect
-	golang.org/x/sys v0.15.0 // indirect
+	golang.org/x/sys v0.16.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
 	golang.org/x/time v0.5.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
