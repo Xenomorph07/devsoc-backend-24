@@ -120,3 +120,47 @@ func Login(ctx echo.Context) error {
 		"status":  "success",
 	})
 }
+
+func Logout(ctx echo.Context) error {
+	refreshToken, err := ctx.Cookie("refresh_token")
+	if err != nil {
+		return ctx.JSON(http.StatusBadRequest, map[string]string{
+			"message": err.Error(),
+			"status":  "cookie not found",
+		})
+	}
+
+	email, err := database.RedisClient.Get(refreshToken.Value)
+	if err != nil && err != redis.Nil {
+		return ctx.JSON(http.StatusInternalServerError, map[string]string{
+			"message": err.Error(),
+			"status":  "redis failure",
+		})
+	}
+
+	if err := database.RedisClient.Delete(refreshToken.Value); err != nil {
+		return ctx.JSON(http.StatusInternalServerError, map[string]string{
+			"message": err.Error(),
+			"status":  "redis failure",
+		})
+	}
+
+	if err := database.RedisClient.Delete(email); err != nil {
+		return ctx.JSON(http.StatusInternalServerError, map[string]string{
+			"message": err.Error(),
+			"status":  "redis failure",
+		})
+	}
+
+	return ctx.JSON(http.StatusOK, map[string]string{
+		"message": "logout successful",
+		"status":  "success",
+	})
+}
+
+func Refresh(ctx echo.Context) error {
+	return ctx.JSON(http.StatusOK, map[string]string{
+		"message": "token refreshed",
+		"status":  "success",
+	})
+}
