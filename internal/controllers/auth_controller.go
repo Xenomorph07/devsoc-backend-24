@@ -12,6 +12,7 @@ import (
 	"github.com/CodeChefVIT/devsoc-backend-24/internal/models"
 	services "github.com/CodeChefVIT/devsoc-backend-24/internal/services/user"
 	"github.com/CodeChefVIT/devsoc-backend-24/internal/utils"
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/labstack/echo/v4"
 	"github.com/redis/go-redis/v9"
 	"golang.org/x/crypto/bcrypt"
@@ -58,7 +59,8 @@ func Login(ctx echo.Context) error {
 		})
 	}
 
-	tokenVersionStr, err := database.RedisClient.Get(user.Email)
+	tokenVersionStr, err := database.RedisClient.Get(
+		fmt.Sprintf("token_version:%s", user.Email))
 	if err != nil && err != redis.Nil {
 		return ctx.JSON(http.StatusInternalServerError, map[string]string{
 			"status":  "redis failure",
@@ -81,7 +83,10 @@ func Login(ctx echo.Context) error {
 		})
 	}
 
-	refreshToken, err := utils.CreateToken(utils.TokenPayload{Exp: time.Hour * 1}, utils.REFRESH_TOKEN)
+	refreshToken, err := utils.CreateToken(utils.TokenPayload{
+		Exp:   time.Hour * 1,
+		Email: user.Email,
+	}, utils.REFRESH_TOKEN)
 	if err != nil {
 		return ctx.JSON(http.StatusInternalServerError, map[string]string{
 			"message": err.Error(),
@@ -89,14 +94,15 @@ func Login(ctx echo.Context) error {
 		})
 	}
 
-	if err := database.RedisClient.Set(user.Email, fmt.Sprint(tokenVersion+1), time.Hour*1); err != nil {
+	if err := database.RedisClient.Set(fmt.Sprintf("token_version:%s", user.Email),
+		fmt.Sprint(tokenVersion+1), time.Hour*1); err != nil {
 		return ctx.JSON(http.StatusInternalServerError, map[string]string{
 			"status":  "redis failure",
 			"message": err.Error(),
 		})
 	}
 
-	if err := database.RedisClient.Set(refreshToken, user.Email, time.Hour*1); err != nil {
+	if err := database.RedisClient.Set(user.Email, refreshToken, time.Hour*1); err != nil {
 		return ctx.JSON(http.StatusInternalServerError, map[string]string{
 			"status":  "redis failure",
 			"message": err.Error(),
@@ -122,30 +128,25 @@ func Login(ctx echo.Context) error {
 }
 
 func Logout(ctx echo.Context) error {
-	refreshToken, err := ctx.Cookie("refresh_token")
-	if err != nil {
-		return ctx.JSON(http.StatusBadRequest, map[string]string{
-			"message": err.Error(),
-			"status":  "cookie not found",
-		})
-	}
+	refreshToken := ctx.Get("user").(*jwt.Token)
+	claims := refreshToken.Claims.(jwt.MapClaims)
 
-	email, err := database.RedisClient.Get(refreshToken.Value)
+	_, err := database.RedisClient.Get(claims["sub"].(string))
 	if err != nil && err != redis.Nil {
 		return ctx.JSON(http.StatusInternalServerError, map[string]string{
 			"message": err.Error(),
-			"status":  "redis failure",
+			"status":  "redis get",
 		})
 	}
 
-	if err := database.RedisClient.Delete(refreshToken.Value); err != nil {
+	if err := database.RedisClient.Delete(claims["sub"].(string)); err != nil {
 		return ctx.JSON(http.StatusInternalServerError, map[string]string{
 			"message": err.Error(),
 			"status":  "redis failure",
 		})
 	}
 
-	if err := database.RedisClient.Delete(email); err != nil {
+	if err := database.RedisClient.Delete("token_version:" + claims["sub"].(string)); err != nil {
 		return ctx.JSON(http.StatusInternalServerError, map[string]string{
 			"message": err.Error(),
 			"status":  "redis failure",
@@ -159,6 +160,97 @@ func Logout(ctx echo.Context) error {
 }
 
 func Refresh(ctx echo.Context) error {
+	refreshToken := ctx.Get("user").(*jwt.Token)
+	claims := refreshToken.Claims.(jwt.MapClaims)
+
+	refreshCookie, _ := ctx.Cookie("refresh_token")
+
+	accessCookie, err := ctx.Cookie("access_token")
+	if err != nil {
+		if !errors.Is(err, echo.ErrCookieNotFound) {
+			return ctx.JSON(http.StatusBadRequest, map[string]string{
+				"message": err.Error(),
+				"status":  "get cookie",
+			})
+		}
+		accessCookie = &http.Cookie{
+			Name:     "access_token",
+			HttpOnly: true,
+		}
+	}
+
+	storedToken, err := database.RedisClient.Get(claims["sub"].(string))
+	if err != nil {
+		if err == redis.Nil {
+			return ctx.JSON(http.StatusUnauthorized, map[string]string{
+				"message": "please login again",
+				"status":  "success",
+			})
+		}
+		return ctx.JSON(http.StatusInternalServerError, map[string]string{
+			"message": err.Error(),
+			"status":  "redis get",
+		})
+	}
+
+	if storedToken != refreshCookie.Value {
+		return ctx.JSON(http.StatusUnauthorized, map[string]string{
+			"message": "invalid token",
+			"status":  "failure",
+		})
+	}
+
+	user, err := services.FindUserByEmail(claims["sub"].(string))
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return ctx.JSON(http.StatusNotFound, map[string]string{
+				"message": "user does not exist",
+				"status":  "failure",
+			})
+		}
+		return ctx.JSON(http.StatusInternalServerError, map[string]string{
+			"messsage": err.Error(),
+			"status":   "db error",
+		})
+	}
+
+	tokenVersionStr, err := database.RedisClient.Get("token_version:" + user.Email)
+	if err != nil {
+		if err != redis.Nil {
+			return ctx.JSON(http.StatusInternalServerError, map[string]string{
+				"message": err.Error(),
+				"status":  "redis get",
+			})
+		}
+		tokenVersionStr = "0"
+	}
+
+	tokenVersion, _ := strconv.Atoi(tokenVersionStr)
+
+	accessToken, err := utils.CreateToken(utils.TokenPayload{
+		Exp:          time.Minute * 5,
+		Email:        user.Email,
+		Role:         user.Role,
+		TokenVersion: tokenVersion + 1,
+	}, utils.ACCESS_TOKEN)
+	if err != nil {
+		return ctx.JSON(http.StatusInternalServerError, map[string]string{
+			"message": err.Error(),
+			"status":  "create token",
+		})
+	}
+
+	if err := database.RedisClient.Set("token_version:"+user.Email, fmt.Sprint(tokenVersion+1), time.Hour*1); err != nil {
+		return ctx.JSON(http.StatusInternalServerError, map[string]string{
+			"message": err.Error(),
+			"status":  "redis set",
+		})
+	}
+
+	accessCookie.Value = accessToken
+
+	ctx.SetCookie(accessCookie)
+
 	return ctx.JSON(http.StatusOK, map[string]string{
 		"message": "token refreshed",
 		"status":  "success",

@@ -29,10 +29,10 @@ func CreateToken(payload TokenPayload, tokenType TokenType) (string, error) {
 
 	claims := jwt.MapClaims{
 		"exp": time.Now().Add(payload.Exp).Unix(),
+		"sub": payload.Email,
 	}
 
 	if tokenType == ACCESS_TOKEN {
-		claims["sub"] = payload.Email
 		claims["role"] = payload.Role
 		claims["version"] = payload.TokenVersion
 	}

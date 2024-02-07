@@ -5,6 +5,7 @@ CREATE TABLE users (
     first_name TEXT NOT NULL,
     last_name TEXT NOT NULL,
     email TEXT NOT NULL,
+    reg_no TEXT NOT NULL,
     password TEXT NOT NULL,
     phone TEXT NOT NULL,
     college TEXT NOT NULL,
