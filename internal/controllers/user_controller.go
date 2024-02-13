@@ -1,6 +1,8 @@
 package controllers
 
 import (
+	"database/sql"
+	"errors"
 	"net/http"
 	"strings"
 
@@ -17,12 +19,27 @@ func CreateUser(ctx echo.Context) error {
 	if err := ctx.Bind(&payload); err != nil {
 		return ctx.JSON(http.StatusBadRequest, map[string]string{
 			"message": err.Error(),
-			"status":  "failed to bind body",
+			"status":  "fail",
 		})
 	}
 
 	if err := ctx.Validate(&payload); err != nil {
 		return err
+	}
+
+	userExists, err := services.CheckUserExists(payload.Email)
+	if err != nil && !errors.Is(err, sql.ErrNoRows) {
+		return ctx.JSON(http.StatusInternalServerError, map[string]string{
+			"message": err.Error(),
+			"status":  "error",
+		})
+	}
+
+	if userExists {
+		return ctx.JSON(http.StatusConflict, map[string]string{
+			"message": "user already exists",
+			"status":  "fail",
+		})
 	}
 
 	isVitian := strings.HasSuffix(payload.Email, "vitstudent.ac.in")
@@ -31,7 +48,7 @@ func CreateUser(ctx echo.Context) error {
 	if err != nil {
 		return ctx.JSON(http.StatusInternalServerError, map[string]string{
 			"message": err.Error(),
-			"status":  "password encryption failure",
+			"status":  "error",
 		})
 	}
 
@@ -58,7 +75,7 @@ func CreateUser(ctx echo.Context) error {
 	if err := services.InsertUser(user); err != nil {
 		return ctx.JSON(http.StatusInternalServerError, map[string]string{
 			"message": err.Error(),
-			"status":  "insertion error",
+			"status":  "error",
 		})
 	}
 

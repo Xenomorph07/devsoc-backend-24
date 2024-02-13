@@ -8,10 +8,10 @@ import (
 
 func TeamRoutes(incomingRoutes *echo.Echo) {
 	team := incomingRoutes.Group("/team")
-	team.Use(middleware.Protected())
-	team.GET("/",controllers.GetTeamDetails)
+	team.Use(middleware.Protected(), middleware.AuthUser)
+	team.GET("/", controllers.GetTeamDetails)
 	team.POST("/create", controllers.CreateTeam)
 	team.POST("/join", controllers.JoinTeam)
 	team.DELETE("/leave", controllers.LeaveTeam)
-	team.POST("/kick",controllers.KickMember)
+	team.POST("/kick", controllers.KickMember)
 }

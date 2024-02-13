@@ -47,8 +47,8 @@ func main() {
 
 		app.Logger.Error(err)
 		c.JSON(code, map[string]interface{}{
-			"status":  "false",
-			"code":    code,
+			"code": code,
+			"status":  "fail",
 			"message": message,
 		})
 	}

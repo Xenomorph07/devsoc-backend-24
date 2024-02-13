@@ -24,7 +24,7 @@ func Login(ctx echo.Context) error {
 	if err := ctx.Bind(&payload); err != nil {
 		return ctx.JSON(http.StatusBadRequest, map[string]string{
 			"message": err.Error(),
-			"status":  "binding body",
+			"status":  "fail",
 		})
 	}
 
@@ -37,12 +37,12 @@ func Login(ctx echo.Context) error {
 		if errors.Is(err, sql.ErrNoRows) {
 			return ctx.JSON(http.StatusNotFound, map[string]string{
 				"message": "user does not exist",
-				"status":  "failure",
+				"status":  "fail",
 			})
 		}
 		return ctx.JSON(http.StatusInternalServerError, map[string]string{
 			"messsage": err.Error(),
-			"status":   "db error",
+			"status":   "error",
 		})
 	}
 
@@ -50,12 +50,12 @@ func Login(ctx echo.Context) error {
 		if errors.Is(err, bcrypt.ErrMismatchedHashAndPassword) {
 			return ctx.JSON(http.StatusConflict, map[string]string{
 				"message": "Invalid password",
-				"status":  "failure",
+				"status":  "fail",
 			})
 		}
 		return ctx.JSON(http.StatusInternalServerError, map[string]string{
 			"message": err.Error(),
-			"status":  "bcrypt check",
+			"status":  "error",
 		})
 	}
 
@@ -63,7 +63,7 @@ func Login(ctx echo.Context) error {
 		fmt.Sprintf("token_version:%s", user.Email))
 	if err != nil && err != redis.Nil {
 		return ctx.JSON(http.StatusInternalServerError, map[string]string{
-			"status":  "redis failure",
+			"status":  "error",
 			"message": err.Error(),
 		})
 	}
@@ -79,7 +79,7 @@ func Login(ctx echo.Context) error {
 	if err != nil {
 		return ctx.JSON(http.StatusInternalServerError, map[string]string{
 			"message": err.Error(),
-			"status":  "create token",
+			"status":  "error",
 		})
 	}
 
@@ -90,21 +90,21 @@ func Login(ctx echo.Context) error {
 	if err != nil {
 		return ctx.JSON(http.StatusInternalServerError, map[string]string{
 			"message": err.Error(),
-			"status":  "create token",
+			"status":  "error",
 		})
 	}
 
 	if err := database.RedisClient.Set(fmt.Sprintf("token_version:%s", user.Email),
 		fmt.Sprint(tokenVersion+1), time.Hour*1); err != nil {
 		return ctx.JSON(http.StatusInternalServerError, map[string]string{
-			"status":  "redis failure",
+			"status":  "error",
 			"message": err.Error(),
 		})
 	}
 
 	if err := database.RedisClient.Set(user.Email, refreshToken, time.Hour*1); err != nil {
 		return ctx.JSON(http.StatusInternalServerError, map[string]string{
-			"status":  "redis failure",
+			"status":  "error",
 			"message": err.Error(),
 		})
 	}
