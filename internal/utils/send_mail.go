@@ -1,5 +1,5 @@
 package utils
 
-func SendMail() error {
+func SendMail(email string, body string) error {
 	return nil
 }

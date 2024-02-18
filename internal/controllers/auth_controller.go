@@ -8,14 +8,15 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/CodeChefVIT/devsoc-backend-24/internal/database"
-	"github.com/CodeChefVIT/devsoc-backend-24/internal/models"
-	services "github.com/CodeChefVIT/devsoc-backend-24/internal/services/user"
-	"github.com/CodeChefVIT/devsoc-backend-24/internal/utils"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/labstack/echo/v4"
 	"github.com/redis/go-redis/v9"
 	"golang.org/x/crypto/bcrypt"
+
+	"github.com/CodeChefVIT/devsoc-backend-24/internal/database"
+	"github.com/CodeChefVIT/devsoc-backend-24/internal/models"
+	services "github.com/CodeChefVIT/devsoc-backend-24/internal/services/user"
+	"github.com/CodeChefVIT/devsoc-backend-24/internal/utils"
 )
 
 func Login(ctx echo.Context) error {

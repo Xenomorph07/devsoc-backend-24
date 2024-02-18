@@ -3,14 +3,20 @@ package controllers
 import (
 	"database/sql"
 	"errors"
+	"fmt"
+	"log/slog"
 	"net/http"
 	"strings"
+	"time"
 
-	"github.com/CodeChefVIT/devsoc-backend-24/internal/models"
-	services "github.com/CodeChefVIT/devsoc-backend-24/internal/services/user"
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 	"golang.org/x/crypto/bcrypt"
+
+	"github.com/CodeChefVIT/devsoc-backend-24/internal/database"
+	"github.com/CodeChefVIT/devsoc-backend-24/internal/models"
+	services "github.com/CodeChefVIT/devsoc-backend-24/internal/services/user"
+	"github.com/CodeChefVIT/devsoc-backend-24/internal/utils"
 )
 
 func CreateUser(ctx echo.Context) error {
@@ -72,12 +78,33 @@ func CreateUser(ctx echo.Context) error {
 		TeamID:     0,
 	}
 
+	otp, err := utils.GenerateOTP(6)
+	if err != nil {
+		return ctx.JSON(http.StatusInternalServerError, map[string]string{
+			"status":  "error",
+			"message": err.Error(),
+		})
+	}
+
 	if err := services.InsertUser(user); err != nil {
 		return ctx.JSON(http.StatusInternalServerError, map[string]string{
 			"message": err.Error(),
 			"status":  "error",
 		})
 	}
+
+	if err := database.RedisClient.Set(fmt.Sprintf("verfication:%s", user.Email), otp, time.Minute*5); err != nil {
+		return ctx.JSON(http.StatusInternalServerError, map[string]string{
+			"status":  "error",
+			"message": err.Error(),
+		})
+	}
+
+	go func() {
+		if err := utils.SendMail(user.Email, otp); err != nil {
+			slog.Error("error sending email: " + err.Error())
+		}
+	}()
 
 	return ctx.JSON(http.StatusOK, map[string]string{
 		"message": "user creation was successful",
