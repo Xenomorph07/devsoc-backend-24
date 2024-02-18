@@ -5,11 +5,12 @@ import (
 	"errors"
 	"net/http"
 
+	"github.com/google/uuid"
+	"github.com/labstack/echo/v4"
+
 	"github.com/CodeChefVIT/devsoc-backend-24/internal/models"
 	services "github.com/CodeChefVIT/devsoc-backend-24/internal/services/team"
 	"github.com/CodeChefVIT/devsoc-backend-24/internal/utils"
-	"github.com/google/uuid"
-	"github.com/labstack/echo/v4"
 )
 
 func CreateTeam(ctx echo.Context) error {
@@ -23,7 +24,10 @@ func CreateTeam(ctx echo.Context) error {
 	}
 
 	if err := ctx.Validate(&payload); err != nil {
-		return err
+		return ctx.JSON(http.StatusBadRequest, map[string]string{
+			"message": err.Error(),
+			"status":  "fail",
+		})
 	}
 
 	_, err := services.FindTeamByUserID(ctx.Get("user").(models.User).ID)
@@ -109,7 +113,10 @@ func JoinTeam(ctx echo.Context) error {
 	}
 
 	if err := ctx.Validate(&payload); err != nil {
-		return err
+		return ctx.JSON(http.StatusBadRequest, map[string]string{
+			"message": err.Error(),
+			"status":  "fail",
+		})
 	}
 
 	_, err := services.FindTeamByUserID(ctx.Get("user").(models.User).ID)
@@ -162,7 +169,10 @@ func KickMember(ctx echo.Context) error {
 	}
 
 	if err := ctx.Validate(&payload); err != nil {
-		return err
+		return ctx.JSON(http.StatusBadRequest, map[string]string{
+			"message": err.Error(),
+			"status":  "fail",
+		})
 	}
 
 	team, err := services.FindTeamByUserID(userID)

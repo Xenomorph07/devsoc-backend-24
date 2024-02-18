@@ -25,25 +25,24 @@ type User struct {
 
 type CreateUserRequest struct {
 	FirstName string `json:"first_name" validate:"required,min=1,max=20"`
-	LastName  string `json:"last_name" validate:"required,min=1,max=20"`
-	RegNo     string `json:"reg_no" validate:"required"`
-	Email     string `json:"email" validate:"required,email"`
-	Password  string `json:"password" validate:"required,min=6"`
-	Phone     string `json:"phone" validate:"required"`
-	College   string `json:"college" validate:"required"`
-	Gender    string `json:"gender" validate:"required"`
-	Country   string `json:"country" validate:"required"`
-	Github    string `json:"github" validate:"required,url"`
-	Bio       string `json:"bio" validate:"required,min=50,max=200"`
+	LastName  string `json:"last_name"  validate:"required,min=1,max=20"`
+	RegNo     string `json:"reg_no"     validate:"required"`
+	Email     string `json:"email"      validate:"required,email"`
+	Password  string `json:"password"   validate:"required,min=6"`
+	Phone     string `json:"phone"      validate:"required"`
+	College   string `json:"college"    validate:"required"`
+	Gender    string `json:"gender"     validate:"required"`
+	Country   string `json:"country"    validate:"required"`
+	Github    string `json:"github"     validate:"required,url"`
+	Bio       string `json:"bio"        validate:"required,min=50,max=200"`
 }
 
 type LoginRequest struct {
-	Email    string `json:"email" validate:"required,email"`
+	Email    string `json:"email"    validate:"required,email"`
 	Password string `json:"password" validate:"required,min=4"`
 }
 
-type RefreshRequest struct {
-	RefreshToken string `json:"refresh_token" validate:"required"`
+type VerifyUserRequest struct {
+	Email string `json:"email" validate:"required,email"`
+	OTP   string `json:"otp"   validate:"required,min=6,max=6"`
 }
-
-type LogoutRequest RefreshRequest

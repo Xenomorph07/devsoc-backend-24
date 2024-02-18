@@ -30,7 +30,10 @@ func Login(ctx echo.Context) error {
 	}
 
 	if err := ctx.Validate(&payload); err != nil {
-		return err
+		return ctx.JSON(http.StatusBadRequest, map[string]string{
+			"message": err.Error(),
+			"status":  "fail",
+		})
 	}
 
 	user, err := services.FindUserByEmail(payload.Email)
