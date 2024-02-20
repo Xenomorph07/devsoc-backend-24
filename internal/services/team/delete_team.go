@@ -7,12 +7,7 @@ import (
 
 func DeleteTeam(id uuid.UUID) error {
 
-	err := database.DB.QueryRow("DELETE FROM teams WHERE id = $1", id).Scan()
+	_, err := database.DB.Exec("DELETE FROM teams WHERE id = $1", id)
 
-	if err != nil {
-		return err
-	}
-
-	return nil
-
+	return err
 }

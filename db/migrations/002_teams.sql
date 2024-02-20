@@ -2,10 +2,11 @@
 CREATE TABLE IF NOT EXISTS teams (
     id UUID PRIMARY KEY,
     name TEXT NOT NULL UNIQUE,
-    teamcode TEXT NOT NULL UNIQUE,
-    memberid UUID[] NOT NULL,
-    projectid UUID NOT NULL,
-    ideaid UUID NOT NULL,
+    code TEXT NOT NULL UNIQUE,
+    leader_id UUID NOT NULL,
+    members_id UUID[] NOT NULL,
+    projectid UUID,
+    ideaid UUID,
     round INTEGER NOT NULL DEFAULT 1
 );
 

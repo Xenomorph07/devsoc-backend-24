@@ -20,7 +20,7 @@ type User struct {
 	IsAdded    bool      `json:"-"`
 	IsVitian   bool      `json:"-"`
 	IsVerified bool      `json:"-"`
-	TeamID     int       `json:"team_id"`
+	TeamID     uuid.UUID `json:"team_id"`
 }
 
 type CreateUserRequest struct {

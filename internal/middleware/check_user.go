@@ -3,6 +3,7 @@ package middleware
 import (
 	"database/sql"
 	"errors"
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -32,7 +33,8 @@ func AuthUser(next echo.HandlerFunc) echo.HandlerFunc {
 		}
 
 		email := claims["sub"].(string)
-		tokenVersionStr, err := database.RedisClient.Get(email)
+		fmt.Println(email)
+		tokenVersionStr, err := database.RedisClient.Get("token_version:" + email)
 		if err != nil {
 			if err == redis.Nil {
 				return c.JSON(http.StatusUnauthorized, map[string]string{
@@ -47,6 +49,11 @@ func AuthUser(next echo.HandlerFunc) echo.HandlerFunc {
 		}
 
 		tokenVersion, _ := strconv.Atoi(tokenVersionStr)
+
+		fmt.Println(tokenVersionStr)
+
+		fmt.Println(claims["version"].(float64))
+		fmt.Println(tokenVersion)
 
 		if int(claims["version"].(float64)) != tokenVersion {
 			return c.JSON(http.StatusForbidden, map[string]string{
@@ -65,6 +72,7 @@ func AuthUser(next echo.HandlerFunc) echo.HandlerFunc {
 			}
 		}
 
+		fmt.Println("user :- ", user)
 		c.Set("user", user)
 
 		return next(c)

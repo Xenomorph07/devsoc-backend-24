@@ -24,7 +24,8 @@ func CreateTeam(ctx echo.Context) error {
 		return err
 	}
 
-	_, err := services.FindTeamByUserID(ctx.Get("user").(models.User).ID)
+	userid := ctx.Get("user").(*models.User).ID
+	err := services.CheckUserTeam(userid)
 	if err == nil {
 		return ctx.JSON(http.StatusBadRequest, map[string]string{
 			"message": "user is already in a team",
@@ -32,13 +33,13 @@ func CreateTeam(ctx echo.Context) error {
 		})
 	}
 
-	_, err = services.FindTeamByName(payload.Name)
+	/*_, err = services.FindTeamByName(payload.Name)
 	if err == nil {
 		return ctx.JSON(http.StatusBadRequest, map[string]string{
 			"message": "team name already exists",
 			"status":  "failed to create team",
 		})
-	}
+	}*/
 
 	code, err := utils.GenerateUniqueTeamCode()
 	if err != nil {
@@ -53,10 +54,8 @@ func CreateTeam(ctx echo.Context) error {
 		Name:     payload.Name,
 		Code:     code,
 		Round:    0,
-		LeaderID: ctx.Get("user").(models.User).ID,
-		Users:    []models.User{ctx.Get("user").(models.User)},
-		Idea:     models.Idea{},
-		Project:  models.Project{},
+		Users:    []uuid.UUID{userid},
+		LeaderID: userid,
 	}
 
 	if err := services.CreateTeam(team); err != nil {
@@ -73,7 +72,7 @@ func CreateTeam(ctx echo.Context) error {
 }
 
 func GetTeamDetails(ctx echo.Context) error {
-	var userID = ctx.Get("user").(models.User).ID
+	var userID = ctx.Get("user").(*models.User).ID
 
 	team, err := services.FindTeamByUserID(userID)
 
@@ -105,7 +104,9 @@ func JoinTeam(ctx echo.Context) error {
 		return err
 	}
 
-	_, err := services.FindTeamByUserID(ctx.Get("user").(models.User).ID)
+	user_id := ctx.Get("user").(*models.User).ID
+
+	_, err := services.FindTeamByUserID(user_id)
 	if err == nil {
 		return ctx.JSON(http.StatusBadRequest, map[string]string{
 			"message": "user is already in a team",
@@ -128,9 +129,9 @@ func JoinTeam(ctx echo.Context) error {
 		})
 	}
 
-	team.Users = append(team.Users, ctx.Get("user").(models.User))
+	team.Users = append(team.Users, user_id)
 
-	if err := services.UpdateTeam(*team); err != nil {
+	if err := services.UpdateTeam(team); err != nil {
 		return ctx.JSON(http.StatusInternalServerError, map[string]string{
 			"message": err.Error(),
 			"status":  "failed to join team",
@@ -145,7 +146,7 @@ func JoinTeam(ctx echo.Context) error {
 
 func KickMember(ctx echo.Context) error {
 	var payload models.KickMemberRequest
-	var userID = ctx.Get("user").(models.User).ID
+	var userID = ctx.Get("user").(*models.User).ID
 
 	if err := ctx.Bind(&payload); err != nil {
 		return ctx.JSON(http.StatusBadRequest, map[string]string{
@@ -175,7 +176,7 @@ func KickMember(ctx echo.Context) error {
 
 	var isValid bool = false
 	for i, user := range team.Users {
-		if user.ID == payload.UserID {
+		if user == payload.UserID {
 			team.Users = append(team.Users[:i], team.Users[i+1:]...)
 			isValid = true
 			break
@@ -189,7 +190,7 @@ func KickMember(ctx echo.Context) error {
 		})
 	}
 
-	if err := services.UpdateTeam(*team); err != nil {
+	if err := services.UpdateTeam(team); err != nil {
 		return ctx.JSON(http.StatusInternalServerError, map[string]string{
 			"message": err.Error(),
 			"status":  "failed to kick member",
@@ -203,7 +204,7 @@ func KickMember(ctx echo.Context) error {
 }
 
 func LeaveTeam(ctx echo.Context) error {
-	var userID = ctx.Get("user").(models.User).ID
+	var userID = ctx.Get("user").(*models.User).ID
 
 	team, err := services.FindTeamByUserID(userID)
 	if err != nil {
@@ -229,7 +230,7 @@ func LeaveTeam(ctx echo.Context) error {
 
 	var isValid bool = false
 	for i, user := range team.Users {
-		if user.ID == userID {
+		if user == userID {
 			team.Users = append(team.Users[:i], team.Users[i+1:]...)
 			isValid = true
 			break
@@ -243,7 +244,7 @@ func LeaveTeam(ctx echo.Context) error {
 		})
 	}
 
-	if err := services.UpdateTeam(*team); err != nil {
+	if err := services.UpdateTeam(team); err != nil {
 		return ctx.JSON(http.StatusInternalServerError, map[string]string{
 			"message": err.Error(),
 			"status":  "failed to leave team",

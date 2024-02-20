@@ -18,7 +18,7 @@ CREATE TABLE users (
     is_added BOOLEAN NOT NULL,
     is_vitian BOOLEAN NOT NULL,
     is_verified BOOLEAN NOT NULL,
-    team_id INT
+    team_id UUID
 );
 
 -- +goose Down

@@ -52,7 +52,7 @@ func CreateUser(ctx echo.Context) error {
 		IsAdded:    false,
 		IsVitian:   isVitian,
 		IsVerified: false,
-		TeamID:     0,
+		//TeamID:     0,
 	}
 
 	if err := services.InsertUser(user); err != nil {
