@@ -6,11 +6,12 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/CodeChefVIT/devsoc-backend-24/internal/database"
-	services "github.com/CodeChefVIT/devsoc-backend-24/internal/services/user"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/labstack/echo/v4"
 	"github.com/redis/go-redis/v9"
+
+	"github.com/CodeChefVIT/devsoc-backend-24/internal/database"
+	services "github.com/CodeChefVIT/devsoc-backend-24/internal/services/user"
 )
 
 func AuthUser(next echo.HandlerFunc) echo.HandlerFunc {
@@ -32,7 +33,7 @@ func AuthUser(next echo.HandlerFunc) echo.HandlerFunc {
 		}
 
 		email := claims["sub"].(string)
-		tokenVersionStr, err := database.RedisClient.Get(email)
+		tokenVersionStr, err := database.RedisClient.Get("token_version:" + email)
 		if err != nil {
 			if err == redis.Nil {
 				return c.JSON(http.StatusUnauthorized, map[string]string{

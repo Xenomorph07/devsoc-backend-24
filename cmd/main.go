@@ -6,13 +6,14 @@ import (
 	"os"
 	"os/signal"
 
+	"github.com/go-playground/validator/v10"
+	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
+
 	"github.com/CodeChefVIT/devsoc-backend-24/config"
 	"github.com/CodeChefVIT/devsoc-backend-24/internal/database"
 	"github.com/CodeChefVIT/devsoc-backend-24/internal/routes"
 	"github.com/CodeChefVIT/devsoc-backend-24/internal/utils"
-	"github.com/go-playground/validator/v10"
-	"github.com/labstack/echo/v4"
-	"github.com/labstack/echo/v4/middleware"
 )
 
 func init() {
@@ -25,9 +26,17 @@ func init() {
 
 func main() {
 	app := echo.New()
-	app.Validator = &utils.Validator{Validator: validator.New(validator.WithRequiredStructEnabled())}
+	app.Validator = &utils.Validator{
+		Validator: validator.New(validator.WithRequiredStructEnabled()),
+	}
 
 	app.Use(middleware.Logger())
+	app.Use(middleware.CORSWithConfig(middleware.CORSConfig{
+		AllowOrigins:     []string{"http://localhost:3000"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "Accept", "Authorization"},
+		AllowMethods:     []string{"GET", "POST", "PATCH", "DELETE"},
+		AllowCredentials: true,
+	}))
 
 	app.GET("/ping", func(ctx echo.Context) error {
 		return ctx.JSON(http.StatusOK, map[string]string{
@@ -37,7 +46,7 @@ func main() {
 	})
 
 	app.HTTPErrorHandler = func(err error, c echo.Context) {
-		code := http.StatusInternalServerError
+		code := http.StatusTeapot
 		message := "Route Not found"
 
 		if he, ok := err.(*echo.HTTPError); ok {
@@ -47,7 +56,7 @@ func main() {
 
 		app.Logger.Error(err)
 		c.JSON(code, map[string]interface{}{
-			"code": code,
+			"code":    code,
 			"status":  "fail",
 			"message": message,
 		})
