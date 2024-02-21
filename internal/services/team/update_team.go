@@ -1,9 +1,10 @@
 package services
 
 import (
+	"database/sql"
+
 	"github.com/CodeChefVIT/devsoc-backend-24/internal/database"
-	"github.com/CodeChefVIT/devsoc-backend-24/internal/models"
-	"github.com/lib/pq"
+	"github.com/google/uuid"
 )
 
 /*func UpdateTeam(team models.Team) error {
@@ -13,7 +14,14 @@ import (
 	return err
 }*/
 
-func UpdateTeam(team models.Team) error {
-	_, err := database.DB.Exec("UPDATE teams SET members_id = $1 where id = $2", pq.Array(team.Users), team.ID)
-	return err
+func UpdateUserTeamDetails(teamid uuid.UUID, user_id uuid.UUID) error {
+	if teamid == uuid.Nil {
+		var temp sql.NullString
+		temp.Valid = false
+		_, err := database.DB.Exec("UPDATE users SET team_id = $1 where id = $2", temp, user_id)
+		return err
+	} else {
+		_, err := database.DB.Exec("UPDATE users SET team_id = $1 where id = $2", teamid, user_id)
+		return err
+	}
 }

@@ -8,10 +8,12 @@ type Team struct {
 	Code  string    `json:"code"`
 	Round int       `json:"round"`
 	//Users    []uuid.UUID `json:"member_id"`
-	LeaderID uuid.UUID `json:"leader_id"`
-	Users    []User    `json:"users"`
-	/*Idea     Idea      `json:"idea"`
-	Project  Project   `json:"project"`*/
+	LeaderID  uuid.UUID `json:"leader_id"`
+	ProjectID uuid.UUID `json:"project_id"`
+	IdeaID    uuid.UUID `json:"idea_id"`
+	Users     []User    `json:"users"`
+	Idea      Idea      `json:"idea"`
+	Project   Project   `json:"project"`
 }
 
 type CreateTeamRequest struct {

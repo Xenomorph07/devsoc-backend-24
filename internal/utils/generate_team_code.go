@@ -11,7 +11,7 @@ func GenerateUniqueTeamCode() string {
 
 	for {
 		code := fmt.Sprintf("%06s", uuid.New().String()[:6])
-		if services.CheckTeamCode(code) {
+		if !services.CheckTeamCode(code) {
 			return code
 		} else {
 			continue

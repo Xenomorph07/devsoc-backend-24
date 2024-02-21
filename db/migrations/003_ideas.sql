@@ -3,9 +3,8 @@ CREATE TABLE IF NOT EXISTS ideas (
     id UUID PRIMARY KEY,
     title TEXT NOT NULL,
     description TEXT NOT NULL,
-    video TEXT NOT NULL DEFAULT '',
-    github TEXT NOT NULL DEFAULT '',
-    figma TEXT NOT NULL DEFAULT ''
+    track TEXT NOT NULL,
+    is_selected BOOLEAN NOT NULL DEFAULT false
 );
 
 -- +goose Down
