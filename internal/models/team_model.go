@@ -3,14 +3,14 @@ package models
 import "github.com/google/uuid"
 
 type Team struct {
-	ID       uuid.UUID   `json:"id"`
-	Name     string      `json:"name"`
-	Code     string      `json:"code"`
-	Round    int         `json:"round"`
-	Users    []uuid.UUID `json:"member_id"`
-	LeaderID uuid.UUID   `json:"leader_id"`
-	/*Users    []User    `json:"users"`
-	Idea     Idea      `json:"idea"`
+	ID    uuid.UUID `json:"id"`
+	Name  string    `json:"name"`
+	Code  string    `json:"code"`
+	Round int       `json:"round"`
+	//Users    []uuid.UUID `json:"member_id"`
+	LeaderID uuid.UUID `json:"leader_id"`
+	Users    []User    `json:"users"`
+	/*Idea     Idea      `json:"idea"`
 	Project  Project   `json:"project"`*/
 }
 

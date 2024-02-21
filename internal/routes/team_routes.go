@@ -12,7 +12,7 @@ func TeamRoutes(incomingRoutes *echo.Echo) {
 	team.Use(middleware.AuthUser)
 	team.GET("/", controllers.GetTeamDetails)
 	team.POST("/create", controllers.CreateTeam)
-	team.POST("/join", controllers.JoinTeam)
-	team.DELETE("/leave", controllers.LeaveTeam)
-	team.POST("/kick", controllers.KickMember)
+	//team.POST("/join", controllers.JoinTeam)
+	//team.DELETE("/leave", controllers.LeaveTeam)
+	//team.POST("/kick", controllers.KickMember)
 }

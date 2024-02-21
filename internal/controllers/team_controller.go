@@ -33,28 +33,20 @@ func CreateTeam(ctx echo.Context) error {
 		})
 	}
 
-	/*_, err = services.FindTeamByName(payload.Name)
-	if err == nil {
+	if services.CheckTeamName(payload.Name) {
 		return ctx.JSON(http.StatusBadRequest, map[string]string{
 			"message": "team name already exists",
 			"status":  "failed to create team",
 		})
-	}*/
-
-	code, err := utils.GenerateUniqueTeamCode()
-	if err != nil {
-		return ctx.JSON(http.StatusInternalServerError, map[string]string{
-			"message": err.Error(),
-			"status":  "failed to generate team code",
-		})
 	}
+
+	code := utils.GenerateUniqueTeamCode()
 
 	team := models.Team{
 		ID:       uuid.New(),
 		Name:     payload.Name,
 		Code:     code,
 		Round:    0,
-		Users:    []uuid.UUID{userid},
 		LeaderID: userid,
 	}
 
@@ -72,9 +64,9 @@ func CreateTeam(ctx echo.Context) error {
 }
 
 func GetTeamDetails(ctx echo.Context) error {
-	var userID = ctx.Get("user").(*models.User).ID
+	var user = ctx.Get("user").(*models.User)
 
-	team, err := services.FindTeamByUserID(userID)
+	team, err := services.FindTeamByTeamID(user.TeamID)
 
 	if err != nil {
 		return ctx.JSON(http.StatusInternalServerError, map[string]string{
@@ -90,7 +82,7 @@ func GetTeamDetails(ctx echo.Context) error {
 	})
 }
 
-func JoinTeam(ctx echo.Context) error {
+/*func JoinTeam(ctx echo.Context) error {
 	var payload models.JoinTeamRequest
 
 	if err := ctx.Bind(&payload); err != nil {
@@ -129,9 +121,9 @@ func JoinTeam(ctx echo.Context) error {
 		})
 	}
 
-	team.Users = append(team.Users, user_id)
+	//team.Users = append(team.Users, user_id)
 
-	if err := services.UpdateTeam(team); err != nil {
+	if err := services.UpdateUserTeamDetails(user_id); err != nil {
 		return ctx.JSON(http.StatusInternalServerError, map[string]string{
 			"message": err.Error(),
 			"status":  "failed to join team",
@@ -174,7 +166,7 @@ func KickMember(ctx echo.Context) error {
 		})
 	}
 
-	var isValid bool = false
+	/*var isValid bool = false
 	for i, user := range team.Users {
 		if user == payload.UserID {
 			team.Users = append(team.Users[:i], team.Users[i+1:]...)
@@ -255,4 +247,4 @@ func LeaveTeam(ctx echo.Context) error {
 		"message": "team left successfully",
 		"status":  "success",
 	})
-}
+}*/
