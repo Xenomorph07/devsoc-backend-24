@@ -4,7 +4,8 @@ CREATE TABLE IF NOT EXISTS ideas (
     title TEXT NOT NULL,
     description TEXT NOT NULL,
     track TEXT NOT NULL,
-    is_selected BOOLEAN NOT NULL DEFAULT false
+    is_selected BOOLEAN NOT NULL DEFAULT false,
+    teamid UUID NOT NULL UNIQUE
 );
 
 -- +goose Down

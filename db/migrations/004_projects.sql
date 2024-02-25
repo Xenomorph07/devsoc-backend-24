@@ -5,7 +5,8 @@ CREATE TABLE IF NOT EXISTS projects(
     description TEXT NOT NULL,
     github TEXT NOT NULL default '',
     figma TEXT NOT NULL default '',
-    track TEXT NOT NULL default ''
+    track TEXT NOT NULL default '',
+    teamid UUID NOT NULL UNIQUE
 );
 
 -- +goose Down

@@ -1,0 +1,33 @@
+package services
+
+import (
+	"context"
+	"database/sql"
+
+	"github.com/CodeChefVIT/devsoc-backend-24/internal/database"
+	"github.com/CodeChefVIT/devsoc-backend-24/internal/models"
+	"github.com/google/uuid"
+)
+
+func CreateProject(proj models.CreateUpdateProjectRequest, teamid uuid.UUID) error {
+	query := `INSERT INTO projects VALUES($1,$2,$3,$4,$5,$6,$7)`
+	tx, _ := database.DB.BeginTx(context.Background(), &sql.TxOptions{Isolation: sql.LevelSerializable})
+	id := uuid.New()
+	_, err := tx.Exec(query, id, proj.Name, proj.Description, proj.Track, proj.GithubLink, proj.FigmaLink, teamid)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+	query = `UPDATE teams SET projectid = $1 where id = $2`
+	_, err = tx.Exec(query, id, teamid)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+	err = tx.Commit()
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+	return nil
+}

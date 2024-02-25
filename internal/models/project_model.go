@@ -9,9 +9,9 @@ type Project struct {
 	Track       string    `json:"track"`
 	GithubLink  string    `json:"github_link"`
 	FigmaLink   string    `json:"figma_link"`
-	VideoLink   string    `json:"video_link"`
-	DriveLink   string    `json:"drive_link"`
-	TeamID      uuid.UUID `json:"team_id"`
+	/*VideoLink   string    `json:"video_link"`
+	DriveLink   string    `json:"drive_link"`*/
+	TeamID uuid.UUID `json:"team_id"`
 }
 
 type CreateUpdateProjectRequest struct {
@@ -20,6 +20,6 @@ type CreateUpdateProjectRequest struct {
 	Track       string `json:"track" validate:"required"`
 	GithubLink  string `json:"github_link" validate:"required"`
 	FigmaLink   string `json:"figma_link" validate:"required"`
-	VideoLink   string `json:"video_link" validate:"required"`
-	DriveLink   string `json:"drive_link" validate:"required"`
+	/*VideoLink   string `json:"video_link" validate:"required"`
+	DriveLink   string `json:"drive_link" validate:"required"`*/
 }

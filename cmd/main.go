@@ -56,6 +56,8 @@ func main() {
 	routes.UserRoutes(app)
 	routes.AuthRoutes(app)
 	routes.TeamRoutes(app)
+	routes.IdeaRoutes(app)
+	routes.ProjectRoutes(app)
 
 	// Graceful quit
 	c := make(chan os.Signal, 1)
