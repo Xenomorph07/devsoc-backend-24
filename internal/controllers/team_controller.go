@@ -2,13 +2,14 @@ package controllers
 
 import (
 	"database/sql"
-	"fmt"
+	"errors"
 	"net/http"
 
 	"github.com/CodeChefVIT/devsoc-backend-24/internal/models"
 	services "github.com/CodeChefVIT/devsoc-backend-24/internal/services/team"
 	"github.com/CodeChefVIT/devsoc-backend-24/internal/utils"
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/labstack/echo/v4"
 )
 
@@ -26,18 +27,10 @@ func CreateTeam(ctx echo.Context) error {
 		return err
 	}
 
-	userid := ctx.Get("user").(*models.User).ID
-	err := services.CheckUserTeam(userid)
-	if err == nil {
+	user := ctx.Get("user").(*models.User)
+	if user.TeamID != uuid.Nil {
 		return ctx.JSON(http.StatusBadRequest, map[string]string{
 			"message": "user is already in a team",
-			"status":  "failed to create team",
-		})
-	}
-
-	if services.CheckTeamName(payload.Name) {
-		return ctx.JSON(http.StatusBadRequest, map[string]string{
-			"message": "team name already exists",
 			"status":  "failed to create team",
 		})
 	}
@@ -49,19 +42,24 @@ func CreateTeam(ctx echo.Context) error {
 		Name:     payload.Name,
 		Code:     code,
 		Round:    0,
-		LeaderID: userid,
+		LeaderID: user.ID,
 	}
 
-	fmt.Println("checkpoint 1")
-
 	if err := services.CreateTeam(team); err != nil {
+		var pgerr *pgconn.PgError
+		if errors.As(err, &pgerr) {
+			if pgerr.Code == "23505" {
+				return ctx.JSON(http.StatusBadRequest, map[string]string{
+					"message": "team name already exists",
+					"status":  "failed to create team",
+				})
+			}
+		}
 		return ctx.JSON(http.StatusInternalServerError, map[string]string{
 			"message": err.Error(),
 			"status":  "failed to create team",
 		})
 	}
-
-	fmt.Println("checkpoint 2")
 
 	return ctx.JSON(http.StatusCreated, map[string]string{
 		"message": "team created successfully",
@@ -71,6 +69,13 @@ func CreateTeam(ctx echo.Context) error {
 
 func GetTeamDetails(ctx echo.Context) error {
 	var user = ctx.Get("user").(*models.User)
+
+	if user.TeamID == uuid.Nil {
+		return ctx.JSON(http.StatusExpectationFailed, map[string]string{
+			"message": "The user is not in a team",
+			"status":  "false",
+		})
+	}
 
 	team, err := services.FindTeamByTeamID(user.TeamID)
 
@@ -117,16 +122,15 @@ func JoinTeam(ctx echo.Context) error {
 		})
 	}
 
-	if !services.CheckTeamCode(payload.Code) {
-		return ctx.JSON(http.StatusBadRequest, map[string]string{
-			"message": "team code is invalid",
-			"status":  "failed to join team",
-		})
-	}
-
 	team, err := services.FindTeamByCode(payload.Code)
 
 	if err != nil {
+		if err == sql.ErrNoRows {
+			return ctx.JSON(http.StatusBadRequest, map[string]string{
+				"message": "team code is invalid",
+				"status":  "failed to join team",
+			})
+		}
 		return ctx.JSON(http.StatusInternalServerError, map[string]string{
 			"message": "Failed to get team details",
 			"status":  "false",

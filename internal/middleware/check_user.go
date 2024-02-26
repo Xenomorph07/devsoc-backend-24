@@ -33,7 +33,7 @@ func AuthUser(next echo.HandlerFunc) echo.HandlerFunc {
 		}
 
 		email := claims["sub"].(string)
-		fmt.Println(email)
+
 		tokenVersionStr, err := database.RedisClient.Get("token_version:" + email)
 		if err != nil {
 			if err == redis.Nil {
@@ -49,11 +49,6 @@ func AuthUser(next echo.HandlerFunc) echo.HandlerFunc {
 		}
 
 		tokenVersion, _ := strconv.Atoi(tokenVersionStr)
-
-		fmt.Println(tokenVersionStr)
-
-		fmt.Println(claims["version"].(float64))
-		fmt.Println(tokenVersion)
 
 		if int(claims["version"].(float64)) != tokenVersion {
 			return c.JSON(http.StatusForbidden, map[string]string{

@@ -53,6 +53,7 @@ func CreateProject(ctx echo.Context) error {
 
 	return ctx.JSON(http.StatusAccepted, response{
 		Message: "Project successfully created",
+		Status:  true,
 	})
 }
 
@@ -75,12 +76,13 @@ func UpdateProject(ctx echo.Context) error {
 	err := services.UpdateProject(req, user.TeamID)
 	if err != nil {
 		return ctx.JSON(http.StatusInternalServerError, response{
-			Message: "Failed to create the project",
+			Message: "Failed to update the project" + err.Error(),
 			Status:  false,
 		})
 	}
 
 	return ctx.JSON(http.StatusAccepted, response{
-		Message: "Project successfully created",
+		Message: "Project successfully updated",
+		Status:  true,
 	})
 }
