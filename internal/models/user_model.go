@@ -60,6 +60,12 @@ type VerifyUserRequest struct {
 	OTP   string `json:"otp"   validate:"required,min=6,max=6"`
 }
 
+type GetUser struct {
+	FirstName string `json:"first_name"`
+	LastName  string `json:"last_name"`
+	RegNo     string `json:"reg_no"`
+	Email     string `json:"email"`
+}
 type ResendOTPRequest struct {
 	Email string `json:"email" validate:"required,email"`
 	Type  string `json:"type"  validate:"required,oneof=verification resetpass"`

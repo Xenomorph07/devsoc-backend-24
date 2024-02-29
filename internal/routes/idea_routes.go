@@ -9,6 +9,7 @@ import (
 func IdeaRoutes(incomingRoutes *echo.Echo) {
 	idea := incomingRoutes.Group("/idea")
 	idea.Use(middleware.Protected())
+	idea.Use(middleware.AuthUser)
 	idea.GET("/", controllers.GetIdea)
 	idea.POST("/create", controllers.CreateIdea)
 	idea.PATCH("/update", controllers.UpdateIdea)

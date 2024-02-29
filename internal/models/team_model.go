@@ -3,14 +3,17 @@ package models
 import "github.com/google/uuid"
 
 type Team struct {
-	ID       uuid.UUID `json:"id"`
-	Name     string    `json:"name"`
-	Code     string    `json:"code"`
-	Round    int       `json:"round"`
-	LeaderID uuid.UUID `json:"leader_id"`
-	Users    []User    `json:"users"`
-	Idea     Idea      `json:"idea"`
-	Project  Project   `json:"project"`
+	ID    uuid.UUID `json:"id"`
+	Name  string    `json:"name"`
+	Code  string    `json:"code"`
+	Round int       `json:"round"`
+	//Users    []uuid.UUID `json:"member_id"`
+	LeaderID  uuid.UUID `json:"leader_id"`
+	ProjectID uuid.UUID `json:"project_id"`
+	IdeaID    uuid.UUID `json:"idea_id"`
+	Users     []User    `json:"users"`
+	Idea      Idea      `json:"idea"`
+	Project   Project   `json:"project"`
 }
 
 type CreateTeamRequest struct {
@@ -22,5 +25,15 @@ type JoinTeamRequest struct {
 }
 
 type KickMemberRequest struct {
-	UserID uuid.UUID `json:"user_id" validate:"required"`
+	UserEmail string `json:"email" validate:"required"`
+}
+
+type GetTeam struct {
+	TeamName string     `json:"team_name"`
+	TeamCode string     `json:"team_code"`
+	LeaderID uuid.UUID  `json:"leaderid"`
+	Round    int        `json:"round"`
+	Users    []GetUser  `json:"users"`
+	Ideas    GetIdea    `json:"idea"`
+	Project  GetProject `json:"project"`
 }

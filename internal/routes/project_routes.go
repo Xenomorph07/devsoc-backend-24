@@ -9,6 +9,7 @@ import (
 func ProjectRoutes(incomingRoutes *echo.Echo) {
 	project := incomingRoutes.Group("/project")
 	project.Use(middleware.Protected())
+	project.Use(middleware.AuthUser)
 	project.GET("/", controllers.GetProject)
 	project.POST("/create", controllers.CreateProject)
 	project.PATCH("/update", controllers.UpdateProject)

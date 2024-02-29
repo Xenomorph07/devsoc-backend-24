@@ -17,5 +17,11 @@ func FindUserByEmail(email string) (*models.User, error) {
 		return nil, err
 	}
 
+	/*if check.Valid {
+		user.TeamID = check.UUID
+	} else {
+		user.TeamID = uuid.Nil
+	}*/
+
 	return &user, nil
 }

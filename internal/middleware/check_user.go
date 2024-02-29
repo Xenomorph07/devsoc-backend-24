@@ -33,6 +33,7 @@ func AuthUser(next echo.HandlerFunc) echo.HandlerFunc {
 		}
 
 		email := claims["sub"].(string)
+
 		tokenVersionStr, err := database.RedisClient.Get("token_version:" + email)
 		if err != nil {
 			if err == redis.Nil {

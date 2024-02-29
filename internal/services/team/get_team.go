@@ -1,46 +1,81 @@
 package services
 
 import (
+	"database/sql"
+	"strconv"
+
 	"github.com/CodeChefVIT/devsoc-backend-24/internal/database"
 	"github.com/CodeChefVIT/devsoc-backend-24/internal/models"
 	"github.com/google/uuid"
 )
 
-func FindTeamByCode(code string) (*models.Team, error) {
-	var team models.Team
+func FindTeamByTeamID(team_id uuid.UUID) (models.GetTeam, error) {
+	var team models.GetTeam
 
-	err := database.DB.QueryRow("SELECT id, name, code, round, leader_id, users, idea, project FROM teams WHERE code = $1",
-		code).Scan(&team.ID, &team.Name, &team.Code, &team.Round, &team.LeaderID, &team.Users, &team.Idea, &team.Project)
+	query := `SELECT teams.name,teams.code, teams.leader_id, teams.round ,
+	users.first_name, users.last_name, users.email, users.reg_no, 
+	ideas.title, ideas.description, ideas.track , 
+	projects.name, projects.description, projects.github, projects.figma, projects.track, projects.others
+	FROM teams
+	INNER JOIN users ON users.team_id = teams.id
+	LEFT JOIN projects ON teams.projectid = projects.id
+	LEFT JOIN ideas ON teams.ideaid = ideas.id 
+	WHERE teams.id = $1 `
+
+	rows, err := database.DB.Query(query, team_id)
 
 	if err != nil {
-		return nil, err
+		return team, err
 	}
 
-	return &team, nil
+	defer rows.Close()
+
+	columns, err := rows.Columns()
+	if err != nil {
+		return team, err
+	}
+
+	values := make([]sql.NullString, len(columns))
+
+	columnPointers := make([]interface{}, len(columns))
+	for i := range values {
+		columnPointers[i] = &values[i]
+	}
+
+	for rows.Next() {
+		if err := rows.Scan(columnPointers...); err != nil {
+			return team, err
+		}
+		team.TeamName = values[0].String
+		team.TeamCode = values[1].String
+		team.LeaderID = uuid.MustParse(values[2].String)
+		team.Round, _ = strconv.Atoi(values[3].String)
+		if values[8].Valid {
+			team.Ideas = models.GetIdea{Title: values[8].String,
+				Description: values[9].String, Track: values[10].String}
+		}
+		if values[11].Valid {
+			team.Project = models.GetProject{Name: values[11].String,
+				Description: values[12].String, GithubLink: values[13].String,
+				FigmaLink: values[14].String, Track: values[15].String, Others: values[16].String}
+		}
+		team.Users = append(team.Users, models.GetUser{FirstName: values[4].String,
+			LastName: values[5].String, Email: values[6].String,
+			RegNo: values[7].String})
+	}
+
+	if len(team.Users) == 0 {
+		return team, sql.ErrNoRows
+	}
+
+	return team, nil
 }
 
-func FindTeamByUserID(userID uuid.UUID) (*models.Team, error) {
+func FindTeamByCode(code string) (models.Team, error) {
 	var team models.Team
 
-	err := database.DB.QueryRow("SELECT id, name, code, round, leader_id, users, idea, project FROM teams WHERE $1 = ANY(users)",
-		userID).Scan(&team.ID, &team.Name, &team.Code, &team.Round, &team.LeaderID, &team.Users, &team.Idea, &team.Project)
+	err := database.DB.QueryRow("SELECT id,name,code,round,leader_id FROM teams WHERE code = $1", code).
+		Scan(&team.ID, &team.Name, &team.Code, &team.Round, &team.LeaderID)
 
-	if err != nil {
-		return nil, err
-	}
-
-	return &team, nil
-}
-
-func FindTeamByName(name string) (*models.Team, error) {
-	var team models.Team
-
-	err := database.DB.QueryRow("SELECT id, name, code, round, leader_id, users, idea, project FROM teams WHERE name = $1",
-		name).Scan(&team.ID, &team.Name, &team.Code, &team.Round, &team.LeaderID, &team.Users, &team.Idea, &team.Project)
-
-	if err != nil {
-		return nil, err
-	}
-
-	return &team, nil
+	return team, err
 }

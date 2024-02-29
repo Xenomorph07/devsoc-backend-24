@@ -11,6 +11,7 @@ import (
 	"github.com/CodeChefVIT/devsoc-backend-24/internal/models"
 	services "github.com/CodeChefVIT/devsoc-backend-24/internal/services/team"
 	"github.com/CodeChefVIT/devsoc-backend-24/internal/utils"
+	"github.com/jackc/pgx/v5/pgconn"
 )
 
 func CreateTeam(ctx echo.Context) error {
@@ -30,42 +31,34 @@ func CreateTeam(ctx echo.Context) error {
 		})
 	}
 
-	_, err := services.FindTeamByUserID(ctx.Get("user").(*models.User).ID)
-	if err == nil {
-		return ctx.JSON(http.StatusBadRequest, map[string]string{
+	user := ctx.Get("user").(*models.User)
+	if user.TeamID != uuid.Nil {
+		return ctx.JSON(http.StatusExpectationFailed, map[string]string{
 			"message": "user is already in a team",
 			"status":  "fail",
 		})
 	}
 
-	_, err = services.FindTeamByName(payload.Name)
-	if err == nil {
-		return ctx.JSON(http.StatusBadRequest, map[string]string{
-			"message": "team name already exists",
-			"status":  "fail",
-		})
-	}
-
-	code, err := utils.GenerateUniqueTeamCode()
-	if err != nil {
-		return ctx.JSON(http.StatusInternalServerError, map[string]string{
-			"message": err.Error(),
-			"status":  "error",
-		})
-	}
+	code := utils.GenerateUniqueTeamCode()
 
 	team := models.Team{
 		ID:       uuid.New(),
 		Name:     payload.Name,
 		Code:     code,
 		Round:    0,
-		LeaderID: ctx.Get("user").(models.User).ID,
-		Users:    []models.User{ctx.Get("user").(models.User)},
-		Idea:     models.Idea{},
-		Project:  models.Project{},
+		LeaderID: user.ID,
 	}
 
 	if err := services.CreateTeam(team); err != nil {
+		var pgerr *pgconn.PgError
+		if errors.As(err, &pgerr) {
+			if pgerr.Code == "23505" {
+				return ctx.JSON(http.StatusConflict, map[string]string{
+					"message": "team name already exists",
+					"status":  "failed to create team",
+				})
+			}
+		}
 		return ctx.JSON(http.StatusInternalServerError, map[string]string{
 			"message": err.Error(),
 			"status":  "error",
@@ -79,14 +72,22 @@ func CreateTeam(ctx echo.Context) error {
 }
 
 func GetTeamDetails(ctx echo.Context) error {
-	userID := ctx.Get("user").(models.User).ID
+	var user = ctx.Get("user").(*models.User)
 
-	team, err := services.FindTeamByUserID(userID)
+	if user.TeamID == uuid.Nil {
+		return ctx.JSON(http.StatusExpectationFailed, map[string]string{
+			"message": "The user is not in a team",
+			"status":  "false",
+		})
+	}
+
+	team, err := services.FindTeamByTeamID(user.TeamID)
+
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return ctx.JSON(http.StatusNotFound, map[string]string{
-				"status":  "fail",
-				"message": "user is not in a team",
+		if err == sql.ErrNoRows {
+			return ctx.JSON(http.StatusConflict, map[string]string{
+				"message": "The user team id does not exist",
+				"status":  "false",
 			})
 		}
 		return ctx.JSON(http.StatusInternalServerError, map[string]string{
@@ -119,32 +120,38 @@ func JoinTeam(ctx echo.Context) error {
 		})
 	}
 
-	_, err := services.FindTeamByUserID(ctx.Get("user").(models.User).ID)
-	if err == nil {
-		return ctx.JSON(http.StatusBadRequest, map[string]string{
+	user := ctx.Get("user").(*models.User)
+
+	if user.TeamID != uuid.Nil {
+		return ctx.JSON(http.StatusExpectationFailed, map[string]string{
 			"message": "user is already in a team",
 			"status":  "fail",
 		})
 	}
 
 	team, err := services.FindTeamByCode(payload.Code)
+
 	if err != nil {
-		return ctx.JSON(http.StatusBadRequest, map[string]string{
-			"message": "team code is invalid",
-			"status":  "fail",
+		if err == sql.ErrNoRows {
+			return ctx.JSON(http.StatusConflict, map[string]string{
+				"message": "team code is invalid",
+				"status":  "failed to join team",
+			})
+		}
+		return ctx.JSON(http.StatusInternalServerError, map[string]string{
+			"message": "Failed to get team details",
+			"status":  "false",
 		})
 	}
 
-	if len(team.Users) >= 4 {
-		return ctx.JSON(http.StatusBadRequest, map[string]string{
+	if services.CheckTeamSize(team.ID) {
+		return ctx.JSON(http.StatusFailedDependency, map[string]string{
 			"message": "team is full",
 			"status":  "fail",
 		})
 	}
 
-	team.Users = append(team.Users, ctx.Get("user").(models.User))
-
-	if err := services.UpdateTeam(*team); err != nil {
+	if err := services.UpdateUserTeamDetails(team.ID, user.Email); err != nil {
 		return ctx.JSON(http.StatusInternalServerError, map[string]string{
 			"message": err.Error(),
 			"status":  "error",
@@ -159,7 +166,7 @@ func JoinTeam(ctx echo.Context) error {
 
 func KickMember(ctx echo.Context) error {
 	var payload models.KickMemberRequest
-	userID := ctx.Get("user").(models.User).ID
+	var user = ctx.Get("user").(*models.User)
 
 	if err := ctx.Bind(&payload); err != nil {
 		return ctx.JSON(http.StatusBadRequest, map[string]string{
@@ -175,7 +182,7 @@ func KickMember(ctx echo.Context) error {
 		})
 	}
 
-	team, err := services.FindTeamByUserID(userID)
+	team, err := services.FindTeamByTeamID(user.TeamID)
 	if err != nil {
 		return ctx.JSON(http.StatusInternalServerError, map[string]string{
 			"message": err.Error(),
@@ -183,30 +190,21 @@ func KickMember(ctx echo.Context) error {
 		})
 	}
 
-	if team.LeaderID != userID {
+	if team.LeaderID != user.ID {
 		return ctx.JSON(http.StatusForbidden, map[string]string{
 			"message": "only the leader can kick a member",
 			"status":  "fail",
 		})
 	}
 
-	var isValid bool = false
-	for i, user := range team.Users {
-		if user.ID == payload.UserID {
-			team.Users = append(team.Users[:i], team.Users[i+1:]...)
-			isValid = true
-			break
-		}
-	}
-
-	if !isValid {
-		return ctx.JSON(http.StatusBadRequest, map[string]string{
+	if !services.CheckUserInTeam(payload.UserEmail, user.TeamID) {
+		return ctx.JSON(http.StatusExpectationFailed, map[string]string{
 			"message": "user is not in the team",
 			"status":  "fail",
 		})
 	}
 
-	if err := services.UpdateTeam(*team); err != nil {
+	if err := services.UpdateUserTeamDetails(uuid.Nil, payload.UserEmail); err != nil {
 		return ctx.JSON(http.StatusInternalServerError, map[string]string{
 			"message": err.Error(),
 			"status":  "error",
@@ -220,9 +218,16 @@ func KickMember(ctx echo.Context) error {
 }
 
 func LeaveTeam(ctx echo.Context) error {
-	userID := ctx.Get("user").(models.User).ID
+	var user = ctx.Get("user").(*models.User)
 
-	team, err := services.FindTeamByUserID(userID)
+	if user.TeamID == uuid.Nil {
+		return ctx.JSON(http.StatusExpectationFailed, map[string]string{
+			"message": "user is not in the team",
+			"status":  "failed to leave team",
+		})
+	}
+
+	team, err := services.FindTeamByTeamID(user.TeamID)
 	if err != nil {
 		return ctx.JSON(http.StatusInternalServerError, map[string]string{
 			"message": err.Error(),
@@ -230,8 +235,15 @@ func LeaveTeam(ctx echo.Context) error {
 		})
 	}
 
-	if team.LeaderID == userID {
-		if err := services.DeleteTeam(team.ID); err != nil {
+	if err := services.UpdateUserTeamDetails(uuid.Nil, user.Email); err != nil {
+		return ctx.JSON(http.StatusInternalServerError, map[string]string{
+			"message": err.Error(),
+			"status":  "failed to leave team",
+		})
+	}
+
+	if team.LeaderID == user.ID {
+		if err := services.DeleteTeam(user.TeamID); err != nil {
 			return ctx.JSON(http.StatusInternalServerError, map[string]string{
 				"message": err.Error(),
 				"status":  "error",
@@ -241,29 +253,6 @@ func LeaveTeam(ctx echo.Context) error {
 		return ctx.JSON(http.StatusOK, map[string]string{
 			"message": "team deleted successfully",
 			"status":  "success",
-		})
-	}
-
-	var isValid bool = false
-	for i, user := range team.Users {
-		if user.ID == userID {
-			team.Users = append(team.Users[:i], team.Users[i+1:]...)
-			isValid = true
-			break
-		}
-	}
-
-	if !isValid {
-		return ctx.JSON(http.StatusBadRequest, map[string]string{
-			"message": "user is not in the team",
-			"status":  "fail",
-		})
-	}
-
-	if err := services.UpdateTeam(*team); err != nil {
-		return ctx.JSON(http.StatusInternalServerError, map[string]string{
-			"message": err.Error(),
-			"status":  "error",
 		})
 	}
 

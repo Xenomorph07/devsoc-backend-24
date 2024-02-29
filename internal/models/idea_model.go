@@ -20,3 +20,9 @@ type CreateUpdateIdeasRequest struct {
 type SelectIdeaRequest struct {
 	IdeaID uuid.UUID `json:"idea_id" validate:"required"`
 }
+
+type GetIdea struct {
+	Title       string `json:"title"`
+	Description string `json:"description"`
+	Track       string `json:"track"`
+}
