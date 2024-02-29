@@ -4,6 +4,9 @@ CREATE TABLE IF NOT EXISTS ideas (
     title TEXT NOT NULL,
     description TEXT NOT NULL,
     track TEXT NOT NULL,
+    github TEXT NOT NULL default '',
+    figma TEXT NOT NULL default '',
+    others TEXT NOT NULL default '',
     is_selected BOOLEAN NOT NULL DEFAULT false,
     teamid UUID NOT NULL UNIQUE
 );
