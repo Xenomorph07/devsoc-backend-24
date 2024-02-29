@@ -8,14 +8,15 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/CodeChefVIT/devsoc-backend-24/internal/database"
-	"github.com/CodeChefVIT/devsoc-backend-24/internal/models"
-	services "github.com/CodeChefVIT/devsoc-backend-24/internal/services/user"
-	"github.com/CodeChefVIT/devsoc-backend-24/internal/utils"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/labstack/echo/v4"
 	"github.com/redis/go-redis/v9"
 	"golang.org/x/crypto/bcrypt"
+
+	"github.com/CodeChefVIT/devsoc-backend-24/internal/database"
+	"github.com/CodeChefVIT/devsoc-backend-24/internal/models"
+	services "github.com/CodeChefVIT/devsoc-backend-24/internal/services/user"
+	"github.com/CodeChefVIT/devsoc-backend-24/internal/utils"
 )
 
 func Login(ctx echo.Context) error {
@@ -24,12 +25,15 @@ func Login(ctx echo.Context) error {
 	if err := ctx.Bind(&payload); err != nil {
 		return ctx.JSON(http.StatusBadRequest, map[string]string{
 			"message": err.Error(),
-			"status":  "binding body",
+			"status":  "fail",
 		})
 	}
 
 	if err := ctx.Validate(&payload); err != nil {
-		return err
+		return ctx.JSON(http.StatusBadRequest, map[string]string{
+			"message": err.Error(),
+			"status":  "fail",
+		})
 	}
 
 	user, err := services.FindUserByEmail(payload.Email)
@@ -37,12 +41,12 @@ func Login(ctx echo.Context) error {
 		if errors.Is(err, sql.ErrNoRows) {
 			return ctx.JSON(http.StatusNotFound, map[string]string{
 				"message": "user does not exist",
-				"status":  "failure",
+				"status":  "fail",
 			})
 		}
 		return ctx.JSON(http.StatusInternalServerError, map[string]string{
 			"messsage": err.Error(),
-			"status":   "db error",
+			"status":   "error",
 		})
 	}
 
@@ -50,12 +54,12 @@ func Login(ctx echo.Context) error {
 		if errors.Is(err, bcrypt.ErrMismatchedHashAndPassword) {
 			return ctx.JSON(http.StatusConflict, map[string]string{
 				"message": "Invalid password",
-				"status":  "failure",
+				"status":  "fail",
 			})
 		}
 		return ctx.JSON(http.StatusInternalServerError, map[string]string{
 			"message": err.Error(),
-			"status":  "bcrypt check",
+			"status":  "error",
 		})
 	}
 
@@ -63,7 +67,7 @@ func Login(ctx echo.Context) error {
 		fmt.Sprintf("token_version:%s", user.Email))
 	if err != nil && err != redis.Nil {
 		return ctx.JSON(http.StatusInternalServerError, map[string]string{
-			"status":  "redis failure",
+			"status":  "error",
 			"message": err.Error(),
 		})
 	}
@@ -79,7 +83,7 @@ func Login(ctx echo.Context) error {
 	if err != nil {
 		return ctx.JSON(http.StatusInternalServerError, map[string]string{
 			"message": err.Error(),
-			"status":  "create token",
+			"status":  "error",
 		})
 	}
 
@@ -90,21 +94,21 @@ func Login(ctx echo.Context) error {
 	if err != nil {
 		return ctx.JSON(http.StatusInternalServerError, map[string]string{
 			"message": err.Error(),
-			"status":  "create token",
+			"status":  "error",
 		})
 	}
 
 	if err := database.RedisClient.Set(fmt.Sprintf("token_version:%s", user.Email),
 		fmt.Sprint(tokenVersion+1), time.Hour*1); err != nil {
 		return ctx.JSON(http.StatusInternalServerError, map[string]string{
-			"status":  "redis failure",
+			"status":  "error",
 			"message": err.Error(),
 		})
 	}
 
 	if err := database.RedisClient.Set(user.Email, refreshToken, time.Hour*1); err != nil {
 		return ctx.JSON(http.StatusInternalServerError, map[string]string{
-			"status":  "redis failure",
+			"status":  "error",
 			"message": err.Error(),
 		})
 	}
@@ -113,17 +117,23 @@ func Login(ctx echo.Context) error {
 		Name:     "access_token",
 		Value:    accessToken,
 		HttpOnly: true,
+		SameSite: http.SameSiteNoneMode, // CHANGE DURING PRODUCTION
+		MaxAge:   86400,
 	})
 
 	ctx.SetCookie(&http.Cookie{
 		Name:     "refresh_token",
 		Value:    refreshToken,
 		HttpOnly: true,
+		SameSite: http.SameSiteNoneMode, // CHANGE DURING PRODUCTION
+		MaxAge:   86400,
 	})
 
-	return ctx.JSON(http.StatusOK, map[string]string{
-		"message": "login successful",
-		"status":  "success",
+	return ctx.JSON(http.StatusOK, map[string]interface{}{
+		"message":          "login successful",
+		"status":           "success",
+		"profile_complete": user.IsProfileComplete,
+		"verified":         user.IsVerified,
 	})
 }
 
@@ -176,6 +186,8 @@ func Refresh(ctx echo.Context) error {
 		accessCookie = &http.Cookie{
 			Name:     "access_token",
 			HttpOnly: true,
+			SameSite: http.SameSiteNoneMode, // CHANGE DURING PRODUCTION
+			MaxAge:   86400,
 		}
 	}
 

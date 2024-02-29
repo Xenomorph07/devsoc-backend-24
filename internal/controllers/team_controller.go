@@ -5,12 +5,13 @@ import (
 	"errors"
 	"net/http"
 
+	"github.com/google/uuid"
+	"github.com/labstack/echo/v4"
+
 	"github.com/CodeChefVIT/devsoc-backend-24/internal/models"
 	services "github.com/CodeChefVIT/devsoc-backend-24/internal/services/team"
 	"github.com/CodeChefVIT/devsoc-backend-24/internal/utils"
-	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgconn"
-	"github.com/labstack/echo/v4"
 )
 
 func CreateTeam(ctx echo.Context) error {
@@ -19,19 +20,22 @@ func CreateTeam(ctx echo.Context) error {
 	if err := ctx.Bind(&payload); err != nil {
 		return ctx.JSON(http.StatusBadRequest, map[string]string{
 			"message": err.Error(),
-			"status":  "failed to bind body",
+			"status":  "fail",
 		})
 	}
 
 	if err := ctx.Validate(&payload); err != nil {
-		return err
+		return ctx.JSON(http.StatusBadRequest, map[string]string{
+			"message": err.Error(),
+			"status":  "fail",
+		})
 	}
 
 	user := ctx.Get("user").(*models.User)
 	if user.TeamID != uuid.Nil {
 		return ctx.JSON(http.StatusExpectationFailed, map[string]string{
 			"message": "user is already in a team",
-			"status":  "failed to create team",
+			"status":  "fail",
 		})
 	}
 
@@ -57,7 +61,7 @@ func CreateTeam(ctx echo.Context) error {
 		}
 		return ctx.JSON(http.StatusInternalServerError, map[string]string{
 			"message": err.Error(),
-			"status":  "failed to create team",
+			"status":  "error",
 		})
 	}
 
@@ -88,7 +92,7 @@ func GetTeamDetails(ctx echo.Context) error {
 		}
 		return ctx.JSON(http.StatusInternalServerError, map[string]string{
 			"message": err.Error(),
-			"status":  "failed to fetch team details",
+			"status":  "error",
 		})
 	}
 
@@ -105,12 +109,15 @@ func JoinTeam(ctx echo.Context) error {
 	if err := ctx.Bind(&payload); err != nil {
 		return ctx.JSON(http.StatusBadRequest, map[string]string{
 			"message": err.Error(),
-			"status":  "failed to bind body",
+			"status":  "fail",
 		})
 	}
 
 	if err := ctx.Validate(&payload); err != nil {
-		return err
+		return ctx.JSON(http.StatusBadRequest, map[string]string{
+			"message": err.Error(),
+			"status":  "fail",
+		})
 	}
 
 	user := ctx.Get("user").(*models.User)
@@ -118,7 +125,7 @@ func JoinTeam(ctx echo.Context) error {
 	if user.TeamID != uuid.Nil {
 		return ctx.JSON(http.StatusExpectationFailed, map[string]string{
 			"message": "user is already in a team",
-			"status":  "failed to join team",
+			"status":  "fail",
 		})
 	}
 
@@ -140,14 +147,14 @@ func JoinTeam(ctx echo.Context) error {
 	if services.CheckTeamSize(team.ID) {
 		return ctx.JSON(http.StatusFailedDependency, map[string]string{
 			"message": "team is full",
-			"status":  "failed to join team",
+			"status":  "fail",
 		})
 	}
 
 	if err := services.UpdateUserTeamDetails(team.ID, user.Email); err != nil {
 		return ctx.JSON(http.StatusInternalServerError, map[string]string{
 			"message": err.Error(),
-			"status":  "failed to join team",
+			"status":  "error",
 		})
 	}
 
@@ -164,40 +171,43 @@ func KickMember(ctx echo.Context) error {
 	if err := ctx.Bind(&payload); err != nil {
 		return ctx.JSON(http.StatusBadRequest, map[string]string{
 			"message": err.Error(),
-			"status":  "failed to bind body",
+			"status":  "fail",
 		})
 	}
 
 	if err := ctx.Validate(&payload); err != nil {
-		return err
+		return ctx.JSON(http.StatusBadRequest, map[string]string{
+			"message": err.Error(),
+			"status":  "fail",
+		})
 	}
 
 	team, err := services.FindTeamByTeamID(user.TeamID)
 	if err != nil {
 		return ctx.JSON(http.StatusInternalServerError, map[string]string{
 			"message": err.Error(),
-			"status":  "failed to fetch team details",
+			"status":  "error",
 		})
 	}
 
 	if team.LeaderID != user.ID {
 		return ctx.JSON(http.StatusForbidden, map[string]string{
 			"message": "only the leader can kick a member",
-			"status":  "failed to kick member",
+			"status":  "fail",
 		})
 	}
 
 	if !services.CheckUserInTeam(payload.UserEmail, user.TeamID) {
 		return ctx.JSON(http.StatusExpectationFailed, map[string]string{
 			"message": "user is not in the team",
-			"status":  "failed to kick member",
+			"status":  "fail",
 		})
 	}
 
 	if err := services.UpdateUserTeamDetails(uuid.Nil, payload.UserEmail); err != nil {
 		return ctx.JSON(http.StatusInternalServerError, map[string]string{
 			"message": err.Error(),
-			"status":  "failed to kick member",
+			"status":  "error",
 		})
 	}
 
@@ -221,7 +231,7 @@ func LeaveTeam(ctx echo.Context) error {
 	if err != nil {
 		return ctx.JSON(http.StatusInternalServerError, map[string]string{
 			"message": err.Error(),
-			"status":  "failed to fetch team details",
+			"status":  "fail",
 		})
 	}
 
@@ -236,7 +246,7 @@ func LeaveTeam(ctx echo.Context) error {
 		if err := services.DeleteTeam(user.TeamID); err != nil {
 			return ctx.JSON(http.StatusInternalServerError, map[string]string{
 				"message": err.Error(),
-				"status":  "failed to leave team",
+				"status":  "error",
 			})
 		}
 
