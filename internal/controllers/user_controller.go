@@ -106,6 +106,11 @@ func CreateUser(ctx echo.Context) error {
 		}
 	}()
 
+	err = services.WriteUserToGoogleSheet(user)
+	if err != nil {
+		slog.Error(err.Error())
+	}
+
 	return ctx.JSON(http.StatusOK, map[string]string{
 		"message": "user creation was successful",
 		"status":  "success",
