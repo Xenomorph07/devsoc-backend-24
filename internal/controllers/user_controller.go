@@ -93,7 +93,7 @@ func CreateUser(ctx echo.Context) error {
 		})
 	}
 
-	if err := database.RedisClient.Set(fmt.Sprintf("verfication:%s", user.Email), otp, time.Minute*5); err != nil {
+	if err := database.RedisClient.Set(fmt.Sprintf("verification:%s", user.Email), otp, time.Minute*5); err != nil {
 		return ctx.JSON(http.StatusInternalServerError, map[string]string{
 			"status":  "error",
 			"message": err.Error(),
