@@ -10,7 +10,7 @@ import (
 	"google.golang.org/api/sheets/v4"
 )
 
-var SheetsService *sheets.Service
+var SRV *sheets.Service
 
 func InitialiseGoogleSheetsClient() (*sheets.Service, error) {
 	ctx := context.Background()
@@ -26,10 +26,10 @@ func InitialiseGoogleSheetsClient() (*sheets.Service, error) {
 	}
 
 	client := config.Client(ctx)
-	SheetsService, err = sheets.NewService(ctx, option.WithHTTPClient(client))
+	SRV, err = sheets.NewService(ctx, option.WithHTTPClient(client))
 	if err != nil {
 		return nil, fmt.Errorf("unable to create Google Sheets client: %v", err)
 	}
 
-	return SheetsService, nil
+	return SRV, nil
 }
