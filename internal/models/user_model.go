@@ -3,38 +3,51 @@ package models
 import "github.com/google/uuid"
 
 type User struct {
-	ID         uuid.UUID `json:"id"`
-	FirstName  string    `json:"first_name"`
-	LastName   string    `json:"last_name"`
-	RegNo      string    `json:"reg_no"`
-	Email      string    `json:"email"`
-	Password   string    `json:"password"`
-	Phone      string    `json:"phone"`
-	College    string    `json:"college"`
-	Gender     string    `json:"gender"`
-	Role       string    `json:"role"`
-	Country    string    `json:"country"`
-	Github     string    `json:"github"`
-	Bio        string    `json:"bio"`
-	IsBanned   bool      `json:"-"`
-	IsAdded    bool      `json:"-"`
-	IsVitian   bool      `json:"-"`
-	IsVerified bool      `json:"-"`
-	TeamID     int       `json:"team_id"`
+	ID                uuid.UUID `json:"id"`
+	FirstName         string    `json:"first_name"`
+	LastName          string    `json:"last_name"`
+	RegNo             string    `json:"reg_no"`
+	Email             string    `json:"email"`
+	Password          string    `json:"password"`
+	Phone             string    `json:"phone"`
+	College           string    `json:"college"`
+	City              string    `json:"city"`
+	State             string    `json:"state"`
+	Gender            string    `json:"gender"`
+	Role              string    `json:"role"`
+	IsBanned          bool      `json:"-"`
+	IsAdded           bool      `json:"-"`
+	IsVitian          bool      `json:"-"`
+	IsVerified        bool      `json:"-"`
+	IsProfileComplete bool      `json:"-"`
+	TeamID            uuid.UUID `json:"team_id"`
+}
+
+type VITDetails struct {
+	Email string `json:"vit_email" validate:"required,email"`
+	Block string `json:"block" validate:"required"`
+	Room  string `json:"room" validate:"required"`
+}
+
+type CompleteUserRequest struct {
+	FirstName   string `json:"first_name" validate:"required,min=1,max=20"`
+	LastName    string `json:"last_name" validate:"required,min=1,max=20"`
+	PhoneNumber string `json:"phone" validate:"required,min=10"`
+	Gender      string `json:"gender" validate:"required"`
+	IsVitian    bool   `json:"is_vitian" validate:"required"`
+	Email       string `json:"email" validate:"required,email"`
+	VitEmail    string `json:"vit_email"`
+	HostelBlock string `json:"block"`
+	HostelRoom  string `json:"room"`
+	College     string `json:"college"`
+	City        string `json:"city"`
+	State       string `json:"state"`
+	RegNo       string `json:"reg_no" validate:"required"`
 }
 
 type CreateUserRequest struct {
-	FirstName string `json:"first_name" validate:"required,min=1,max=20"`
-	LastName  string `json:"last_name"  validate:"required,min=1,max=20"`
-	RegNo     string `json:"reg_no"     validate:"required"`
-	Email     string `json:"email"      validate:"required,email"`
-	Password  string `json:"password"   validate:"required,min=6"`
-	Phone     string `json:"phone"      validate:"required"`
-	College   string `json:"college"    validate:"required"`
-	Gender    string `json:"gender"     validate:"required"`
-	Country   string `json:"country"    validate:"required"`
-	Github    string `json:"github"     validate:"required,url"`
-	Bio       string `json:"bio"        validate:"required,min=50,max=200"`
+	Email    string `json:"email"      validate:"required,email"`
+	Password string `json:"password"   validate:"required,min=6"`
 }
 
 type LoginRequest struct {
@@ -45,4 +58,9 @@ type LoginRequest struct {
 type VerifyUserRequest struct {
 	Email string `json:"email" validate:"required,email"`
 	OTP   string `json:"otp"   validate:"required,min=6,max=6"`
+}
+
+type ResendOTPRequest struct {
+	Email string `json:"email" validate:"required,email"`
+	Type  string `json:"type" validate:"required,oneof=verification resetpass"`
 }

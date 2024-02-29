@@ -30,7 +30,7 @@ func CreateTeam(ctx echo.Context) error {
 		})
 	}
 
-	_, err := services.FindTeamByUserID(ctx.Get("user").(models.User).ID)
+	_, err := services.FindTeamByUserID(ctx.Get("user").(*models.User).ID)
 	if err == nil {
 		return ctx.JSON(http.StatusBadRequest, map[string]string{
 			"message": "user is already in a team",

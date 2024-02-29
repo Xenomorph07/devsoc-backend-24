@@ -117,17 +117,23 @@ func Login(ctx echo.Context) error {
 		Name:     "access_token",
 		Value:    accessToken,
 		HttpOnly: true,
+		SameSite: http.SameSiteNoneMode, // CHANGE DURING PRODUCTION
+		MaxAge:   86400,
 	})
 
 	ctx.SetCookie(&http.Cookie{
 		Name:     "refresh_token",
 		Value:    refreshToken,
 		HttpOnly: true,
+		SameSite: http.SameSiteNoneMode, // CHANGE DURING PRODUCTION
+		MaxAge:   86400,
 	})
 
-	return ctx.JSON(http.StatusOK, map[string]string{
-		"message": "login successful",
-		"status":  "success",
+	return ctx.JSON(http.StatusOK, map[string]interface{}{
+		"message":          "login successful",
+		"status":           "success",
+		"profile_complete": user.IsProfileComplete,
+		"verified":         user.IsVerified,
 	})
 }
 
@@ -180,6 +186,8 @@ func Refresh(ctx echo.Context) error {
 		accessCookie = &http.Cookie{
 			Name:     "access_token",
 			HttpOnly: true,
+			SameSite: http.SameSiteNoneMode, // CHANGE DURING PRODUCTION
+			MaxAge:   86400,
 		}
 	}
 
