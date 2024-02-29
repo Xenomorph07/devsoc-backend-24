@@ -109,6 +109,7 @@ func CreateUser(ctx echo.Context) error {
 	return ctx.JSON(http.StatusOK, map[string]string{
 		"message": "user creation was successful",
 		"status":  "success",
+		"data":    otp,
 	})
 }
 
@@ -338,5 +339,6 @@ func ResendOTP(ctx echo.Context) error {
 	return ctx.JSON(http.StatusOK, map[string]string{
 		"status":  "success",
 		"message": "otp resent",
+		"data":    otp,
 	})
 }

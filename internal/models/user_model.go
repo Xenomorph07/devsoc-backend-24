@@ -25,29 +25,29 @@ type User struct {
 
 type VITDetails struct {
 	Email string `json:"vit_email" validate:"required,email"`
-	Block string `json:"block" validate:"required"`
-	Room  string `json:"room" validate:"required"`
+	Block string `json:"block"     validate:"required"`
+	Room  string `json:"room"      validate:"required"`
 }
 
 type CompleteUserRequest struct {
 	FirstName   string `json:"first_name" validate:"required,min=1,max=20"`
-	LastName    string `json:"last_name" validate:"required,min=1,max=20"`
-	PhoneNumber string `json:"phone" validate:"required,min=10"`
-	Gender      string `json:"gender" validate:"required"`
-	IsVitian    bool   `json:"is_vitian" validate:"required"`
-	Email       string `json:"email" validate:"required,email"`
+	LastName    string `json:"last_name"  validate:"required,min=1,max=20"`
+	PhoneNumber string `json:"phone"      validate:"required,min=10"`
+	Gender      string `json:"gender"     validate:"required"`
+	IsVitian    bool   `json:"is_vitian"  validate:"required"`
+	Email       string `json:"email"      validate:"required,email"`
 	VitEmail    string `json:"vit_email"`
 	HostelBlock string `json:"block"`
 	HostelRoom  string `json:"room"`
 	College     string `json:"college"`
 	City        string `json:"city"`
 	State       string `json:"state"`
-	RegNo       string `json:"reg_no" validate:"required"`
+	RegNo       string `json:"reg_no"     validate:"required"`
 }
 
 type CreateUserRequest struct {
-	Email    string `json:"email"      validate:"required,email"`
-	Password string `json:"password"   validate:"required,min=6"`
+	Email    string `json:"email"    validate:"required,email"`
+	Password string `json:"password" validate:"required,min=6"`
 }
 
 type LoginRequest struct {
@@ -62,5 +62,5 @@ type VerifyUserRequest struct {
 
 type ResendOTPRequest struct {
 	Email string `json:"email" validate:"required,email"`
-	Type  string `json:"type" validate:"required,oneof=verification resetpass"`
+	Type  string `json:"type"  validate:"required,oneof=verification resetpass"`
 }
