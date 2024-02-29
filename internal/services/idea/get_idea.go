@@ -7,10 +7,11 @@ import (
 )
 
 func GetIdeaByTeamID(teamid uuid.UUID) (models.GetIdea, error) {
-	query := "SELECT title, description, track FROM ideas WHERE teamid = $1"
+	query := "SELECT title, description, track, github, figma, others FROM ideas WHERE teamid = $1"
 
 	var idea models.GetIdea
 
-	err := database.DB.QueryRow(query, teamid).Scan(&idea.Title, &idea.Description, &idea.Track)
+	err := database.DB.QueryRow(query, teamid).Scan(&idea.Title, &idea.Description,
+		&idea.Track, &idea.Github, &idea.Figma, &idea.Others)
 	return idea, err
 }

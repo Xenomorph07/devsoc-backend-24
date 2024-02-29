@@ -16,10 +16,11 @@ func CreateIdea(data models.CreateUpdateIdeasRequest, teamid uuid.UUID) error {
 		return err
 	}
 
-	query := `INSERT INTO ideas VALUES($1,$2,$3,$4,$5,$6) RETURNING id`
+	query := `INSERT INTO ideas VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING id`
 
 	var id uuid.UUID
-	err = database.DB.QueryRow(query, uuid.New(), data.Title, data.Description, data.Track, false, teamid).Scan(&id)
+	err = tx.QueryRow(query, uuid.New(), data.Title, data.Description,
+		data.Track, data.Github, data.Figma, data.Others, false, teamid).Scan(&id)
 
 	if err != nil {
 		tx.Rollback()
@@ -28,7 +29,7 @@ func CreateIdea(data models.CreateUpdateIdeasRequest, teamid uuid.UUID) error {
 
 	query = `UPDATE teams SET ideaid = $1 WHERE id = $2`
 
-	_, err = database.DB.Exec(query, id, teamid)
+	_, err = tx.Exec(query, id, teamid)
 	if err != nil {
 		tx.Rollback()
 		return err

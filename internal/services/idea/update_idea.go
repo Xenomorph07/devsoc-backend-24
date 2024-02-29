@@ -11,9 +11,9 @@ import (
 )
 
 func UpdateIdea(data models.CreateUpdateIdeasRequest, teamid uuid.UUID) error {
-	query := `UPDATE ideas SET title = $1, description = $2, track = $3 WHERE teamid = $4`
+	query := `UPDATE ideas SET title = $1, description = $2, track = $3, github = $4, figma = $5, others = $6 WHERE teamid = $7`
 	tx, _ := database.DB.BeginTx(context.Background(), &sql.TxOptions{Isolation: sql.LevelSerializable})
-	result, err := tx.Exec(query, data.Title, data.Description, data.Track, teamid)
+	result, err := tx.Exec(query, data.Title, data.Description, data.Track, data.Github, data.Figma, data.Others, teamid)
 	check, _ := result.RowsAffected()
 	if check == 0 {
 		tx.Rollback()

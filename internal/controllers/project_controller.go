@@ -94,14 +94,7 @@ func CreateProject(ctx echo.Context) error {
 }
 
 func UpdateProject(ctx echo.Context) error {
-	var req struct {
-		Name        *string `json:"name" validate:"min=1,max=50"`
-		Description *string `json:"description" validate:"min=50,max=200"`
-		Track       *string `json:"track"`
-		GithubLink  *string `json:"github_link" validate:"url"`
-		FigmaLink   *string `json:"figma_link" validate:"url"`
-		Others      *string `json:"others"`
-	}
+	var req models.CreateUpdateProjectRequest
 
 	if err := ctx.Bind(&req); err != nil {
 		return ctx.JSON(http.StatusBadRequest, response{
@@ -123,56 +116,14 @@ func UpdateProject(ctx echo.Context) error {
 		})
 	}
 
-	proj, err := services.GetProject(user.TeamID)
+	err := services.UpdateProject(req, user.TeamID)
 	if err != nil {
-		if err == sql.ErrNoRows {
+		if errors.Is(err, errors.New("invalid teamid")) {
 			return ctx.JSON(http.StatusExpectationFailed, response{
-				Message: "Failed to get project could be cause the user has not made an project",
-				Data:    models.GetProject{},
+				Message: "The team has not created an project",
 				Status:  false,
 			})
 		}
-		return ctx.JSON(http.StatusInternalServerError, response{
-			Message: "Failed to get project : " + err.Error(),
-			Status:  false,
-			Data:    models.GetProject{},
-		})
-	}
-
-	var data models.CreateUpdateProjectRequest
-
-	if req.Name == nil {
-		data.Name = proj.Name
-	} else {
-		data.Name = *req.Name
-	}
-
-	if req.Description == nil {
-		data.Description = proj.Description
-	} else {
-		data.Description = *req.Description
-	}
-
-	if req.GithubLink == nil {
-		data.GithubLink = proj.GithubLink
-	} else {
-		data.GithubLink = *req.GithubLink
-	}
-
-	if req.FigmaLink == nil {
-		data.FigmaLink = proj.FigmaLink
-	} else {
-		data.FigmaLink = *req.FigmaLink
-	}
-
-	if req.Others == nil {
-		data.Others = proj.Others
-	} else {
-		data.Others = *req.Others
-	}
-
-	err = services.UpdateProject(data, user.TeamID)
-	if err != nil {
 		return ctx.JSON(http.StatusInternalServerError, response{
 			Message: "Failed to update the project" + err.Error(),
 			Status:  false,

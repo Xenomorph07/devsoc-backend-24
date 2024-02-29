@@ -14,7 +14,7 @@ func FindTeamByTeamID(team_id uuid.UUID) (models.GetTeam, error) {
 
 	query := `SELECT teams.name,teams.code, teams.leader_id, teams.round ,
 	users.first_name, users.last_name, users.email, users.reg_no, 
-	ideas.title, ideas.description, ideas.track , 
+	ideas.title, ideas.description, ideas.track, ideas.github, ideas.figma, ideas.others , 
 	projects.name, projects.description, projects.github, projects.figma, projects.track, projects.others
 	FROM teams
 	INNER JOIN users ON users.team_id = teams.id
@@ -52,12 +52,13 @@ func FindTeamByTeamID(team_id uuid.UUID) (models.GetTeam, error) {
 		team.Round, _ = strconv.Atoi(values[3].String)
 		if values[8].Valid {
 			team.Ideas = models.GetIdea{Title: values[8].String,
-				Description: values[9].String, Track: values[10].String}
+				Description: values[9].String, Track: values[10].String,
+				Github: values[11].String, Figma: values[12].String, Others: values[13].String}
 		}
-		if values[11].Valid {
-			team.Project = models.GetProject{Name: values[11].String,
-				Description: values[12].String, GithubLink: values[13].String,
-				FigmaLink: values[14].String, Track: values[15].String, Others: values[16].String}
+		if values[14].Valid {
+			team.Project = models.GetProject{Name: values[14].String,
+				Description: values[15].String, GithubLink: values[16].String,
+				FigmaLink: values[17].String, Track: values[18].String, Others: values[19].String}
 		}
 		team.Users = append(team.Users, models.GetUser{FirstName: values[4].String,
 			LastName: values[5].String, Email: values[6].String,
