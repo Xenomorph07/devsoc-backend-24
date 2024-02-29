@@ -3,7 +3,6 @@ package middleware
 import (
 	"database/sql"
 	"errors"
-	"fmt"
 	"net/http"
 	"strconv"
 
@@ -68,7 +67,6 @@ func AuthUser(next echo.HandlerFunc) echo.HandlerFunc {
 			}
 		}
 
-		fmt.Println("user :- ", user)
 		c.Set("user", user)
 
 		return next(c)
