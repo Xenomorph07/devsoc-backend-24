@@ -25,5 +25,15 @@ type JoinTeamRequest struct {
 }
 
 type KickMemberRequest struct {
-	UserID uuid.UUID `json:"user_id" validate:"required"`
+	UserEmail string `json:"email" validate:"required"`
+}
+
+type GetTeam struct {
+	TeamName string     `json:"team_name"`
+	TeamCode string     `json:"team_code"`
+	LeaderID uuid.UUID  `json:"leaderid"`
+	Round    int        `json:"round"`
+	Users    []GetUser  `json:"users"`
+	Ideas    GetIdea    `json:"idea"`
+	Project  GetProject `json:"project"`
 }

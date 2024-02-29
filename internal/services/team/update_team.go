@@ -7,14 +7,14 @@ import (
 	"github.com/google/uuid"
 )
 
-func UpdateUserTeamDetails(teamid uuid.UUID, user_id uuid.UUID) error {
+func UpdateUserTeamDetails(teamid uuid.UUID, email string) error {
 	if teamid == uuid.Nil {
 		var temp sql.NullString
 		temp.Valid = false
-		_, err := database.DB.Exec("UPDATE users SET team_id = $1 where id = $2", temp, user_id)
+		_, err := database.DB.Exec("UPDATE users SET team_id = $1 where email = $2", temp, email)
 		return err
 	} else {
-		_, err := database.DB.Exec("UPDATE users SET team_id = $1 where id = $2", teamid, user_id)
+		_, err := database.DB.Exec("UPDATE users SET team_id = $1 where email = $2", teamid, email)
 		return err
 	}
 }

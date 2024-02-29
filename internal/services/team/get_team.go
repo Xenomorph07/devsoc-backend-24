@@ -9,13 +9,18 @@ import (
 	"github.com/google/uuid"
 )
 
-func FindTeamByTeamID(team_id uuid.UUID) (models.Team, error) {
-	var team models.Team
+func FindTeamByTeamID(team_id uuid.UUID) (models.GetTeam, error) {
+	var team models.GetTeam
 
-	query := `SELECT teams.* ,users.*, ideas.*, projects.* FROM teams
+	query := `SELECT teams.name,teams.code, teams.leader_id, teams.round ,
+	users.first_name, users.last_name, users.email, users.reg_no, 
+	ideas.title, ideas.description, ideas.track , 
+	projects.name, projects.description, projects.github, projects.figma, projects.track 
+	FROM teams
 	INNER JOIN users ON users.team_id = teams.id
 	LEFT JOIN projects ON teams.projectid = projects.id
-	LEFT JOIN ideas ON teams.ideaid = ideas.id WHERE teams.id = $1 `
+	LEFT JOIN ideas ON teams.ideaid = ideas.id 
+	WHERE teams.id = $1 `
 
 	rows, err := database.DB.Query(query, team_id)
 
@@ -25,7 +30,45 @@ func FindTeamByTeamID(team_id uuid.UUID) (models.Team, error) {
 
 	defer rows.Close()
 
-	var temp_idea [6]sql.NullString
+	columns, err := rows.Columns()
+	if err != nil {
+		return team, err
+	}
+
+	values := make([]sql.NullString, len(columns))
+
+	columnPointers := make([]interface{}, len(columns))
+	for i := range values {
+		columnPointers[i] = &values[i]
+	}
+
+	for rows.Next() {
+		if err := rows.Scan(columnPointers...); err != nil {
+			return team, err
+		}
+		team.TeamName = values[0].String
+		team.TeamCode = values[1].String
+		team.LeaderID = uuid.MustParse(values[2].String)
+		team.Round, _ = strconv.Atoi(values[3].String)
+		if values[8].Valid {
+			team.Ideas = models.GetIdea{Title: values[8].String,
+				Description: values[9].String, Track: values[10].String}
+		}
+		if values[11].Valid {
+			team.Project = models.GetProject{Name: values[11].String,
+				Description: values[12].String, GithubLink: values[13].String,
+				FigmaLink: values[14].String, Track: values[15].String}
+		}
+		team.Users = append(team.Users, models.GetUser{FirstName: values[4].String,
+			LastName: values[5].String, Email: values[6].String,
+			RegNo: values[7].String})
+	}
+
+	if len(team.Users) == 0 {
+		return team, sql.ErrNoRows
+	}
+
+	/*var temp_idea [6]sql.NullString
 	var temp_project [7]sql.NullString
 	var temp models.User
 	var ignore interface{}
@@ -51,7 +94,7 @@ func FindTeamByTeamID(team_id uuid.UUID) (models.Team, error) {
 			team.Project = models.Project{ID: uuid.MustParse(temp_project[0].String), Name: temp_project[1].String, Description: temp_project[2].String,
 				Track: temp_project[3].String, TeamID: uuid.MustParse(temp_project[6].String), GithubLink: temp_project[4].String, FigmaLink: temp_project[5].String}
 		}
-	}
+	}*/
 
 	return team, nil
 }

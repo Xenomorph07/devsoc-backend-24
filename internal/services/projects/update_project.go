@@ -10,9 +10,9 @@ import (
 )
 
 func UpdateProject(data models.CreateUpdateProjectRequest, teamid uuid.UUID) error {
-	query := `UPDATE projects SET name = $1, description = $2, github = $3, figma = $4, track = $5 WHERE teamid = $6`
+	query := `UPDATE projects SET name = $1, description = $2, github = $3, figma = $4, track = $5, others = $6 WHERE teamid = $7`
 	tx, _ := database.DB.BeginTx(context.Background(), &sql.TxOptions{Isolation: sql.LevelSerializable})
-	_, err := tx.Exec(query, data.Name, data.Description, data.GithubLink, data.FigmaLink, data.Track, teamid)
+	_, err := tx.Exec(query, data.Name, data.Description, data.GithubLink, data.FigmaLink, data.Track, data.Others, teamid)
 
 	if err != nil {
 		tx.Rollback()

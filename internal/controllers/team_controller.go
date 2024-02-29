@@ -29,7 +29,7 @@ func CreateTeam(ctx echo.Context) error {
 
 	user := ctx.Get("user").(*models.User)
 	if user.TeamID != uuid.Nil {
-		return ctx.JSON(http.StatusBadRequest, map[string]string{
+		return ctx.JSON(http.StatusExpectationFailed, map[string]string{
 			"message": "user is already in a team",
 			"status":  "failed to create team",
 		})
@@ -49,7 +49,7 @@ func CreateTeam(ctx echo.Context) error {
 		var pgerr *pgconn.PgError
 		if errors.As(err, &pgerr) {
 			if pgerr.Code == "23505" {
-				return ctx.JSON(http.StatusBadRequest, map[string]string{
+				return ctx.JSON(http.StatusConflict, map[string]string{
 					"message": "team name already exists",
 					"status":  "failed to create team",
 				})
@@ -81,8 +81,8 @@ func GetTeamDetails(ctx echo.Context) error {
 
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return ctx.JSON(http.StatusExpectationFailed, map[string]string{
-				"message": "The user is not in a team",
+			return ctx.JSON(http.StatusConflict, map[string]string{
+				"message": "The user team id does not exist",
 				"status":  "false",
 			})
 		}
@@ -116,7 +116,7 @@ func JoinTeam(ctx echo.Context) error {
 	user := ctx.Get("user").(*models.User)
 
 	if user.TeamID != uuid.Nil {
-		return ctx.JSON(http.StatusBadRequest, map[string]string{
+		return ctx.JSON(http.StatusExpectationFailed, map[string]string{
 			"message": "user is already in a team",
 			"status":  "failed to join team",
 		})
@@ -126,7 +126,7 @@ func JoinTeam(ctx echo.Context) error {
 
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return ctx.JSON(http.StatusBadRequest, map[string]string{
+			return ctx.JSON(http.StatusConflict, map[string]string{
 				"message": "team code is invalid",
 				"status":  "failed to join team",
 			})
@@ -138,13 +138,13 @@ func JoinTeam(ctx echo.Context) error {
 	}
 
 	if services.CheckTeamSize(team.ID) {
-		return ctx.JSON(http.StatusBadRequest, map[string]string{
+		return ctx.JSON(http.StatusFailedDependency, map[string]string{
 			"message": "team is full",
 			"status":  "failed to join team",
 		})
 	}
 
-	if err := services.UpdateUserTeamDetails(team.ID, user.ID); err != nil {
+	if err := services.UpdateUserTeamDetails(team.ID, user.Email); err != nil {
 		return ctx.JSON(http.StatusInternalServerError, map[string]string{
 			"message": err.Error(),
 			"status":  "failed to join team",
@@ -187,14 +187,14 @@ func KickMember(ctx echo.Context) error {
 		})
 	}
 
-	if !services.CheckUserInTeam(payload.UserID, user.TeamID) {
-		return ctx.JSON(http.StatusBadRequest, map[string]string{
+	if !services.CheckUserInTeam(payload.UserEmail, user.TeamID) {
+		return ctx.JSON(http.StatusExpectationFailed, map[string]string{
 			"message": "user is not in the team",
 			"status":  "failed to kick member",
 		})
 	}
 
-	if err := services.UpdateUserTeamDetails(uuid.Nil, payload.UserID); err != nil {
+	if err := services.UpdateUserTeamDetails(uuid.Nil, payload.UserEmail); err != nil {
 		return ctx.JSON(http.StatusInternalServerError, map[string]string{
 			"message": err.Error(),
 			"status":  "failed to kick member",
@@ -211,7 +211,7 @@ func LeaveTeam(ctx echo.Context) error {
 	var user = ctx.Get("user").(*models.User)
 
 	if user.TeamID == uuid.Nil {
-		return ctx.JSON(http.StatusBadRequest, map[string]string{
+		return ctx.JSON(http.StatusExpectationFailed, map[string]string{
 			"message": "user is not in the team",
 			"status":  "failed to leave team",
 		})
@@ -225,7 +225,7 @@ func LeaveTeam(ctx echo.Context) error {
 		})
 	}
 
-	if err := services.UpdateUserTeamDetails(uuid.Nil, user.ID); err != nil {
+	if err := services.UpdateUserTeamDetails(uuid.Nil, user.Email); err != nil {
 		return ctx.JSON(http.StatusInternalServerError, map[string]string{
 			"message": err.Error(),
 			"status":  "failed to leave team",
@@ -233,7 +233,7 @@ func LeaveTeam(ctx echo.Context) error {
 	}
 
 	if team.LeaderID == user.ID {
-		if err := services.DeleteTeam(team.ID); err != nil {
+		if err := services.DeleteTeam(user.TeamID); err != nil {
 			return ctx.JSON(http.StatusInternalServerError, map[string]string{
 				"message": err.Error(),
 				"status":  "failed to leave team",

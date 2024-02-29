@@ -46,4 +46,11 @@ type RefreshRequest struct {
 	RefreshToken string `json:"refresh_token" validate:"required"`
 }
 
+type GetUser struct {
+	FirstName string `json:"first_name"`
+	LastName  string `json:"last_name"`
+	RegNo     string `json:"reg_no"`
+	Email     string `json:"email"`
+}
+
 type LogoutRequest RefreshRequest

@@ -28,10 +28,10 @@ func CheckTeamSize(team_id uuid.UUID) bool {
 	return true
 }
 
-func CheckUserInTeam(userid uuid.UUID, teamid uuid.UUID) bool {
-	query := `SELECT COUNT(*) FROM users WHERE team_id = $1 AND id = $2`
+func CheckUserInTeam(email string, teamid uuid.UUID) bool {
+	query := `SELECT COUNT(*) FROM users WHERE team_id = $1 AND email = $2`
 	var check int
-	err := database.DB.QueryRow(query, teamid, userid).Scan(&check)
+	err := database.DB.QueryRow(query, teamid, email).Scan(&check)
 	if err != nil || check == 0 {
 		return false
 	}
