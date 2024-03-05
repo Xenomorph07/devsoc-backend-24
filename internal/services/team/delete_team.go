@@ -16,16 +16,7 @@ func DeleteTeam(id uuid.UUID) error {
 		tx.Rollback()
 		return err
 	}
-	_, err = tx.Exec("DELETE FROM projects WHERE teamid = $1", id)
-	if err != nil {
-		tx.Rollback()
-		return err
-	}
-	_, err = tx.Exec("DELETE FROM ideas WHERE teamid = $1", id)
-	if err != nil {
-		tx.Rollback()
-		return err
-	}
+
 	err = tx.Commit()
 	if err != nil {
 		tx.Rollback()

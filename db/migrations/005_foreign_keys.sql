@@ -1,15 +1,15 @@
 -- +goose Up
-ALTER TABLE teams
+ALTER TABLE ideas
 ADD CONSTRAINT fk_ideas
-FOREIGN KEY (ideaid)
-REFERENCES ideas(id)
+FOREIGN KEY (teamid)
+REFERENCES teams(id)
 ON DELETE CASCADE
 ON UPDATE CASCADE;
 
-ALTER TABLE teams
+ALTER TABLE projects
 ADD CONSTRAINT fk_projects
-FOREIGN KEY (projectid)
-REFERENCES projects(id)
+FOREIGN KEY (teamid)
+REFERENCES teams(id)
 ON DELETE CASCADE
 ON UPDATE CASCADE;
 
@@ -17,7 +17,15 @@ ALTER TABLE users
 ADD CONSTRAINT fk_teams
 FOREIGN KEY (team_id)
 REFERENCES teams(id)
-ON UPDATE CASCADE;
+ON UPDATE CASCADE
+ON DELETE CASCADE;
+
+ALTER TABLE vit_details
+ADD CONSTRAINT fk_details
+FOREIGN KEY (user_id)
+REFERENCES users(id)
+ON UPDATE CASCADE
+ON DELETE CASCADE;
 
 -- +goose Down
 ALTER TABLE teams
@@ -26,3 +34,6 @@ DROP CONSTRAINT fk_projects;
 
 ALTER TABLE users
 DROP CONSTRAINT fk_teams;
+
+ALTER TABLE vit_details
+DROP CONSTRAINT fk_details;

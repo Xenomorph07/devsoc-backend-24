@@ -30,5 +30,5 @@ CREATE TABLE vit_details (
 );
 
 -- +goose Down
-DROP TABLE users;
 DROP TABLE vit_details;
+DROP TABLE users;

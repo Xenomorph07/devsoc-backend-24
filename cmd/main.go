@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"log/slog"
 	"net/http"
 	"os"
 	"os/signal"
@@ -21,6 +22,7 @@ func init() {
 	appConfig := config.LoadConfig()
 	database.InitDB(appConfig.DatabaseConfig)
 	database.InitialiseGoogleSheetsClient()
+	utils.InitCaser()
 	database.InitRedis(appConfig.RedisConfig)
 }
 
@@ -73,6 +75,10 @@ func main() {
 	go func() {
 		<-c
 		database.DB.Close()
+		err := database.RedisClient.Close()
+		if err != nil {
+			slog.Error("error closing redis client: " + err.Error())
+		}
 		_ = app.Shutdown(context.Background())
 	}()
 	signal.Notify(c, os.Interrupt)

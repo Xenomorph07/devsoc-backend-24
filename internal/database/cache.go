@@ -51,3 +51,7 @@ func (r *RedisRepository) Delete(key string) error {
 	}
 	return err
 }
+
+func (r *RedisRepository) Close() error {
+	return r.client.Close()
+}

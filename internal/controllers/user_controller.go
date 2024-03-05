@@ -87,11 +87,6 @@ func CreateUser(ctx echo.Context) error {
 		}
 	}()
 
-	err = services.WriteUserToGoogleSheet(user)
-	if err != nil {
-		slog.Error(err.Error())
-	}
-
 	return ctx.JSON(http.StatusOK, map[string]string{
 		"message": "user creation was successful",
 		"status":  "success",
@@ -144,21 +139,21 @@ func CompleteProfile(ctx echo.Context) error {
 		})
 	}
 
-	user.FirstName = strings.ToTitle(payload.FirstName)
-	user.LastName = strings.ToTitle(payload.LastName)
-	user.RegNo = payload.RegNo
+	user.FirstName = utils.TitleCaser.String(payload.FirstName)
+	user.LastName = utils.TitleCaser.String(payload.LastName)
+	user.RegNo = strings.ToUpper(payload.RegNo)
 	user.Phone = payload.PhoneNumber
-	user.College = strings.ToTitle(payload.College)
-	user.City = strings.ToTitle(payload.City)
-	user.State = strings.ToTitle(payload.State)
+	user.College = utils.TitleCaser.String(payload.College)
+	user.City = utils.TitleCaser.String(payload.City)
+	user.State = utils.TitleCaser.String(payload.State)
 	user.Gender = payload.Gender
 	user.IsVitian = payload.IsVitian
 
 	if user.IsVitian {
 		vitInfo := models.VITDetails{
-			Email: payload.VitEmail,
-			Block: payload.HostelBlock,
-			Room:  payload.HostelRoom,
+			Email: strings.ToLower(payload.VitEmail),
+			Block: strings.ToLower(payload.HostelBlock),
+			Room:  strings.ToLower(payload.HostelRoom),
 		}
 
 		if err := ctx.Validate(&vitInfo); err != nil {
@@ -189,6 +184,11 @@ func CompleteProfile(ctx echo.Context) error {
 			"message": err.Error(),
 			"status":  "fail",
 		})
+	}
+
+	err = services.WriteUserToGoogleSheet(user)
+	if err != nil {
+		slog.Error(err.Error())
 	}
 
 	return ctx.JSON(http.StatusOK, map[string]string{
@@ -288,17 +288,24 @@ func ResendOTP(ctx echo.Context) error {
 		})
 	}
 
-	_, err := services.FindUserByEmail(payload.Email)
+	user, err := services.FindUserByEmail(payload.Email)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return ctx.JSON(http.StatusNotFound, map[string]string{
-				"message": err.Error(),
+				"message": "user not found",
 				"status":  "fail",
 			})
 		}
 		return ctx.JSON(http.StatusInternalServerError, map[string]string{
 			"status":  "error",
 			"message": err.Error(),
+		})
+	}
+
+	if payload.Type == "verification" && user.IsVerified {
+		return ctx.JSON(http.StatusForbidden, map[string]string{
+			"status":  "fail",
+			"message": "user already verified",
 		})
 	}
 

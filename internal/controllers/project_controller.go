@@ -20,7 +20,7 @@ func GetProject(ctx echo.Context) error {
 		return ctx.JSON(http.StatusConflict, response{
 			Message: "The user is not in a team",
 			Status:  false,
-			Data:    models.GetProject{},
+			Data:    models.Project{},
 		})
 	}
 
@@ -29,14 +29,14 @@ func GetProject(ctx echo.Context) error {
 		if err == sql.ErrNoRows {
 			return ctx.JSON(http.StatusExpectationFailed, response{
 				Message: "Failed to get project could be cause the user has not made an idea",
-				Data:    models.GetProject{},
+				Data:    models.Project{},
 				Status:  false,
 			})
 		}
 		return ctx.JSON(http.StatusInternalServerError, response{
 			Message: "Failed to get project : " + err.Error(),
 			Status:  false,
-			Data:    models.GetProject{},
+			Data:    models.Project{},
 		})
 	}
 
@@ -48,7 +48,7 @@ func GetProject(ctx echo.Context) error {
 }
 
 func CreateProject(ctx echo.Context) error {
-	var req models.CreateUpdateProjectRequest
+	var req models.ProjectRequest
 
 	if err := ctx.Bind(&req); err != nil {
 		return ctx.JSON(http.StatusBadRequest, response{
@@ -58,7 +58,10 @@ func CreateProject(ctx echo.Context) error {
 	}
 
 	if err := ctx.Validate(&req); err != nil {
-		return err
+		return ctx.JSON(http.StatusBadRequest, map[string]string{
+			"message": err.Error(),
+			"status":  "fail",
+		})
 	}
 
 	user := ctx.Get("user").(*models.User)
@@ -94,7 +97,7 @@ func CreateProject(ctx echo.Context) error {
 }
 
 func UpdateProject(ctx echo.Context) error {
-	var req models.CreateUpdateProjectRequest
+	var req models.ProjectRequest
 
 	if err := ctx.Bind(&req); err != nil {
 		return ctx.JSON(http.StatusBadRequest, response{
@@ -104,7 +107,10 @@ func UpdateProject(ctx echo.Context) error {
 	}
 
 	if err := ctx.Validate(&req); err != nil {
-		return err
+		return ctx.JSON(http.StatusBadRequest, map[string]string{
+			"message": err.Error(),
+			"status":  "fail",
+		})
 	}
 
 	user := ctx.Get("user").(*models.User)

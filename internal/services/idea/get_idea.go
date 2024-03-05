@@ -6,10 +6,10 @@ import (
 	"github.com/google/uuid"
 )
 
-func GetIdeaByTeamID(teamid uuid.UUID) (models.GetIdea, error) {
+func GetIdeaByTeamID(teamid uuid.UUID) (models.Idea, error) {
 	query := "SELECT title, description, track, github, figma, others FROM ideas WHERE teamid = $1"
 
-	var idea models.GetIdea
+	var idea models.Idea
 
 	err := database.DB.QueryRow(query, teamid).Scan(&idea.Title, &idea.Description,
 		&idea.Track, &idea.Github, &idea.Figma, &idea.Others)

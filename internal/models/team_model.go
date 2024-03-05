@@ -8,12 +8,8 @@ type Team struct {
 	Code  string    `json:"code"`
 	Round int       `json:"round"`
 	//Users    []uuid.UUID `json:"member_id"`
-	LeaderID  uuid.UUID `json:"leader_id"`
-	ProjectID uuid.UUID `json:"project_id"`
-	IdeaID    uuid.UUID `json:"idea_id"`
-	Users     []User    `json:"users"`
-	Idea      Idea      `json:"idea"`
-	Project   Project   `json:"project"`
+	LeaderID uuid.UUID `json:"leader_id"`
+	Users    []User    `json:"users"`
 }
 
 type CreateTeamRequest struct {
@@ -29,11 +25,12 @@ type KickMemberRequest struct {
 }
 
 type GetTeam struct {
-	TeamName string     `json:"team_name"`
-	TeamCode string     `json:"team_code"`
-	LeaderID uuid.UUID  `json:"leaderid"`
-	Round    int        `json:"round"`
-	Users    []GetUser  `json:"users"`
-	Ideas    GetIdea    `json:"idea"`
-	Project  GetProject `json:"project"`
+	ID       uuid.UUID `json:"-"`
+	TeamName string    `json:"team_name"`
+	TeamCode string    `json:"team_code"`
+	LeaderID uuid.UUID `json:"leader_id"`
+	Round    int       `json:"round"`
+	Users    []GetUser `json:"users"`
+	Ideas    Idea      `json:"idea"`
+	Project  Project   `json:"project"`
 }

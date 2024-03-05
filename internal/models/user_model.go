@@ -1,6 +1,10 @@
 package models
 
-import "github.com/google/uuid"
+import (
+	"strings"
+
+	"github.com/google/uuid"
+)
 
 type User struct {
 	ID                uuid.UUID `json:"id"`
@@ -77,7 +81,7 @@ func NewUser(email string, password string, role string) *User {
 		FirstName:         "",
 		LastName:          "",
 		RegNo:             "",
-		Email:             email,
+		Email:             strings.ToLower(email),
 		Password:          password,
 		Phone:             "",
 		College:           "",

@@ -26,23 +26,21 @@ func GetIdea(ctx echo.Context) error {
 		return ctx.JSON(http.StatusConflict, response{
 			Message: "The user is not in a team",
 			Status:  false,
-			Data:    &models.GetIdea{},
+			Data:    &models.Idea{},
 		})
 	}
 
 	idea, err := services.GetIdeaByTeamID(teamid)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return ctx.JSON(http.StatusExpectationFailed, response{
-				Message: "Failed to get idea could be cause the user has not made an idea",
-				Data:    idea,
-				Status:  false,
+			return ctx.JSON(http.StatusExpectationFailed, map[string]string{
+				"message": "Failed to get idea could be cause the user has not made an idea",
+				"status":  "fail",
 			})
 		}
-		return ctx.JSON(http.StatusInternalServerError, response{
-			Message: err.Error(),
-			Data:    idea,
-			Status:  false,
+		return ctx.JSON(http.StatusInternalServerError, map[string]string{
+			"message": err.Error(),
+			"status":  "error",
 		})
 
 	}
@@ -55,7 +53,7 @@ func GetIdea(ctx echo.Context) error {
 }
 
 func CreateIdea(ctx echo.Context) error {
-	var req models.CreateUpdateIdeasRequest
+	var req models.IdeaRequest
 
 	if err := ctx.Bind(&req); err != nil {
 		return ctx.JSON(http.StatusBadRequest, response{
@@ -65,7 +63,10 @@ func CreateIdea(ctx echo.Context) error {
 	}
 
 	if err := ctx.Validate(&req); err != nil {
-		return err
+		return ctx.JSON(http.StatusBadRequest, map[string]string{
+			"message": err.Error(),
+			"status":  "fail",
+		})
 	}
 
 	user := ctx.Get("user").(*models.User)
@@ -94,8 +95,7 @@ func CreateIdea(ctx echo.Context) error {
 }
 
 func UpdateIdea(ctx echo.Context) error {
-
-	var req models.CreateUpdateIdeasRequest
+	var req models.IdeaRequest
 	if err := ctx.Bind(&req); err != nil {
 		return ctx.JSON(http.StatusBadRequest, response{
 			Message: "Failed to parse the data",
@@ -104,7 +104,10 @@ func UpdateIdea(ctx echo.Context) error {
 	}
 
 	if err := ctx.Validate(&req); err != nil {
-		return err
+		return ctx.JSON(http.StatusBadRequest, map[string]string{
+			"message": err.Error(),
+			"status":  "fail",
+		})
 	}
 
 	user := ctx.Get("user").(*models.User)
