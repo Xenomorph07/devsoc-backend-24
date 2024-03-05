@@ -6,9 +6,9 @@ import (
 	"fmt"
 	"log/slog"
 	"net/http"
+	"strings"
 	"time"
 
-	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 	"github.com/redis/go-redis/v9"
 	"golang.org/x/crypto/bcrypt"
@@ -57,26 +57,7 @@ func CreateUser(ctx echo.Context) error {
 		})
 	}
 
-	user := models.User{
-		ID:                uuid.New(),
-		FirstName:         "",
-		LastName:          "",
-		RegNo:             "",
-		Email:             payload.Email,
-		Password:          string(hashed),
-		Phone:             "",
-		College:           "",
-		City:              "",
-		State:             "",
-		Gender:            "",
-		Role:              "user",
-		IsBanned:          false,
-		IsAdded:           false,
-		IsVitian:          false,
-		IsVerified:        false,
-		IsProfileComplete: false,
-		TeamID:            uuid.Nil,
-	}
+	user := models.NewUser(payload.Email, string(hashed), "user")
 
 	otp, err := utils.GenerateOTP(6)
 	if err != nil {
@@ -163,13 +144,13 @@ func CompleteProfile(ctx echo.Context) error {
 		})
 	}
 
-	user.FirstName = payload.FirstName
-	user.LastName = payload.LastName
+	user.FirstName = strings.ToTitle(payload.FirstName)
+	user.LastName = strings.ToTitle(payload.LastName)
 	user.RegNo = payload.RegNo
 	user.Phone = payload.PhoneNumber
-	user.College = payload.College
-	user.City = payload.City
-	user.State = payload.State
+	user.College = strings.ToTitle(payload.College)
+	user.City = strings.ToTitle(payload.City)
+	user.State = strings.ToTitle(payload.State)
 	user.Gender = payload.Gender
 	user.IsVitian = payload.IsVitian
 
@@ -195,7 +176,7 @@ func CompleteProfile(ctx echo.Context) error {
 			})
 		}
 
-		user.College = "Vellore Institute of Technology"
+		user.College = "Vellore Institute Of Technology"
 		user.City = "Vellore"
 		user.State = "Tamil Nadu"
 	}

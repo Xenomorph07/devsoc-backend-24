@@ -10,9 +10,10 @@ func FindUserByEmail(email string) (*models.User, error) {
 	user.Email = email
 
 	err := database.DB.QueryRow("SELECT id, first_name, last_name, reg_no, password, phone, college, gender, role, is_banned, is_added, is_vitian, is_verified, is_profile_complete, team_id FROM users WHERE email = $1",
-		email).Scan(&user.ID, &user.FirstName, &user.LastName, &user.RegNo, &user.Password, &user.Phone,
-		&user.College, &user.Gender, &user.Role,
-		&user.IsBanned, &user.IsAdded, &user.IsVitian, &user.IsVerified, &user.IsProfileComplete, &user.TeamID)
+		email).
+		Scan(&user.ID, &user.FirstName, &user.LastName, &user.RegNo, &user.Password, &user.Phone,
+			&user.College, &user.Gender, &user.Role,
+			&user.IsBanned, &user.IsAdded, &user.IsVitian, &user.IsVerified, &user.IsProfileComplete, &user.TeamID)
 	if err != nil {
 		return nil, err
 	}

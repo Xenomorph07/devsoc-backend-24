@@ -10,7 +10,7 @@ import (
 	"google.golang.org/api/sheets/v4"
 )
 
-func WriteUserToGoogleSheet(user models.User) error {
+func WriteUserToGoogleSheet(user *models.User) error {
 	spreadsheetID := "1IBBUHGO9vst-bz1PbdVnSWbqgkyyC8IwZb4wNisUylQ"
 	sheetName := "Sheet1"
 

@@ -70,3 +70,26 @@ type ResendOTPRequest struct {
 	Email string `json:"email" validate:"required,email"`
 	Type  string `json:"type"  validate:"required,oneof=verification resetpass"`
 }
+
+func NewUser(email string, password string, role string) *User {
+	return &User{
+		ID:                uuid.New(),
+		FirstName:         "",
+		LastName:          "",
+		RegNo:             "",
+		Email:             email,
+		Password:          password,
+		Phone:             "",
+		College:           "",
+		City:              "",
+		State:             "",
+		Gender:            "",
+		Role:              role,
+		IsBanned:          false,
+		IsAdded:           false,
+		IsVitian:          false,
+		IsVerified:        false,
+		IsProfileComplete: false,
+		TeamID:            uuid.Nil,
+	}
+}
