@@ -2,6 +2,7 @@ package services
 
 import (
 	"database/sql"
+	"errors"
 
 	"github.com/CodeChefVIT/devsoc-backend-24/internal/database"
 	"github.com/CodeChefVIT/devsoc-backend-24/internal/models"
@@ -15,7 +16,7 @@ func GetProject(teamid uuid.UUID) (models.Project, error) {
 		&proj.Description, &proj.GithubLink, &proj.FigmaLink,
 		&proj.Track, &proj.Others)
 	if err != nil {
-		if err == sql.ErrNoRows {
+		if errors.Is(err, sql.ErrNoRows) {
 			return proj, nil
 		} else {
 			return proj, err

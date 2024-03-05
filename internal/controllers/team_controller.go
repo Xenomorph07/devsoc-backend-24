@@ -84,7 +84,7 @@ func GetTeamDetails(ctx echo.Context) error {
 	team, err := services.FindTeamByTeamID(user.TeamID)
 
 	if err != nil {
-		if err == sql.ErrNoRows {
+		if errors.Is(err, sql.ErrNoRows) {
 			return ctx.JSON(http.StatusConflict, map[string]string{
 				"message": "The user team id does not exist",
 				"status":  "false",
@@ -132,7 +132,7 @@ func JoinTeam(ctx echo.Context) error {
 	team, err := services.FindTeamByCode(payload.Code)
 
 	if err != nil {
-		if err == sql.ErrNoRows {
+		if errors.Is(err, sql.ErrNoRows) {
 			return ctx.JSON(http.StatusConflict, map[string]string{
 				"message": "team code is invalid",
 				"status":  "failed to join team",
