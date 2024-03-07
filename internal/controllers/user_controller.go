@@ -336,3 +336,18 @@ func ResendOTP(ctx echo.Context) error {
 		"data":    otp,
 	})
 }
+
+func ResetPassword(ctx echo.Context) error {
+	var payload models.ResetPassword
+
+	if err := ctx.Bind(&payload); err != nil {
+		return ctx.JSON(http.StatusBadRequest, map[string]string{
+			"message": err.Error(),
+			"status":  "fail",
+		})
+	}
+
+	return ctx.JSON(http.StatusOK, map[string]string{
+		"status": "success",
+	})
+}

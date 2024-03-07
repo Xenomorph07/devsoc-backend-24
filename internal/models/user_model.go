@@ -75,6 +75,12 @@ type ResendOTPRequest struct {
 	Type  string `json:"type"  validate:"required,oneof=verification resetpass"`
 }
 
+type ResetPassword struct {
+	Email    string `json:"email"`
+	OTP      string `json:"otp"`
+	Password string `json:"password"`
+}
+
 func NewUser(email string, password string, role string) *User {
 	return &User{
 		ID:                uuid.New(),
