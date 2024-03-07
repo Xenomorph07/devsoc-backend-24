@@ -59,7 +59,7 @@ type LoginRequest struct {
 	Password string `json:"password" validate:"required,min=4"`
 }
 
-type VerifyUserRequest struct {
+type VerifyOTPRequest struct {
 	Email string `json:"email" validate:"required,email"`
 	OTP   string `json:"otp"   validate:"required,min=6,max=6"`
 }
@@ -75,10 +75,8 @@ type ResendOTPRequest struct {
 	Type  string `json:"type"  validate:"required,oneof=verification resetpass"`
 }
 
-type ResetPassword struct {
-	Email    string `json:"email"`
-	OTP      string `json:"otp"`
-	Password string `json:"password"`
+type ResetPasswordRequest struct {
+	Email string `json:"email"`
 }
 
 func NewUser(email string, password string, role string) *User {

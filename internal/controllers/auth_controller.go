@@ -130,10 +130,12 @@ func Login(ctx echo.Context) error {
 	})
 
 	return ctx.JSON(http.StatusOK, map[string]interface{}{
-		"message":          "login successful",
-		"status":           "success",
-		"profile_complete": user.IsProfileComplete,
-		"verified":         user.IsVerified,
+		"message": "login successful",
+		"status":  "success",
+		"data": map[string]interface{}{
+			"profile_complete": user.IsProfileComplete,
+			"verified":         user.IsVerified,
+		},
 	})
 }
 

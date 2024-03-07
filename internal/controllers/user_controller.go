@@ -198,7 +198,7 @@ func CompleteProfile(ctx echo.Context) error {
 }
 
 func VerifyUser(ctx echo.Context) error {
-	var payload models.VerifyUserRequest
+	var payload models.VerifyOTPRequest
 
 	if err := ctx.Bind(&payload); err != nil {
 		return ctx.JSON(http.StatusBadRequest, map[string]string{
@@ -338,9 +338,30 @@ func ResendOTP(ctx echo.Context) error {
 }
 
 func ResetPassword(ctx echo.Context) error {
-	var payload models.ResetPassword
+	var payload models.ResetPasswordRequest
 
 	if err := ctx.Bind(&payload); err != nil {
+		return ctx.JSON(http.StatusBadRequest, map[string]string{
+			"message": err.Error(),
+			"status":  "fail",
+		})
+	}
+
+	_, err := services.FindUserByEmail(payload.Email)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return ctx.JSON(http.StatusNotFound, map[string]string{
+				"message": "user not found",
+				"status":  "fail",
+			})
+		}
+		return ctx.JSON(http.StatusInternalServerError, map[string]string{
+			"status":  "error",
+			"message": err.Error(),
+		})
+	}
+
+	if err := ctx.Validate(&payload); err != nil {
 		return ctx.JSON(http.StatusBadRequest, map[string]string{
 			"message": err.Error(),
 			"status":  "fail",
