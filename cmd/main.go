@@ -33,12 +33,6 @@ func main() {
 	}
 
 	app.Use(middleware.Logger())
-	app.Use(middleware.CORSWithConfig(middleware.CORSConfig{
-		AllowOrigins:     []string{"http://localhost:3000"},
-		AllowHeaders:     []string{"Origin", "Content-Type", "Accept", "Authorization"},
-		AllowMethods:     []string{"GET", "POST", "PATCH", "DELETE"},
-		AllowCredentials: true,
-	}))
 
 	app.GET("/ping", func(ctx echo.Context) error {
 		return ctx.JSON(http.StatusOK, map[string]string{
