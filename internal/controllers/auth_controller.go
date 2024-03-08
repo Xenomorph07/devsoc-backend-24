@@ -141,7 +141,6 @@ func Login(ctx echo.Context) error {
 		"status":  "success",
 		"data": map[string]interface{}{
 			"profile_complete": user.IsProfileComplete,
-			"verified":         user.IsVerified,
 		},
 	})
 }
