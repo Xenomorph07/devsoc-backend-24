@@ -50,6 +50,13 @@ func Login(ctx echo.Context) error {
 		})
 	}
 
+	if !user.IsVerified {
+		return ctx.JSON(http.StatusExpectationFailed, map[string]string{
+			"message": "User is not verified",
+			"status":  "fail",
+		})
+	}
+
 	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(payload.Password)); err != nil {
 		if errors.Is(err, bcrypt.ErrMismatchedHashAndPassword) {
 			return ctx.JSON(http.StatusConflict, map[string]string{
