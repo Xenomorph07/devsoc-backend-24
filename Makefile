@@ -24,12 +24,10 @@ clean:
 	$(DOCKER_COMPOSE) down -v
 
 migrate-up:
-	cd db/migrations
-	goose postgres $(URI) up
+	cd db/migrations && goose postgres $(URI) up && cd ../..
 
 migrate-down:
-	cd db/migrations
-	goose postgres $(URI) down-to 0
+	cd db/migrations && goose postgres $(URI) down-to 0 && cd ../..
 
 # Help target
 help:

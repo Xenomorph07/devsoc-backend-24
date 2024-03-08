@@ -28,8 +28,10 @@ ON UPDATE CASCADE
 ON DELETE CASCADE;
 
 -- +goose Down
-ALTER TABLE teams
-DROP CONSTRAINT fk_ideas, 
+ALTER TABLE ideas
+DROP CONSTRAINT fk_ideas;
+
+ALTER TABLE projects
 DROP CONSTRAINT fk_projects;
 
 ALTER TABLE users
