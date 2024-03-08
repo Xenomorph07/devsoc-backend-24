@@ -11,6 +11,7 @@ CREATE TABLE users (
     college TEXT NOT NULL,
     city TEXT NOT NULL,
     state TEXT NOT NULL,
+    country TEXT NOT NULL,
     gender TEXT NOT NULL,
     role TEXT NOT NULL,
     is_banned BOOLEAN NOT NULL,

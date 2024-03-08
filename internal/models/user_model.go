@@ -17,6 +17,7 @@ type User struct {
 	College           string    `json:"college"`
 	City              string    `json:"city"`
 	State             string    `json:"state"`
+	Country           string    `json:"country"`
 	Gender            string    `json:"gender"`
 	Role              string    `json:"role"`
 	IsBanned          bool      `json:"-"`
@@ -39,7 +40,7 @@ type CompleteUserRequest struct {
 	LastName    string `json:"last_name"  validate:"required,min=1,max=20"`
 	PhoneNumber string `json:"phone"      validate:"required,min=10"`
 	Gender      string `json:"gender"     validate:"required"`
-	IsVitian    bool   `json:"is_vitian"  validate:"required"`
+	IsVitian    bool   `json:"is_vitian"`
 	Email       string `json:"email"      validate:"required,email"`
 	VitEmail    string `json:"vit_email"`
 	HostelBlock string `json:"block"`
@@ -47,6 +48,7 @@ type CompleteUserRequest struct {
 	College     string `json:"college"`
 	City        string `json:"city"`
 	State       string `json:"state"`
+	Country     string `json:"country"`
 	RegNo       string `json:"reg_no"     validate:"required"`
 }
 

@@ -146,6 +146,7 @@ func CompleteProfile(ctx echo.Context) error {
 	user.College = utils.TitleCaser.String(payload.College)
 	user.City = utils.TitleCaser.String(payload.City)
 	user.State = utils.TitleCaser.String(payload.State)
+	user.Country = utils.TitleCaser.String(payload.Country)
 	user.Gender = payload.Gender
 	user.IsVitian = payload.IsVitian
 
@@ -174,6 +175,7 @@ func CompleteProfile(ctx echo.Context) error {
 		user.College = "Vellore Institute Of Technology"
 		user.City = "Vellore"
 		user.State = "Tamil Nadu"
+		user.Country = "India"
 	}
 
 	user.IsProfileComplete = true
