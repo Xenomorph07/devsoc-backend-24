@@ -40,7 +40,7 @@ type CompleteUserRequest struct {
 	LastName    string `json:"last_name"  validate:"required,min=1,max=20"`
 	PhoneNumber string `json:"phone"      validate:"required,min=10"`
 	Gender      string `json:"gender"     validate:"required"`
-	IsVitian    bool   `json:"is_vitian"`
+	IsVitian    *bool  `json:"is_vitian"  validate:"required"`
 	Email       string `json:"email"      validate:"required,email"`
 	VitEmail    string `json:"vit_email"`
 	HostelBlock string `json:"block"`

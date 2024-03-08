@@ -148,7 +148,7 @@ func CompleteProfile(ctx echo.Context) error {
 	user.State = utils.TitleCaser.String(payload.State)
 	user.Country = utils.TitleCaser.String(payload.Country)
 	user.Gender = payload.Gender
-	user.IsVitian = payload.IsVitian
+	user.IsVitian = *payload.IsVitian
 
 	if user.IsVitian {
 		vitInfo := models.VITDetails{

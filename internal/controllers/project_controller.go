@@ -3,14 +3,14 @@ package controllers
 import (
 	"database/sql"
 	"errors"
-	"fmt"
 	"net/http"
 
-	"github.com/CodeChefVIT/devsoc-backend-24/internal/models"
-	services "github.com/CodeChefVIT/devsoc-backend-24/internal/services/projects"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/labstack/echo/v4"
+
+	"github.com/CodeChefVIT/devsoc-backend-24/internal/models"
+	services "github.com/CodeChefVIT/devsoc-backend-24/internal/services/projects"
 )
 
 func GetProject(ctx echo.Context) error {
@@ -119,7 +119,6 @@ func UpdateProject(ctx echo.Context) error {
 
 	user := ctx.Get("user").(*models.User)
 
-	fmt.Println(user.IsLeader)
 	if !user.IsLeader {
 		return ctx.JSON(http.StatusUnauthorized, map[string]string{
 			"message": "user is not a leader",
