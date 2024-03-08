@@ -16,5 +16,5 @@ func UserRoutes(incomingRoutes *echo.Echo) {
 
 	user := incomingRoutes.Group("/user")
 	user.POST("/complete-profile", controllers.CompleteProfile)
-	user.POST("/me", controllers.Dashboard, middleware.Protected(), middleware.AuthUser)
+	user.GET("/me", controllers.Dashboard, middleware.Protected(), middleware.AuthUser)
 }

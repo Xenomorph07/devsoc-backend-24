@@ -7,7 +7,7 @@ type Team struct {
 	Name  string    `json:"name"`
 	Code  string    `json:"code"`
 	Round int       `json:"round"`
-	//Users    []uuid.UUID `json:"member_id"`
+	// Users    []uuid.UUID `json:"member_id"`
 	LeaderID uuid.UUID `json:"leader_id"`
 	Users    []User    `json:"users"`
 }
@@ -21,7 +21,7 @@ type JoinTeamRequest struct {
 }
 
 type KickMemberRequest struct {
-	UserEmail string `json:"email" validate:"required"`
+	UserID string `json:"id" validate:"required"`
 }
 
 type GetTeam struct {

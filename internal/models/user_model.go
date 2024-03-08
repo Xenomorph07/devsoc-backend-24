@@ -12,7 +12,7 @@ type User struct {
 	LastName          string    `json:"last_name"`
 	RegNo             string    `json:"reg_no"`
 	Email             string    `json:"email"`
-	Password          string    `json:"password"`
+	Password          string    `json:"-"`
 	Phone             string    `json:"phone"`
 	College           string    `json:"college"`
 	City              string    `json:"city"`
@@ -66,10 +66,9 @@ type VerifyUserRequest struct {
 }
 
 type GetUser struct {
-	FirstName string `json:"first_name"`
-	LastName  string `json:"last_name"`
-	RegNo     string `json:"reg_no"`
-	Email     string `json:"email"`
+	FullName string    `json:"name"`
+	RegNo    string    `json:"reg_no"`
+	ID       uuid.UUID `json:"id"`
 }
 type ResendOTPRequest struct {
 	Email string `json:"email" validate:"required,email"`
