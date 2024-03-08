@@ -197,6 +197,16 @@ func CompleteProfile(ctx echo.Context) error {
 	})
 }
 
+func Dashboard(ctx echo.Context) error {
+	user := ctx.Get("user").(*models.User)
+
+	return ctx.JSON(http.StatusOK, map[string]interface{}{
+		"status":  "success",
+		"message": "user details",
+		"data":    *user,
+	})
+}
+
 func VerifyUser(ctx echo.Context) error {
 	var payload models.VerifyUserRequest
 

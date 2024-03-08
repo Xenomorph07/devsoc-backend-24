@@ -104,6 +104,7 @@ func NewUser(email string, password string, role string) *User {
 		IsAdded:           false,
 		IsVitian:          false,
 		IsVerified:        false,
+		IsLeader:          false,
 		IsProfileComplete: false,
 		TeamID:            uuid.Nil,
 	}

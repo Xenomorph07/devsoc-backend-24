@@ -4,6 +4,7 @@ import (
 	"github.com/labstack/echo/v4"
 
 	"github.com/CodeChefVIT/devsoc-backend-24/internal/controllers"
+	"github.com/CodeChefVIT/devsoc-backend-24/internal/middleware"
 )
 
 func UserRoutes(incomingRoutes *echo.Echo) {
@@ -15,5 +16,5 @@ func UserRoutes(incomingRoutes *echo.Echo) {
 
 	user := incomingRoutes.Group("/user")
 	user.POST("/complete-profile", controllers.CompleteProfile)
-
+	user.POST("/me", controllers.Dashboard, middleware.Protected(), middleware.AuthUser)
 }
