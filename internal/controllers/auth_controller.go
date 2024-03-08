@@ -51,7 +51,7 @@ func Login(ctx echo.Context) error {
 	}
 
 	if !user.IsVerified {
-		return ctx.JSON(http.StatusExpectationFailed, map[string]string{
+		return ctx.JSON(http.StatusForbidden, map[string]string{
 			"message": "User is not verified",
 			"status":  "fail",
 		})
