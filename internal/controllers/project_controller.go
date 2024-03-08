@@ -3,11 +3,11 @@ package controllers
 import (
 	"database/sql"
 	"errors"
+	"fmt"
 	"net/http"
 
 	"github.com/CodeChefVIT/devsoc-backend-24/internal/models"
 	services "github.com/CodeChefVIT/devsoc-backend-24/internal/services/projects"
-	"github.com/CodeChefVIT/devsoc-backend-24/internal/utils"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/labstack/echo/v4"
@@ -63,7 +63,7 @@ func CreateProject(ctx echo.Context) error {
 
 	user := ctx.Get("user").(*models.User)
 
-	if user.IsLeader {
+	if !user.IsLeader {
 		return ctx.JSON(http.StatusUnauthorized, map[string]string{
 			"message": "user is not a leader",
 			"status":  "fail",
@@ -101,7 +101,7 @@ func CreateProject(ctx echo.Context) error {
 }
 
 func UpdateProject(ctx echo.Context) error {
-	var req models.ProjectRequest
+	var req models.UpdateProjectRequest
 
 	if err := ctx.Bind(&req); err != nil {
 		return ctx.JSON(http.StatusBadRequest, map[string]string{
@@ -119,7 +119,8 @@ func UpdateProject(ctx echo.Context) error {
 
 	user := ctx.Get("user").(*models.User)
 
-	if user.IsLeader {
+	fmt.Println(user.IsLeader)
+	if !user.IsLeader {
 		return ctx.JSON(http.StatusUnauthorized, map[string]string{
 			"message": "user is not a leader",
 			"status":  "fail",
@@ -133,14 +134,41 @@ func UpdateProject(ctx echo.Context) error {
 		})
 	}
 
-	err := services.UpdateProject(req, user.TeamID)
+	curr, err := services.GetProject(user.TeamID)
 	if err != nil {
-		if errors.Is(err, utils.ErrInvalidTeamID) {
+		if errors.Is(err, sql.ErrNoRows) {
 			return ctx.JSON(http.StatusNotFound, map[string]string{
 				"message": "project not found",
 				"status":  "fail",
 			})
 		}
+		return ctx.JSON(http.StatusInternalServerError, map[string]string{
+			"message": "db error : " + err.Error(),
+			"status":  "fail",
+		})
+	}
+
+	if req.Name == "" {
+		req.Name = curr.Name
+	}
+	if req.Description == "" {
+		req.Description = curr.Description
+	}
+	if req.Track == "" {
+		req.Track = curr.Track
+	}
+	if req.GithubLink == "" {
+		req.GithubLink = curr.GithubLink
+	}
+	if req.FigmaLink == "" {
+		req.FigmaLink = curr.FigmaLink
+	}
+	if req.Others == "" {
+		req.Others = curr.Others
+	}
+
+	err = services.UpdateProject(req, user.TeamID)
+	if err != nil {
 		return ctx.JSON(http.StatusInternalServerError, map[string]string{
 			"message": "Failed to update the project" + err.Error(),
 			"status":  "error",
