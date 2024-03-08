@@ -13,5 +13,6 @@ func GetIdeaByTeamID(teamid uuid.UUID) (models.Idea, error) {
 
 	err := database.DB.QueryRow(query, teamid).Scan(&idea.Title, &idea.Description,
 		&idea.Track, &idea.Github, &idea.Figma, &idea.Others)
+
 	return idea, err
 }

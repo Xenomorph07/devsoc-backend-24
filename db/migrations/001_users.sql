@@ -17,6 +17,7 @@ CREATE TABLE users (
     is_added BOOLEAN NOT NULL,
     is_vitian BOOLEAN NOT NULL,
     is_verified BOOLEAN NOT NULL,
+    is_leader BOOLEAN NOT NULL,
     is_profile_complete BOOLEAN NOT NULL,
     team_id UUID
 );

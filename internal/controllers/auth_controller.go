@@ -208,8 +208,8 @@ func Refresh(ctx echo.Context) error {
 	}
 
 	if storedToken != refreshCookie.Value {
-		return ctx.JSON(http.StatusUnauthorized, map[string]string{
-			"message": "invalid token",
+		return ctx.JSON(http.StatusConflict, map[string]string{
+			"message": "invalid refresh token",
 			"status":  "failure",
 		})
 	}

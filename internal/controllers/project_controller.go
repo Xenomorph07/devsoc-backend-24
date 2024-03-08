@@ -7,6 +7,7 @@ import (
 
 	"github.com/CodeChefVIT/devsoc-backend-24/internal/models"
 	services "github.com/CodeChefVIT/devsoc-backend-24/internal/services/projects"
+	"github.com/CodeChefVIT/devsoc-backend-24/internal/utils"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/labstack/echo/v4"
@@ -62,6 +63,13 @@ func CreateProject(ctx echo.Context) error {
 
 	user := ctx.Get("user").(*models.User)
 
+	if user.IsLeader {
+		return ctx.JSON(http.StatusUnauthorized, map[string]string{
+			"message": "user is not a leader",
+			"status":  "fail",
+		})
+	}
+
 	if user.TeamID == uuid.Nil {
 		return ctx.JSON(http.StatusForbidden, map[string]string{
 			"message": "The user is not in a team",
@@ -75,7 +83,7 @@ func CreateProject(ctx echo.Context) error {
 		if errors.As(err, &pgerr) {
 			if pgerr.Code == "23505" {
 				return ctx.JSON(http.StatusConflict, map[string]string{
-					"message": "the team already has an project",
+					"message": "project alread present",
 					"status":  "fail",
 				})
 			}
@@ -111,8 +119,15 @@ func UpdateProject(ctx echo.Context) error {
 
 	user := ctx.Get("user").(*models.User)
 
+	if user.IsLeader {
+		return ctx.JSON(http.StatusUnauthorized, map[string]string{
+			"message": "user is not a leader",
+			"status":  "fail",
+		})
+	}
+
 	if user.TeamID == uuid.Nil {
-		return ctx.JSON(http.StatusConflict, map[string]string{
+		return ctx.JSON(http.StatusForbidden, map[string]string{
 			"message": "The user is not in a team",
 			"status":  "fail",
 		})
@@ -120,9 +135,9 @@ func UpdateProject(ctx echo.Context) error {
 
 	err := services.UpdateProject(req, user.TeamID)
 	if err != nil {
-		if errors.Is(err, errors.New("invalid teamid")) {
+		if errors.Is(err, utils.ErrInvalidTeamID) {
 			return ctx.JSON(http.StatusNotFound, map[string]string{
-				"message": "The team has not created an project",
+				"message": "project not found",
 				"status":  "fail",
 			})
 		}

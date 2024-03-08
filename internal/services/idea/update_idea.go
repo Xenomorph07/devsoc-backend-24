@@ -3,10 +3,10 @@ package services
 import (
 	"context"
 	"database/sql"
-	"errors"
 
 	"github.com/CodeChefVIT/devsoc-backend-24/internal/database"
 	"github.com/CodeChefVIT/devsoc-backend-24/internal/models"
+	"github.com/CodeChefVIT/devsoc-backend-24/internal/utils"
 	"github.com/google/uuid"
 )
 
@@ -34,7 +34,7 @@ func UpdateIdea(data models.IdeaRequest, teamid uuid.UUID) error {
 	check, _ := result.RowsAffected()
 	if check == 0 {
 		tx.Rollback()
-		return errors.New("invalid teamid")
+		return utils.ErrInvalidTeamID
 	}
 
 	err = tx.Commit()

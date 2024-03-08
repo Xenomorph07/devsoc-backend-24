@@ -23,6 +23,7 @@ type User struct {
 	IsAdded           bool      `json:"-"`
 	IsVitian          bool      `json:"-"`
 	IsVerified        bool      `json:"-"`
+	IsLeader          bool      `json:"-"`
 	IsProfileComplete bool      `json:"-"`
 	TeamID            uuid.UUID `json:"team_id"`
 }
@@ -59,7 +60,7 @@ type LoginRequest struct {
 	Password string `json:"password" validate:"required,min=4"`
 }
 
-type VerifyOTPRequest struct {
+type VerifyUserRequest struct {
 	Email string `json:"email" validate:"required,email"`
 	OTP   string `json:"otp"   validate:"required,min=6,max=6"`
 }
@@ -75,8 +76,14 @@ type ResendOTPRequest struct {
 	Type  string `json:"type"  validate:"required,oneof=verification resetpass"`
 }
 
+type ForgotPasswordRequest struct {
+	Email string `json:"email" validate:"required,email"`
+}
+
 type ResetPasswordRequest struct {
-	Email string `json:"email"`
+	Email    string `json:"email"        validate:"required,email"`
+	OTP      string `json:"otp"          validate:"required,min=6,max=6"`
+	Password string `json:"new_password" validate:"required,min=6"`
 }
 
 func NewUser(email string, password string, role string) *User {

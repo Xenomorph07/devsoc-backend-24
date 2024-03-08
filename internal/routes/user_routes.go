@@ -10,6 +10,8 @@ func UserRoutes(incomingRoutes *echo.Echo) {
 	incomingRoutes.POST("/signup", controllers.CreateUser)
 	incomingRoutes.POST("/verify", controllers.VerifyUser)
 	incomingRoutes.POST("/resend", controllers.ResendOTP)
+	incomingRoutes.POST("/reset-password", controllers.RequestResetPassword)
+	incomingRoutes.PATCH("/reset-password", controllers.ResetPassword)
 
 	user := incomingRoutes.Group("/user")
 	user.POST("/complete-profile", controllers.CompleteProfile)

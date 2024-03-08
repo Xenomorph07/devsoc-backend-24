@@ -26,9 +26,12 @@ func AuthUser(next echo.HandlerFunc) echo.HandlerFunc {
 		}
 		claims, ok := token.Claims.(jwt.MapClaims)
 		if !ok {
-			return c.JSON(http.StatusUnauthorized, map[string]string{
+			return c.JSON(http.StatusUnauthorized, map[string]interface{}{
 				"message": "malformed jwt",
 				"status":  "checking claims",
+				"data": map[string]bool{
+					"malformed": true,
+				},
 			})
 		}
 
@@ -37,11 +40,15 @@ func AuthUser(next echo.HandlerFunc) echo.HandlerFunc {
 		tokenVersionStr, err := database.RedisClient.Get("token_version:" + email)
 		if err != nil {
 			if err == redis.Nil {
-				return c.JSON(http.StatusUnauthorized, map[string]string{
+				return c.JSON(http.StatusUnauthorized, map[string]interface{}{
 					"message": "token expired",
 					"status":  "failure",
+					"data": map[string]bool{
+						"token_expired": true,
+					},
 				})
 			}
+
 			return c.JSON(http.StatusInternalServerError, map[string]string{
 				"message": err.Error(),
 				"status":  "get from redis",
@@ -51,9 +58,12 @@ func AuthUser(next echo.HandlerFunc) echo.HandlerFunc {
 		tokenVersion, _ := strconv.Atoi(tokenVersionStr)
 
 		if int(claims["version"].(float64)) != tokenVersion {
-			return c.JSON(http.StatusForbidden, map[string]string{
+			return c.JSON(http.StatusForbidden, map[string]interface{}{
 				"messsage": "invalid token",
 				"status":   "failure",
+				"data": map[string]interface{}{
+					"invalid_token": true,
+				},
 			})
 		}
 
