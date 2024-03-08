@@ -5,12 +5,13 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/CodeChefVIT/devsoc-backend-24/internal/models"
-	services "github.com/CodeChefVIT/devsoc-backend-24/internal/services/projects"
-	"github.com/CodeChefVIT/devsoc-backend-24/internal/utils"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/labstack/echo/v4"
+
+	"github.com/CodeChefVIT/devsoc-backend-24/internal/models"
+	services "github.com/CodeChefVIT/devsoc-backend-24/internal/services/projects"
+	"github.com/CodeChefVIT/devsoc-backend-24/internal/utils"
 )
 
 func GetProject(ctx echo.Context) error {
@@ -63,7 +64,7 @@ func CreateProject(ctx echo.Context) error {
 
 	user := ctx.Get("user").(*models.User)
 
-	if user.IsLeader {
+	if !user.IsLeader {
 		return ctx.JSON(http.StatusUnauthorized, map[string]string{
 			"message": "user is not a leader",
 			"status":  "fail",
@@ -119,7 +120,7 @@ func UpdateProject(ctx echo.Context) error {
 
 	user := ctx.Get("user").(*models.User)
 
-	if user.IsLeader {
+	if !user.IsLeader {
 		return ctx.JSON(http.StatusUnauthorized, map[string]string{
 			"message": "user is not a leader",
 			"status":  "fail",
