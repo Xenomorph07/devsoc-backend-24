@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"log/slog"
 	"net/http"
 	"os"
 	"os/signal"
@@ -21,6 +22,7 @@ func init() {
 	appConfig := config.LoadConfig()
 	database.InitDB(appConfig.DatabaseConfig)
 	database.InitialiseGoogleSheetsClient()
+	utils.InitCaser()
 	database.InitRedis(appConfig.RedisConfig)
 }
 
@@ -31,12 +33,6 @@ func main() {
 	}
 
 	app.Use(middleware.Logger())
-	app.Use(middleware.CORSWithConfig(middleware.CORSConfig{
-		AllowOrigins:     []string{"http://localhost:3000"},
-		AllowHeaders:     []string{"Origin", "Content-Type", "Accept", "Authorization"},
-		AllowMethods:     []string{"GET", "POST", "PATCH", "DELETE"},
-		AllowCredentials: true,
-	}))
 
 	app.GET("/ping", func(ctx echo.Context) error {
 		return ctx.JSON(http.StatusOK, map[string]string{
@@ -73,6 +69,10 @@ func main() {
 	go func() {
 		<-c
 		database.DB.Close()
+		err := database.RedisClient.Close()
+		if err != nil {
+			slog.Error("error closing redis client: " + err.Error())
+		}
 		_ = app.Shutdown(context.Background())
 	}()
 	signal.Notify(c, os.Interrupt)

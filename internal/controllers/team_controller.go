@@ -6,12 +6,12 @@ import (
 	"net/http"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/labstack/echo/v4"
 
 	"github.com/CodeChefVIT/devsoc-backend-24/internal/models"
 	services "github.com/CodeChefVIT/devsoc-backend-24/internal/services/team"
 	"github.com/CodeChefVIT/devsoc-backend-24/internal/utils"
-	"github.com/jackc/pgx/v5/pgconn"
 )
 
 func CreateTeam(ctx echo.Context) error {
@@ -65,14 +65,17 @@ func CreateTeam(ctx echo.Context) error {
 		})
 	}
 
-	return ctx.JSON(http.StatusCreated, map[string]string{
+	return ctx.JSON(http.StatusCreated, map[string]interface{}{
 		"message": "team created successfully",
 		"status":  "success",
+		"data": map[string]interface{}{
+			"team_code": code,
+		},
 	})
 }
 
 func GetTeamDetails(ctx echo.Context) error {
-	var user = ctx.Get("user").(*models.User)
+	user := ctx.Get("user").(*models.User)
 
 	if user.TeamID == uuid.Nil {
 		return ctx.JSON(http.StatusExpectationFailed, map[string]string{
@@ -82,9 +85,8 @@ func GetTeamDetails(ctx echo.Context) error {
 	}
 
 	team, err := services.FindTeamByTeamID(user.TeamID)
-
 	if err != nil {
-		if err == sql.ErrNoRows {
+		if errors.Is(err, sql.ErrNoRows) {
 			return ctx.JSON(http.StatusConflict, map[string]string{
 				"message": "The user team id does not exist",
 				"status":  "false",
@@ -130,9 +132,8 @@ func JoinTeam(ctx echo.Context) error {
 	}
 
 	team, err := services.FindTeamByCode(payload.Code)
-
 	if err != nil {
-		if err == sql.ErrNoRows {
+		if errors.Is(err, sql.ErrNoRows) {
 			return ctx.JSON(http.StatusConflict, map[string]string{
 				"message": "team code is invalid",
 				"status":  "failed to join team",
@@ -151,7 +152,7 @@ func JoinTeam(ctx echo.Context) error {
 		})
 	}
 
-	if err := services.UpdateUserTeamDetails(team.ID, user.Email); err != nil {
+	if err := services.UpdateUserTeamDetails(team.ID, user.ID); err != nil {
 		return ctx.JSON(http.StatusInternalServerError, map[string]string{
 			"message": err.Error(),
 			"status":  "error",
@@ -166,7 +167,7 @@ func JoinTeam(ctx echo.Context) error {
 
 func KickMember(ctx echo.Context) error {
 	var payload models.KickMemberRequest
-	var user = ctx.Get("user").(*models.User)
+	user := ctx.Get("user").(*models.User)
 
 	if err := ctx.Bind(&payload); err != nil {
 		return ctx.JSON(http.StatusBadRequest, map[string]string{
@@ -179,6 +180,14 @@ func KickMember(ctx echo.Context) error {
 		return ctx.JSON(http.StatusBadRequest, map[string]string{
 			"message": err.Error(),
 			"status":  "fail",
+		})
+	}
+
+	memberID, err := uuid.Parse(payload.UserID)
+	if err != nil {
+		return ctx.JSON(http.StatusBadRequest, map[string]string{
+			"status":  "fail",
+			"message": err.Error(),
 		})
 	}
 
@@ -197,14 +206,14 @@ func KickMember(ctx echo.Context) error {
 		})
 	}
 
-	if !services.CheckUserInTeam(payload.UserEmail, user.TeamID) {
+	if !services.CheckUserInTeam(memberID, user.TeamID) {
 		return ctx.JSON(http.StatusExpectationFailed, map[string]string{
 			"message": "user is not in the team",
 			"status":  "fail",
 		})
 	}
 
-	if err := services.UpdateUserTeamDetails(uuid.Nil, payload.UserEmail); err != nil {
+	if err := services.UpdateUserTeamDetails(uuid.Nil, memberID); err != nil {
 		return ctx.JSON(http.StatusInternalServerError, map[string]string{
 			"message": err.Error(),
 			"status":  "error",
@@ -218,7 +227,7 @@ func KickMember(ctx echo.Context) error {
 }
 
 func LeaveTeam(ctx echo.Context) error {
-	var user = ctx.Get("user").(*models.User)
+	user := ctx.Get("user").(*models.User)
 
 	if user.TeamID == uuid.Nil {
 		return ctx.JSON(http.StatusExpectationFailed, map[string]string{
@@ -235,7 +244,7 @@ func LeaveTeam(ctx echo.Context) error {
 		})
 	}
 
-	if err := services.UpdateUserTeamDetails(uuid.Nil, user.Email); err != nil {
+	if err := services.UpdateUserTeamDetails(uuid.Nil, user.ID); err != nil {
 		return ctx.JSON(http.StatusInternalServerError, map[string]string{
 			"message": err.Error(),
 			"status":  "failed to leave team",

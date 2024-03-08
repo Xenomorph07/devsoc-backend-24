@@ -9,9 +9,11 @@ import (
 	"github.com/google/uuid"
 )
 
-func CreateIdea(data models.CreateUpdateIdeasRequest, teamid uuid.UUID) error {
-	tx, err := database.DB.BeginTx(context.TODO(), &sql.TxOptions{Isolation: sql.LevelSerializable})
-
+func CreateIdea(data models.IdeaRequest, teamid uuid.UUID) error {
+	tx, err := database.DB.BeginTx(
+		context.Background(),
+		&sql.TxOptions{Isolation: sql.LevelSerializable},
+	)
 	if err != nil {
 		return err
 	}
@@ -21,19 +23,11 @@ func CreateIdea(data models.CreateUpdateIdeasRequest, teamid uuid.UUID) error {
 	var id uuid.UUID
 	err = tx.QueryRow(query, uuid.New(), data.Title, data.Description,
 		data.Track, data.Github, data.Figma, data.Others, false, teamid).Scan(&id)
-
 	if err != nil {
 		tx.Rollback()
 		return err
 	}
 
-	query = `UPDATE teams SET ideaid = $1 WHERE id = $2`
-
-	_, err = tx.Exec(query, id, teamid)
-	if err != nil {
-		tx.Rollback()
-		return err
-	}
 	err = tx.Commit()
 	if err != nil {
 		tx.Rollback()

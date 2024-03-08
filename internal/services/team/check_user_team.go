@@ -11,9 +11,15 @@ import (
 func CheckUserTeam(userid uuid.UUID) error {
 	query := "select team_id from users where id = $1"
 	var check sql.NullString
-	database.DB.QueryRow(query, userid).Scan(&check)
+
+	err := database.DB.QueryRow(query, userid).Scan(&check)
+	if err != nil {
+		return err
+	}
+
 	if check.Valid {
 		return nil
 	}
+
 	return errors.New("user is already in a team")
 }

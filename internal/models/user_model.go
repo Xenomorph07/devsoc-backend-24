@@ -1,6 +1,10 @@
 package models
 
-import "github.com/google/uuid"
+import (
+	"strings"
+
+	"github.com/google/uuid"
+)
 
 type User struct {
 	ID                uuid.UUID `json:"id"`
@@ -8,7 +12,7 @@ type User struct {
 	LastName          string    `json:"last_name"`
 	RegNo             string    `json:"reg_no"`
 	Email             string    `json:"email"`
-	Password          string    `json:"password"`
+	Password          string    `json:"-"`
 	Phone             string    `json:"phone"`
 	College           string    `json:"college"`
 	City              string    `json:"city"`
@@ -19,6 +23,7 @@ type User struct {
 	IsAdded           bool      `json:"-"`
 	IsVitian          bool      `json:"-"`
 	IsVerified        bool      `json:"-"`
+	IsLeader          bool      `json:"-"`
 	IsProfileComplete bool      `json:"-"`
 	TeamID            uuid.UUID `json:"team_id"`
 }
@@ -61,12 +66,45 @@ type VerifyUserRequest struct {
 }
 
 type GetUser struct {
-	FirstName string `json:"first_name"`
-	LastName  string `json:"last_name"`
-	RegNo     string `json:"reg_no"`
-	Email     string `json:"email"`
+	FullName string    `json:"name"`
+	RegNo    string    `json:"reg_no"`
+	ID       uuid.UUID `json:"id"`
 }
 type ResendOTPRequest struct {
 	Email string `json:"email" validate:"required,email"`
 	Type  string `json:"type"  validate:"required,oneof=verification resetpass"`
+}
+
+type ForgotPasswordRequest struct {
+	Email string `json:"email" validate:"required,email"`
+}
+
+type ResetPasswordRequest struct {
+	Email    string `json:"email"        validate:"required,email"`
+	OTP      string `json:"otp"          validate:"required,min=6,max=6"`
+	Password string `json:"new_password" validate:"required,min=6"`
+}
+
+func NewUser(email string, password string, role string) *User {
+	return &User{
+		ID:                uuid.New(),
+		FirstName:         "",
+		LastName:          "",
+		RegNo:             "",
+		Email:             strings.ToLower(email),
+		Password:          password,
+		Phone:             "",
+		College:           "",
+		City:              "",
+		State:             "",
+		Gender:            "",
+		Role:              role,
+		IsBanned:          false,
+		IsAdded:           false,
+		IsVitian:          false,
+		IsVerified:        false,
+		IsLeader:          false,
+		IsProfileComplete: false,
+		TeamID:            uuid.Nil,
+	}
 }

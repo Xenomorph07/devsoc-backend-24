@@ -130,10 +130,12 @@ func Login(ctx echo.Context) error {
 	})
 
 	return ctx.JSON(http.StatusOK, map[string]interface{}{
-		"message":          "login successful",
-		"status":           "success",
-		"profile_complete": user.IsProfileComplete,
-		"verified":         user.IsVerified,
+		"message": "login successful",
+		"status":  "success",
+		"data": map[string]interface{}{
+			"profile_complete": user.IsProfileComplete,
+			"verified":         user.IsVerified,
+		},
 	})
 }
 
@@ -206,8 +208,8 @@ func Refresh(ctx echo.Context) error {
 	}
 
 	if storedToken != refreshCookie.Value {
-		return ctx.JSON(http.StatusUnauthorized, map[string]string{
-			"message": "invalid token",
+		return ctx.JSON(http.StatusConflict, map[string]string{
+			"message": "invalid refresh token",
 			"status":  "failure",
 		})
 	}
