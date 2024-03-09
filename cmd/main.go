@@ -52,9 +52,11 @@ func main() {
 
 		app.Logger.Error(err)
 		c.JSON(code, map[string]interface{}{
-			"code":    code,
 			"status":  "fail",
 			"message": message,
+			"data": map[string]interface{}{
+				"code": code,
+			},
 		})
 	}
 
