@@ -364,7 +364,7 @@ func RequestResetPassword(ctx echo.Context) error {
 		})
 	}
 
-	_, err := services.FindUserByEmail(payload.Email)
+	user, err := services.FindUserByEmail(payload.Email)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return ctx.JSON(http.StatusNotFound, map[string]string{
@@ -375,6 +375,13 @@ func RequestResetPassword(ctx echo.Context) error {
 		return ctx.JSON(http.StatusInternalServerError, map[string]string{
 			"status":  "error",
 			"message": err.Error(),
+		})
+	}
+
+	if !user.IsVerified {
+		return ctx.JSON(http.StatusForbidden, map[string]string{
+			"message": "user not verified",
+			"status":  "fail",
 		})
 	}
 

@@ -126,6 +126,7 @@ func Login(ctx echo.Context) error {
 		HttpOnly: true,
 		SameSite: http.SameSiteNoneMode, // CHANGE DURING PRODUCTION
 		MaxAge:   86400,
+		Secure:   true,
 	})
 
 	ctx.SetCookie(&http.Cookie{
@@ -134,6 +135,7 @@ func Login(ctx echo.Context) error {
 		HttpOnly: true,
 		SameSite: http.SameSiteNoneMode, // CHANGE DURING PRODUCTION
 		MaxAge:   86400,
+		Secure:   true,
 	})
 
 	return ctx.JSON(http.StatusOK, map[string]interface{}{
@@ -196,6 +198,7 @@ func Refresh(ctx echo.Context) error {
 			HttpOnly: true,
 			SameSite: http.SameSiteNoneMode, // CHANGE DURING PRODUCTION
 			MaxAge:   86400,
+			Secure:   true,
 		}
 	}
 
