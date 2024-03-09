@@ -10,7 +10,7 @@ import (
 	"github.com/google/uuid"
 )
 
-func UpdateProject(data models.ProjectRequest, teamid uuid.UUID) error {
+func UpdateProject(data models.UpdateProjectRequest, teamid uuid.UUID) error {
 	query := `UPDATE projects SET name = $1, description = $2, github = $3, figma = $4, track = $5, others = $6 WHERE teamid = $7`
 	tx, _ := database.DB.BeginTx(
 		context.Background(),

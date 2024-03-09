@@ -5,13 +5,11 @@ import (
 	"errors"
 	"net/http"
 
+	"github.com/CodeChefVIT/devsoc-backend-24/internal/models"
+	services "github.com/CodeChefVIT/devsoc-backend-24/internal/services/idea"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/labstack/echo/v4"
-
-	"github.com/CodeChefVIT/devsoc-backend-24/internal/models"
-	services "github.com/CodeChefVIT/devsoc-backend-24/internal/services/idea"
-	"github.com/CodeChefVIT/devsoc-backend-24/internal/utils"
 )
 
 func GetIdea(ctx echo.Context) error {
@@ -97,7 +95,7 @@ func CreateIdea(ctx echo.Context) error {
 }
 
 func UpdateIdea(ctx echo.Context) error {
-	var req models.IdeaRequest
+	var req models.UpdateIdeaRequest
 	if err := ctx.Bind(&req); err != nil {
 		return ctx.JSON(http.StatusBadRequest, map[string]string{
 			"message": "Failed to parse the data",
@@ -128,14 +126,42 @@ func UpdateIdea(ctx echo.Context) error {
 		})
 	}
 
-	err := services.UpdateIdea(req, user.TeamID)
+	curr, err := services.GetIdeaByTeamID(user.TeamID)
 	if err != nil {
-		if errors.Is(err, utils.ErrInvalidTeamID) {
+		if errors.Is(err, sql.ErrNoRows) {
 			return ctx.JSON(http.StatusNotFound, map[string]string{
-				"message": "idea not found",
+				"message": "the team has not submitted an idea",
 				"status":  "fail",
 			})
 		}
+		return ctx.JSON(http.StatusInternalServerError, map[string]string{
+			"message": "db err : " + err.Error(),
+			"status":  "fail",
+		})
+	}
+
+	if req.Title == "" {
+		req.Title = curr.Title
+	}
+	if req.Description == "" {
+		req.Description = curr.Description
+	}
+	if req.Track == "" {
+		req.Track = curr.Track
+	}
+	if req.Github == "" {
+		req.Github = curr.Github
+	}
+	if req.Figma == "" {
+		req.Figma = curr.Figma
+	}
+	if req.Others == "" {
+		req.Others = curr.Others
+	}
+
+	err = services.UpdateIdea(req, user.TeamID)
+
+	if err != nil {
 		return ctx.JSON(http.StatusInternalServerError, map[string]string{
 			"message": "Failed to update the idea " + err.Error(),
 			"status":  "error",
