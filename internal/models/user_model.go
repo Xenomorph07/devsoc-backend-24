@@ -17,6 +17,7 @@ type User struct {
 	College           string    `json:"college"`
 	City              string    `json:"city"`
 	State             string    `json:"state"`
+	Country           string    `json:"country"`
 	Gender            string    `json:"gender"`
 	Role              string    `json:"role"`
 	IsBanned          bool      `json:"-"`
@@ -47,6 +48,7 @@ type CompleteUserRequest struct {
 	College     string `json:"college"`
 	City        string `json:"city"`
 	State       string `json:"state"`
+	Country     string `json:"country"`
 	RegNo       string `json:"reg_no"     validate:"required"`
 }
 

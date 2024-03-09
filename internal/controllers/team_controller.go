@@ -252,7 +252,7 @@ func LeaveTeam(ctx echo.Context) error {
 	}
 
 	if team.LeaderID == user.ID {
-		if err := services.DeleteTeam(user.TeamID); err != nil {
+		if err := services.DeleteTeam(user.TeamID, user.ID); err != nil {
 			return ctx.JSON(http.StatusInternalServerError, map[string]string{
 				"message": err.Error(),
 				"status":  "error",
