@@ -33,7 +33,7 @@ func UpdateUser(user *models.User) error {
 
 func UpdateVitDetails(userID uuid.UUID, details *models.VITDetails) error {
 	_, err := database.DB.Exec(
-		`UPDATE vit_details SET email = $1 AND block = $2 AND room = $3 WHERE user_id = $4`,
+		`UPDATE vit_details SET email = $1, block = $2, room = $3 WHERE user_id = $4`,
 		details.Email,
 		details.Block,
 		details.Room,
