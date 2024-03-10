@@ -71,7 +71,7 @@ func Login(ctx echo.Context) error {
 	}
 
 	tokenVersionStr, err := database.RedisClient.Get(
-		fmt.Sprintf("token_version:%s", user.Email))
+		fmt.Sprintf("token_version:%s", user.User.Email))
 	if err != nil && err != redis.Nil {
 		return ctx.JSON(http.StatusInternalServerError, map[string]string{
 			"status":  "error",
@@ -83,7 +83,7 @@ func Login(ctx echo.Context) error {
 
 	accessToken, err := utils.CreateToken(utils.TokenPayload{
 		Exp:          time.Minute * 5,
-		Email:        user.Email,
+		Email:        user.User.Email,
 		Role:         user.Role,
 		TokenVersion: tokenVersion + 1,
 	}, utils.ACCESS_TOKEN)
@@ -96,7 +96,7 @@ func Login(ctx echo.Context) error {
 
 	refreshToken, err := utils.CreateToken(utils.TokenPayload{
 		Exp:   time.Hour * 1,
-		Email: user.Email,
+		Email: user.User.Email,
 	}, utils.REFRESH_TOKEN)
 	if err != nil {
 		return ctx.JSON(http.StatusInternalServerError, map[string]string{
@@ -105,7 +105,7 @@ func Login(ctx echo.Context) error {
 		})
 	}
 
-	if err := database.RedisClient.Set(fmt.Sprintf("token_version:%s", user.Email),
+	if err := database.RedisClient.Set(fmt.Sprintf("token_version:%s", user.User.Email),
 		fmt.Sprint(tokenVersion+1), time.Hour*1); err != nil {
 		return ctx.JSON(http.StatusInternalServerError, map[string]string{
 			"status":  "error",
@@ -113,7 +113,7 @@ func Login(ctx echo.Context) error {
 		})
 	}
 
-	if err := database.RedisClient.Set(user.Email, refreshToken, time.Hour*1); err != nil {
+	if err := database.RedisClient.Set(user.User.Email, refreshToken, time.Hour*1); err != nil {
 		return ctx.JSON(http.StatusInternalServerError, map[string]string{
 			"status":  "error",
 			"message": err.Error(),
@@ -237,7 +237,7 @@ func Refresh(ctx echo.Context) error {
 		})
 	}
 
-	tokenVersionStr, err := database.RedisClient.Get("token_version:" + user.Email)
+	tokenVersionStr, err := database.RedisClient.Get("token_version:" + user.User.Email)
 	if err != nil {
 		if err != redis.Nil {
 			return ctx.JSON(http.StatusInternalServerError, map[string]string{
@@ -252,7 +252,7 @@ func Refresh(ctx echo.Context) error {
 
 	accessToken, err := utils.CreateToken(utils.TokenPayload{
 		Exp:          time.Minute * 5,
-		Email:        user.Email,
+		Email:        user.User.Email,
 		Role:         user.Role,
 		TokenVersion: tokenVersion + 1,
 	}, utils.ACCESS_TOKEN)
@@ -263,7 +263,7 @@ func Refresh(ctx echo.Context) error {
 		})
 	}
 
-	if err := database.RedisClient.Set("token_version:"+user.Email, fmt.Sprint(tokenVersion+1), time.Hour*1); err != nil {
+	if err := database.RedisClient.Set("token_version:"+user.User.Email, fmt.Sprint(tokenVersion+1), time.Hour*1); err != nil {
 		return ctx.JSON(http.StatusInternalServerError, map[string]string{
 			"message": err.Error(),
 			"status":  "redis set",

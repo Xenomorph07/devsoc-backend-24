@@ -1,6 +1,8 @@
 package services
 
 import (
+	"github.com/google/uuid"
+
 	"github.com/CodeChefVIT/devsoc-backend-24/internal/database"
 	"github.com/CodeChefVIT/devsoc-backend-24/internal/models"
 )
@@ -25,6 +27,17 @@ func UpdateUser(user *models.User) error {
 		user.IsProfileComplete,
 		user.Country,
 		user.Email,
+	)
+	return err
+}
+
+func UpdateVitDetails(userID uuid.UUID, details *models.VITDetails) error {
+	_, err := database.DB.Exec(
+		`UPDATE vit_details SET email = $1 AND block = $2 AND room = $3 WHERE user_id = $4`,
+		details.Email,
+		details.Block,
+		details.Room,
+		userID,
 	)
 	return err
 }

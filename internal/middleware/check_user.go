@@ -77,7 +77,7 @@ func AuthUser(next echo.HandlerFunc) echo.HandlerFunc {
 			}
 		}
 
-		c.Set("user", user)
+		c.Set("user", &user.User)
 
 		return next(c)
 	}

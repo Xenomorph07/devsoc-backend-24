@@ -28,7 +28,7 @@ CREATE TABLE vit_details (
     user_id UUID NOT NULL,
     email TEXT UNIQUE NOT NULL,
     block TEXT NOT NULL,
-    Room TEXT NOT NULL
+    room TEXT NOT NULL
 );
 
 -- +goose Down
