@@ -245,7 +245,7 @@ func UpdateUser(ctx echo.Context) error {
 		}
 		return ctx.JSON(http.StatusInternalServerError, map[string]interface{}{
 			"status":  "error",
-			"messgae": err.Error(),
+			"message": err.Error(),
 		})
 	}
 

@@ -55,7 +55,7 @@ func FindUserByID(ID uuid.UUID) (*models.UserDetails, error) {
 	var room sql.NullString
 
 	err := database.DB.QueryRow(`SELECT users.email, first_name, last_name, reg_no, password, phone, college, gender, role, is_banned, is_added, is_vitian, is_verified, is_profile_complete, is_leader, team_id, city, state, vit_details.email, vit_details.room, vit_details.block 
-    FROM users LEFT JOIN vit_details ON users.id = vit_details.user_id WHERE id = $1`,
+    FROM users LEFT JOIN vit_details ON users.id = vit_details.user_id WHERE users.id = $1`,
 		ID).
 		Scan(&user.User.Email, &user.FirstName, &user.LastName, &user.RegNo, &user.Password, &user.Phone,
 			&user.College, &user.Gender, &user.Role,
