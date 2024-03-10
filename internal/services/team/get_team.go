@@ -16,7 +16,7 @@ func FindTeamByTeamID(team_id uuid.UUID) (models.GetTeam, error) {
 	query := `SELECT teams.name, teams.code, teams.leader_id, teams.round,
 	users.first_name, users.last_name, users.id, users.reg_no, 
 	ideas.title, ideas.description, ideas.track, ideas.github, ideas.figma, ideas.others, 
-	projects.name, projects.description, projects.github, projects.figma, projects.track, projects.others
+	projects.name, projects.description, projects.github, projects.figma, projects.track, projects.others, user.is_leader
 	FROM teams
 	INNER JOIN users ON users.team_id = teams.id
 	LEFT JOIN projects ON projects.teamid = teams.id
@@ -64,10 +64,12 @@ func FindTeamByTeamID(team_id uuid.UUID) (models.GetTeam, error) {
 			}
 		}
 		userID, _ := uuid.Parse(values[6].String)
+		temp, _ := strconv.ParseBool(values[20].String)
 		team.Users = append(team.Users, models.GetUser{
 			FullName: values[4].String + " " + values[5].String,
 			ID:       userID,
 			RegNo:    values[7].String,
+			IsLeader: temp,
 		})
 	}
 
