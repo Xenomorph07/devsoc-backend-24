@@ -71,6 +71,7 @@ type GetUser struct {
 	FullName string    `json:"name"`
 	RegNo    string    `json:"reg_no"`
 	ID       uuid.UUID `json:"id"`
+	IsLeader bool      `json:"is_leader"`
 }
 type ResendOTPRequest struct {
 	Email string `json:"email" validate:"required,email"`
