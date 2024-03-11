@@ -24,7 +24,7 @@ type User struct {
 	IsAdded           bool      `json:"-"`
 	IsVitian          bool      `json:"-"`
 	IsVerified        bool      `json:"-"`
-	IsLeader          bool      `json:"-"`
+	IsLeader          bool      `json:"is_leader"`
 	IsProfileComplete bool      `json:"-"`
 	TeamID            uuid.UUID `json:"team_id"`
 }
