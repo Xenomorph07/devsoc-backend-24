@@ -19,12 +19,12 @@ func FindUserByEmail(email string) (*models.UserDetails, error) {
 	var block sql.NullString
 	var room sql.NullString
 
-	err := database.DB.QueryRow(`SELECT users.id, first_name, last_name, reg_no, password, phone, college, gender, role, is_banned, is_added, is_vitian, is_verified, is_profile_complete, is_leader, team_id, city, state, vit_details.email, vit_details.room, vit_details.block 
+	err := database.DB.QueryRow(`SELECT users.id, first_name, last_name, reg_no, password, phone, college, gender, role, is_banned, is_added, is_vitian, is_verified, is_profile_complete, is_leader, team_id, city, state, country, vit_details.email, vit_details.block, vit_details.room 
     FROM users LEFT JOIN vit_details ON users.id = vit_details.user_id WHERE users.email = $1`,
 		email).
 		Scan(&user.User.ID, &user.FirstName, &user.LastName, &user.RegNo, &user.Password, &user.Phone,
 			&user.College, &user.Gender, &user.Role,
-			&user.IsBanned, &user.IsAdded, &user.IsVitian, &user.IsVerified, &user.IsProfileComplete, &user.IsLeader, &teamID, &user.City, &user.State, &vitEmail, &block, &room)
+			&user.IsBanned, &user.IsAdded, &user.IsVitian, &user.IsVerified, &user.IsProfileComplete, &user.IsLeader, &teamID, &user.City, &user.State, &user.Country, &vitEmail, &block, &room)
 	if err != nil {
 		return nil, err
 	}
@@ -38,7 +38,7 @@ func FindUserByEmail(email string) (*models.UserDetails, error) {
 	if vitEmail.Valid { // if anyone is valid then the whole table is valid
 		user.VITDetails.Email = vitEmail.String
 		user.Block = block.String
-		user.Room = block.String
+		user.Room = room.String
 	}
 
 	return &user, nil
@@ -54,12 +54,12 @@ func FindUserByID(ID uuid.UUID) (*models.UserDetails, error) {
 	var block sql.NullString
 	var room sql.NullString
 
-	err := database.DB.QueryRow(`SELECT users.email, first_name, last_name, reg_no, password, phone, college, gender, role, is_banned, is_added, is_vitian, is_verified, is_profile_complete, is_leader, team_id, city, state, vit_details.email, vit_details.room, vit_details.block 
+	err := database.DB.QueryRow(`SELECT users.email, first_name, last_name, reg_no, password, phone, college, gender, role, is_banned, is_added, is_vitian, is_verified, is_profile_complete, is_leader, team_id, city, state, country, vit_details.email, vit_details.block, vit_details.room 
     FROM users LEFT JOIN vit_details ON users.id = vit_details.user_id WHERE users.id = $1`,
 		ID).
 		Scan(&user.User.Email, &user.FirstName, &user.LastName, &user.RegNo, &user.Password, &user.Phone,
 			&user.College, &user.Gender, &user.Role,
-			&user.IsBanned, &user.IsAdded, &user.IsVitian, &user.IsVerified, &user.IsProfileComplete, &user.IsLeader, &teamID, &user.City, &user.State, &vitEmail, &block, &room)
+			&user.IsBanned, &user.IsAdded, &user.IsVitian, &user.IsVerified, &user.IsProfileComplete, &user.IsLeader, &teamID, &user.City, &user.State, &user.Country, &vitEmail, &block, &room)
 	if err != nil {
 		return nil, err
 	}
@@ -73,7 +73,7 @@ func FindUserByID(ID uuid.UUID) (*models.UserDetails, error) {
 	if vitEmail.Valid { // if anyone is valid then the whole table is valid
 		user.VITDetails.Email = vitEmail.String
 		user.Block = block.String
-		user.Room = block.String
+		user.Room = room.String
 	}
 
 	return &user, nil
