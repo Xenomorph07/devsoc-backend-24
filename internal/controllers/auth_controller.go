@@ -138,6 +138,16 @@ func Login(ctx echo.Context) error {
 		Secure:   true,
 	})
 
+	if !user.IsProfileComplete {
+		return ctx.JSON(http.StatusLocked, map[string]interface{}{
+			"message": "login successful",
+			"status":  "success",
+			"data": map[string]interface{}{
+				"profile_complete": user.IsProfileComplete,
+			},
+		})
+	}
+
 	return ctx.JSON(http.StatusOK, map[string]interface{}{
 		"message": "login successful",
 		"status":  "success",
