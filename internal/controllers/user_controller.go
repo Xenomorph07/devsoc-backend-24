@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"log/slog"
 	"net/http"
+	"os"
+	"strconv"
 	"strings"
 	"time"
 
@@ -80,6 +82,74 @@ func CreateUser(ctx echo.Context) error {
 			"message": err.Error(),
 		})
 	}
+
+	tokenVersionStr, err := database.RedisClient.Get(
+		fmt.Sprintf("token_version:%s", user.Email))
+	if err != nil && err != redis.Nil {
+		return ctx.JSON(http.StatusInternalServerError, map[string]string{
+			"status":  "error",
+			"message": err.Error(),
+		})
+	}
+
+	tokenVersion, _ := strconv.Atoi(tokenVersionStr)
+
+	accessToken, err := utils.CreateToken(utils.TokenPayload{
+		Exp:          time.Minute * 5,
+		Email:        user.Email,
+		Role:         user.Role,
+		TokenVersion: tokenVersion + 1,
+	}, utils.ACCESS_TOKEN)
+	if err != nil {
+		return ctx.JSON(http.StatusInternalServerError, map[string]string{
+			"message": err.Error(),
+			"status":  "error",
+		})
+	}
+
+	refreshToken, err := utils.CreateToken(utils.TokenPayload{
+		Exp:   time.Hour * 1,
+		Email: user.Email,
+	}, utils.REFRESH_TOKEN)
+	if err != nil {
+		return ctx.JSON(http.StatusInternalServerError, map[string]string{
+			"message": err.Error(),
+			"status":  "error",
+		})
+	}
+
+	if err := database.RedisClient.Set(fmt.Sprintf("token_version:%s", user.Email),
+		fmt.Sprint(tokenVersion+1), time.Hour*1); err != nil {
+		return ctx.JSON(http.StatusInternalServerError, map[string]string{
+			"status":  "error",
+			"message": err.Error(),
+		})
+	}
+
+	if err := database.RedisClient.Set(user.Email, refreshToken, time.Hour*1); err != nil {
+		return ctx.JSON(http.StatusInternalServerError, map[string]string{
+			"status":  "error",
+			"message": err.Error(),
+		})
+	}
+
+	ctx.SetCookie(&http.Cookie{
+		Name:     os.Getenv("ACCESS_COOKIE_NAME"),
+		Value:    accessToken,
+		HttpOnly: true,
+		SameSite: http.SameSiteNoneMode, // CHANGE DURING PRODUCTION
+		MaxAge:   86400,
+		Secure:   true,
+	})
+
+	ctx.SetCookie(&http.Cookie{
+		Name:     os.Getenv("REFRESH_COOKIE_NAME"),
+		Value:    refreshToken,
+		HttpOnly: true,
+		SameSite: http.SameSiteNoneMode, // CHANGE DURING PRODUCTION
+		MaxAge:   86400,
+		Secure:   true,
+	})
 
 	go func() {
 		if err := utils.SendMail(user.Email, otp); err != nil {
