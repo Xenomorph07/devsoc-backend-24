@@ -17,6 +17,8 @@ func CheckEnv() {
 		"PORT",
 		"ACCESS_SECRET_KEY",
 		"REFRESH_SECRET_KEY",
+		"ACCESS_COOKIE_NAME",
+		"REFRESH_COOKIE_NAME",
 		"SENDER_MAIL",
 		"SENDER_PASS",
 		"REDIS_HOST",
@@ -25,7 +27,9 @@ func CheckEnv() {
 	}
 	for _, k := range envProps {
 		if os.Getenv(k) == "" {
-			log.Fatal(fmt.Sprintf("Environment variable %s not defined. Terminating application...", k))
+			log.Fatal(
+				fmt.Sprintf("Environment variable %s not defined. Terminating application...", k),
+			)
 		}
 	}
 }

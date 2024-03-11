@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"os"
 	"strconv"
 	"time"
 
@@ -128,7 +129,7 @@ func Login(ctx echo.Context) error {
 	}
 
 	ctx.SetCookie(&http.Cookie{
-		Name:     "access_token",
+		Name:     os.Getenv("ACCESS_COOKIE_NAME"),
 		Value:    accessToken,
 		HttpOnly: true,
 		SameSite: http.SameSiteNoneMode, // CHANGE DURING PRODUCTION
@@ -137,7 +138,7 @@ func Login(ctx echo.Context) error {
 	})
 
 	ctx.SetCookie(&http.Cookie{
-		Name:     "refresh_token",
+		Name:     os.Getenv("REFRESH_COOKIE_NAME"),
 		Value:    refreshToken,
 		HttpOnly: true,
 		SameSite: http.SameSiteNoneMode, // CHANGE DURING PRODUCTION
@@ -177,6 +178,38 @@ func Logout(ctx echo.Context) error {
 		})
 	}
 
+	refreshCookie, err := ctx.Cookie(os.Getenv("REFRESH_COOKIE_NAME"))
+	if err != nil {
+		if errors.Is(err, echo.ErrCookieNotFound) {
+			refreshCookie = &http.Cookie{
+				Name:     os.Getenv("REFRESH_COOKIE_NAME"),
+				HttpOnly: true,
+				SameSite: http.SameSiteNoneMode, // CHANGE DURING PRODUCTION
+				MaxAge:   -1,
+				Secure:   true,
+			}
+		}
+	}
+
+	accessCookie, err := ctx.Cookie(os.Getenv("ACCESS_COOKIE_NAME"))
+	if err != nil {
+		if errors.Is(err, echo.ErrCookieNotFound) {
+			accessCookie = &http.Cookie{
+				Name:     os.Getenv("ACCESS_COOKIE_NAME"),
+				HttpOnly: true,
+				SameSite: http.SameSiteNoneMode, // CHANGE DURING PRODUCTION
+				MaxAge:   -1,
+				Secure:   true,
+			}
+		}
+	}
+
+	refreshCookie.MaxAge = -1
+	accessCookie.MaxAge = -1
+
+	ctx.SetCookie(accessCookie)
+	ctx.SetCookie(refreshCookie)
+
 	return ctx.JSON(http.StatusOK, map[string]string{
 		"message": "logout successful",
 		"status":  "success",
@@ -187,9 +220,9 @@ func Refresh(ctx echo.Context) error {
 	refreshToken := ctx.Get("user").(*jwt.Token)
 	claims := refreshToken.Claims.(jwt.MapClaims)
 
-	refreshCookie, _ := ctx.Cookie("refresh_token")
+	refreshCookie, _ := ctx.Cookie(os.Getenv("REFRESH_COOKIE_NAME"))
 
-	accessCookie, err := ctx.Cookie("access_token")
+	accessCookie, err := ctx.Cookie(os.Getenv("ACCESS_COOKIE_NAME"))
 	if err != nil {
 		if !errors.Is(err, echo.ErrCookieNotFound) {
 			return ctx.JSON(http.StatusBadRequest, map[string]string{
@@ -198,7 +231,7 @@ func Refresh(ctx echo.Context) error {
 			})
 		}
 		accessCookie = &http.Cookie{
-			Name:     "access_token",
+			Name:     os.Getenv("ACCESS_COOKIE_NAME"),
 			HttpOnly: true,
 			SameSite: http.SameSiteNoneMode, // CHANGE DURING PRODUCTION
 			MaxAge:   86400,
