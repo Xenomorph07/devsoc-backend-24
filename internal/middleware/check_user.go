@@ -21,14 +21,14 @@ func AuthUser(next echo.HandlerFunc) echo.HandlerFunc {
 		if !ok {
 			return c.JSON(http.StatusNotAcceptable, map[string]string{
 				"message": "JWT is invalid or missing",
-				"status":  "validating jwt",
+				"status":  "fail",
 			})
 		}
 		claims, ok := token.Claims.(jwt.MapClaims)
 		if !ok {
 			return c.JSON(http.StatusUnauthorized, map[string]interface{}{
 				"message": "malformed jwt",
-				"status":  "checking claims",
+				"status":  "fail",
 				"data": map[string]bool{
 					"malformed": true,
 				},
@@ -42,7 +42,7 @@ func AuthUser(next echo.HandlerFunc) echo.HandlerFunc {
 			if err == redis.Nil {
 				return c.JSON(http.StatusUnauthorized, map[string]interface{}{
 					"message": "token expired",
-					"status":  "failure",
+					"status":  "fail",
 					"data": map[string]bool{
 						"token_expired": true,
 					},
@@ -51,7 +51,7 @@ func AuthUser(next echo.HandlerFunc) echo.HandlerFunc {
 
 			return c.JSON(http.StatusInternalServerError, map[string]string{
 				"message": err.Error(),
-				"status":  "get from redis",
+				"status":  "error",
 			})
 		}
 
@@ -60,7 +60,7 @@ func AuthUser(next echo.HandlerFunc) echo.HandlerFunc {
 		if int(claims["version"].(float64)) != tokenVersion {
 			return c.JSON(http.StatusForbidden, map[string]interface{}{
 				"messsage": "invalid token",
-				"status":   "failure",
+				"status":   "fail",
 				"data": map[string]interface{}{
 					"invalid_token": true,
 				},
@@ -72,12 +72,26 @@ func AuthUser(next echo.HandlerFunc) echo.HandlerFunc {
 			if errors.Is(err, sql.ErrNoRows) {
 				return c.JSON(http.StatusNotFound, map[string]string{
 					"message": "user does not exist",
-					"status":  "failure",
+					"status":  "fail",
 				})
 			}
 		}
 
-		c.Set("user", user)
+		if !user.IsVerified {
+			return c.JSON(http.StatusForbidden, map[string]string{
+				"message": "not verified",
+				"status":  "fail",
+			})
+		}
+
+		if !user.IsProfileComplete {
+			return c.JSON(http.StatusLocked, map[string]string{
+				"message": "profile not complete",
+				"status":  "fail",
+			})
+		}
+
+		c.Set("user", &user.User)
 
 		return next(c)
 	}

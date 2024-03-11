@@ -24,9 +24,14 @@ type User struct {
 	IsAdded           bool      `json:"-"`
 	IsVitian          bool      `json:"-"`
 	IsVerified        bool      `json:"-"`
-	IsLeader          bool      `json:"-"`
+	IsLeader          bool      `json:"is_leader"`
 	IsProfileComplete bool      `json:"-"`
 	TeamID            uuid.UUID `json:"team_id"`
+}
+
+type UserDetails struct {
+	User
+	VITDetails
 }
 
 type VITDetails struct {
@@ -36,20 +41,34 @@ type VITDetails struct {
 }
 
 type CompleteUserRequest struct {
-	FirstName   string `json:"first_name" validate:"required,min=1,max=20"`
-	LastName    string `json:"last_name"  validate:"required,min=1,max=20"`
-	PhoneNumber string `json:"phone"      validate:"required,min=10"`
-	Gender      string `json:"gender"     validate:"required"`
-	IsVitian    *bool  `json:"is_vitian"  validate:"required"`
-	Email       string `json:"email"      validate:"required,email"`
-	VitEmail    string `json:"vit_email"`
+	FirstName   string `json:"first_name"          validate:"required,min=1,max=20"`
+	LastName    string `json:"last_name"           validate:"required,min=1,max=20"`
+	PhoneNumber string `json:"phone"               validate:"required,min=10"`
+	Gender      string `json:"gender"              validate:"required"`
+	IsVitian    *bool  `json:"is_vitian"           validate:"required"`
+	Email       string `json:"email"               validate:"required,email"`
+	VitEmail    string `json:"vit_email,omitempty" validate:"omitempty,email"`
 	HostelBlock string `json:"block"`
 	HostelRoom  string `json:"room"`
 	College     string `json:"college"`
 	City        string `json:"city"`
 	State       string `json:"state"`
 	Country     string `json:"country"`
-	RegNo       string `json:"reg_no"     validate:"required"`
+	RegNo       string `json:"reg_no"              validate:"required"`
+}
+
+type UpdateUserRequest struct {
+	FirstName   string `json:"first_name,omitempty"   validate:"omitempty,min=1,max=20"`
+	LastName    string `json:"last_name,omitempty"    validate:"omitempty,min=1,max=20"`
+	PhoneNumber string `json:"phone_number,omitempty" validate:"omitempty,min=10"`
+	Gender      string `json:"gender,omitempty"       validate:"omitempty"`
+	VitEmail    string `json:"vit_email,omitempty"    validate:"omitempty"`
+	HostelBlock string `json:"block,omitempty"        validate:"omitempty"`
+	College     string `json:"college,omitempty"      validate:"omitempty"`
+	City        string `json:"city,omitempty"         validate:"omitempty"`
+	State       string `json:"state,omitempty"        validate:"omitempty"`
+	Country     string `json:"country,omitempty"      validate:"omitempty"`
+	RegNo       string `json:"reg_no,omitempty"       validate:"omitempty"`
 }
 
 type CreateUserRequest struct {

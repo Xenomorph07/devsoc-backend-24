@@ -17,4 +17,5 @@ func UserRoutes(incomingRoutes *echo.Echo) {
 	user := incomingRoutes.Group("/user")
 	user.POST("/complete-profile", controllers.CompleteProfile)
 	user.GET("/me", controllers.Dashboard, middleware.Protected(), middleware.AuthUser)
+	user.PATCH("/update", controllers.UpdateUser, middleware.Protected(), middleware.AuthUser)
 }

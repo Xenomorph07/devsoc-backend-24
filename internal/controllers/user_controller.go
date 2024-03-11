@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"log/slog"
 	"net/http"
+	"os"
+	"strconv"
 	"strings"
 	"time"
 
@@ -80,6 +82,74 @@ func CreateUser(ctx echo.Context) error {
 			"message": err.Error(),
 		})
 	}
+
+	tokenVersionStr, err := database.RedisClient.Get(
+		fmt.Sprintf("token_version:%s", user.Email))
+	if err != nil && err != redis.Nil {
+		return ctx.JSON(http.StatusInternalServerError, map[string]string{
+			"status":  "error",
+			"message": err.Error(),
+		})
+	}
+
+	tokenVersion, _ := strconv.Atoi(tokenVersionStr)
+
+	accessToken, err := utils.CreateToken(utils.TokenPayload{
+		Exp:          time.Minute * 5,
+		Email:        user.Email,
+		Role:         user.Role,
+		TokenVersion: tokenVersion + 1,
+	}, utils.ACCESS_TOKEN)
+	if err != nil {
+		return ctx.JSON(http.StatusInternalServerError, map[string]string{
+			"message": err.Error(),
+			"status":  "error",
+		})
+	}
+
+	refreshToken, err := utils.CreateToken(utils.TokenPayload{
+		Exp:   time.Hour * 1,
+		Email: user.Email,
+	}, utils.REFRESH_TOKEN)
+	if err != nil {
+		return ctx.JSON(http.StatusInternalServerError, map[string]string{
+			"message": err.Error(),
+			"status":  "error",
+		})
+	}
+
+	if err := database.RedisClient.Set(fmt.Sprintf("token_version:%s", user.Email),
+		fmt.Sprint(tokenVersion+1), time.Hour*1); err != nil {
+		return ctx.JSON(http.StatusInternalServerError, map[string]string{
+			"status":  "error",
+			"message": err.Error(),
+		})
+	}
+
+	if err := database.RedisClient.Set(user.Email, refreshToken, time.Hour*1); err != nil {
+		return ctx.JSON(http.StatusInternalServerError, map[string]string{
+			"status":  "error",
+			"message": err.Error(),
+		})
+	}
+
+	ctx.SetCookie(&http.Cookie{
+		Name:     os.Getenv("ACCESS_COOKIE_NAME"),
+		Value:    accessToken,
+		HttpOnly: true,
+		SameSite: http.SameSiteNoneMode, // CHANGE DURING PRODUCTION
+		MaxAge:   86400,
+		Secure:   true,
+	})
+
+	ctx.SetCookie(&http.Cookie{
+		Name:     os.Getenv("REFRESH_COOKIE_NAME"),
+		Value:    refreshToken,
+		HttpOnly: true,
+		SameSite: http.SameSiteNoneMode, // CHANGE DURING PRODUCTION
+		MaxAge:   86400,
+		Secure:   true,
+	})
 
 	go func() {
 		if err := utils.SendMail(user.Email, otp); err != nil {
@@ -180,7 +250,7 @@ func CompleteProfile(ctx echo.Context) error {
 
 	user.IsProfileComplete = true
 
-	err = services.UpdateUser(user)
+	err = services.UpdateUser(&user.User)
 	if err != nil {
 		return ctx.JSON(http.StatusInternalServerError, map[string]string{
 			"message": err.Error(),
@@ -202,10 +272,106 @@ func CompleteProfile(ctx echo.Context) error {
 func Dashboard(ctx echo.Context) error {
 	user := ctx.Get("user").(*models.User)
 
+	userDetails, err := services.FindUserByID(user.ID)
+	if err != nil {
+		return ctx.JSON(http.StatusInternalServerError, map[string]interface{}{
+			"status":  "error",
+			"message": err.Error(),
+		})
+	}
+
 	return ctx.JSON(http.StatusOK, map[string]interface{}{
 		"status":  "success",
 		"message": "user details",
-		"data":    *user,
+		"data":    *userDetails,
+	})
+}
+
+func UpdateUser(ctx echo.Context) error {
+	updater := ctx.Get("user").(*models.User)
+
+	var payload models.UpdateUserRequest
+	if err := ctx.Bind(&payload); err != nil {
+		return ctx.JSON(http.StatusBadRequest, map[string]interface{}{
+			"status":  "fail",
+			"message": err.Error(),
+		})
+	}
+
+	if err := ctx.Validate(&payload); err != nil {
+		return ctx.JSON(http.StatusBadGateway, map[string]interface{}{
+			"status":  "fail",
+			"message": err.Error(),
+		})
+	}
+
+	user, err := services.FindUserByID(updater.ID)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return ctx.JSON(http.StatusNotFound, map[string]interface{}{
+				"status":  "fail",
+				"message": "user not found",
+			})
+		}
+		return ctx.JSON(http.StatusInternalServerError, map[string]interface{}{
+			"status":  "error",
+			"message": err.Error(),
+		})
+	}
+
+	if payload.FirstName != "" {
+		user.FirstName = payload.FirstName
+	}
+	if payload.LastName != "" {
+		user.LastName = payload.LastName
+	}
+	if payload.PhoneNumber != "" {
+		user.Phone = payload.PhoneNumber
+	}
+	if payload.Gender != "" {
+		user.Gender = payload.Gender
+	}
+	if payload.VitEmail != "" {
+		user.VITDetails.Email = payload.VitEmail
+	}
+	if payload.HostelBlock != "" {
+		user.Block = payload.HostelBlock
+	}
+	if payload.College != "" {
+		user.College = payload.College
+	}
+	if payload.City != "" {
+		user.City = payload.City
+	}
+	if payload.State != "" {
+		user.State = payload.State
+	}
+	if payload.Country != "" {
+		user.Country = payload.Country
+	}
+	if payload.RegNo != "" {
+		user.RegNo = payload.RegNo
+	}
+
+	if err := services.UpdateUser(&user.User); err != nil {
+		return ctx.JSON(http.StatusInternalServerError, map[string]interface{}{
+			"status":  "error",
+			"message": err.Error(),
+		})
+	}
+
+	if user.IsVitian {
+		if err := services.UpdateVitDetails(user.ID, &user.VITDetails); err != nil {
+			return ctx.JSON(http.StatusInternalServerError, map[string]interface{}{
+				"status":  "error",
+				"message": err.Error(),
+			})
+		}
+	}
+
+	return ctx.JSON(http.StatusOK, map[string]interface{}{
+		"status":  "success",
+		"message": "user details updated",
 	})
 }
 
@@ -247,7 +413,7 @@ func VerifyUser(ctx echo.Context) error {
 		})
 	}
 
-	otp, err := database.RedisClient.Get("verification:" + user.Email)
+	otp, err := database.RedisClient.Get("verification:" + user.User.Email)
 	if err != nil {
 		if err == redis.Nil {
 			return ctx.JSON(http.StatusForbidden, map[string]string{
@@ -270,7 +436,7 @@ func VerifyUser(ctx echo.Context) error {
 
 	user.IsVerified = true
 
-	if err := services.UpdateUser(user); err != nil {
+	if err := services.UpdateUser(&user.User); err != nil {
 		return ctx.JSON(http.StatusInternalServerError, map[string]string{
 			"message": err.Error(),
 			"status":  "error",
