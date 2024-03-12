@@ -142,7 +142,7 @@ func Login(ctx echo.Context) error {
 		Name:     os.Getenv("ACCESS_COOKIE_NAME"),
 		Value:    accessToken,
 		HttpOnly: true,
-		SameSite: http.SameSiteNoneMode, // CHANGE DURING PRODUCTION
+		SameSite: http.SameSiteStrictMode,
 		MaxAge:   86400,
 		Secure:   true,
 	})
@@ -151,7 +151,7 @@ func Login(ctx echo.Context) error {
 		Name:     os.Getenv("REFRESH_COOKIE_NAME"),
 		Value:    refreshToken,
 		HttpOnly: true,
-		SameSite: http.SameSiteNoneMode, // CHANGE DURING PRODUCTION
+		SameSite: http.SameSiteStrictMode,
 		MaxAge:   86400,
 		Secure:   true,
 	})
@@ -204,7 +204,7 @@ func Logout(ctx echo.Context) error {
 			refreshCookie = &http.Cookie{
 				Name:     os.Getenv("REFRESH_COOKIE_NAME"),
 				HttpOnly: true,
-				SameSite: http.SameSiteNoneMode, // CHANGE DURING PRODUCTION
+				SameSite: http.SameSiteStrictMode,
 				MaxAge:   -1,
 				Secure:   true,
 			}
@@ -217,7 +217,7 @@ func Logout(ctx echo.Context) error {
 			accessCookie = &http.Cookie{
 				Name:     os.Getenv("ACCESS_COOKIE_NAME"),
 				HttpOnly: true,
-				SameSite: http.SameSiteNoneMode, // CHANGE DURING PRODUCTION
+				SameSite: http.SameSiteStrictMode,
 				MaxAge:   -1,
 				Secure:   true,
 			}
@@ -253,7 +253,7 @@ func Refresh(ctx echo.Context) error {
 		accessCookie = &http.Cookie{
 			Name:     os.Getenv("ACCESS_COOKIE_NAME"),
 			HttpOnly: true,
-			SameSite: http.SameSiteNoneMode, // CHANGE DURING PRODUCTION
+			SameSite: http.SameSiteStrictMode,
 			MaxAge:   86400,
 			Secure:   true,
 		}
