@@ -52,7 +52,7 @@ func GetAllTeams() ([]models.GetTeam, error) {
 		team.Round, _ = strconv.Atoi(values[3].String)
 
 		if values[8].Valid {
-			team.Ideas = models.GetIdea{
+			team.Ideas = models.Idea{
 				Title:       values[8].String,
 				Description: values[9].String,
 				Track:       values[10].String,
@@ -63,7 +63,7 @@ func GetAllTeams() ([]models.GetTeam, error) {
 		}
 
 		if values[14].Valid {
-			team.Project = models.GetProject{
+			team.Project = models.Project{
 				Name:        values[14].String,
 				Description: values[15].String,
 				GithubLink:  values[16].String,
@@ -73,12 +73,20 @@ func GetAllTeams() ([]models.GetTeam, error) {
 			}
 		}
 
-		team.Users = append(team.Users, models.GetUser{
-			FirstName: values[4].String,
-			LastName:  values[5].String,
-			Email:     values[6].String,
-			RegNo:     values[7].String,
-		})
+		var isLeader bool
+		if values[7].Valid {
+			isLeader = values[7].String != ""
+		} else {
+			isLeader = false
+		}
+
+		user := models.GetUser{
+			FullName: values[4].String,
+			RegNo:    values[5].String,
+			ID:       uuid.MustParse(values[6].String),
+			IsLeader: isLeader,
+		}
+		team.Users = append(team.Users, user)
 
 		teams = append(teams, team)
 	}

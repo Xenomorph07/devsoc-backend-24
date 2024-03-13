@@ -25,9 +25,9 @@ func GetProject(teamid uuid.UUID) (models.Project, error) {
 	return proj, err
 }
 
-func GetProjectByID(projectID uuid.UUID) (models.GetProject, error) {
+func GetProjectByID(projectID uuid.UUID) (models.Project, error) {
 	query := `SELECT name, description, github, figma, track, others FROM projects WHERE id = $1`
-	var proj models.GetProject
+	var proj models.Project
 	err := database.DB.QueryRow(query, projectID).Scan(&proj.Name,
 		&proj.Description, &proj.GithubLink, &proj.FigmaLink,
 		&proj.Track, &proj.Others)
@@ -41,7 +41,7 @@ func GetProjectByID(projectID uuid.UUID) (models.GetProject, error) {
 	return proj, nil
 }
 
-func GetAllProjects() ([]models.GetProject, error) {
+func GetAllProjects() ([]models.Project, error) {
 	query := `SELECT name, description, github, figma, track, others FROM projects`
 
 	rows, err := database.DB.Query(query)
@@ -50,10 +50,10 @@ func GetAllProjects() ([]models.GetProject, error) {
 	}
 	defer rows.Close()
 
-	var projects []models.GetProject
+	var projects []models.Project
 
 	for rows.Next() {
-		var proj models.GetProject
+		var proj models.Project
 		err := rows.Scan(
 			&proj.Name, &proj.Description, &proj.GithubLink, &proj.FigmaLink,
 			&proj.Track, &proj.Others,
