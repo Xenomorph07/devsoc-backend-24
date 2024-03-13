@@ -137,8 +137,8 @@ func UnbanTeam(ctx echo.Context) error {
 	teamID, err := uuid.Parse(teamIDParam)
 	if err != nil {
 		return ctx.JSON(http.StatusBadRequest, response{
-			Message: err.Error(),
-			Data:    models.Team{},
+			Message: "Invalid ID format",
+			Data:    err.Error(),
 			Status:  false,
 		})
 	}
