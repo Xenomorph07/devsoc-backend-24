@@ -5,68 +5,75 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/CodeChefVIT/devsoc-backend-24/internal/models"
-	services "github.com/CodeChefVIT/devsoc-backend-24/internal/services/projects"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/labstack/echo/v4"
+
+	"github.com/CodeChefVIT/devsoc-backend-24/internal/models"
+	services "github.com/CodeChefVIT/devsoc-backend-24/internal/services/projects"
 )
 
 func GetProject(ctx echo.Context) error {
-
 	user := ctx.Get("user").(*models.User)
 
 	if user.TeamID == uuid.Nil {
-		return ctx.JSON(http.StatusConflict, response{
-			Message: "The user is not in a team",
-			Status:  false,
-			Data:    models.GetProject{},
+		return ctx.JSON(http.StatusConflict, map[string]string{
+			"message": "The user is not in a team",
+			"status":  "fail",
 		})
 	}
 
 	proj, err := services.GetProject(user.TeamID)
 	if err != nil {
-		if err == sql.ErrNoRows {
-			return ctx.JSON(http.StatusExpectationFailed, response{
-				Message: "Failed to get project could be cause the user has not made an idea",
-				Data:    models.GetProject{},
-				Status:  false,
+		if errors.Is(err, sql.ErrNoRows) {
+			return ctx.JSON(http.StatusNotFound, map[string]string{
+				"message": "the team does not have a project",
+				"status":  "fail",
 			})
 		}
-		return ctx.JSON(http.StatusInternalServerError, response{
-			Message: "Failed to get project : " + err.Error(),
-			Status:  false,
-			Data:    models.GetProject{},
+		return ctx.JSON(http.StatusInternalServerError, map[string]string{
+			"message": "Failed to get project : " + err.Error(),
+			"status":  "fail",
 		})
 	}
 
-	return ctx.JSON(http.StatusAccepted, response{
-		Message: "Successfully retrived the project",
-		Status:  true,
-		Data:    proj,
+	return ctx.JSON(http.StatusAccepted, map[string]interface{}{
+		"message": "Successfully retrived the project",
+		"status":  "success",
+		"data":    proj,
 	})
 }
 
 func CreateProject(ctx echo.Context) error {
-	var req models.CreateUpdateProjectRequest
+	var req models.ProjectRequest
 
 	if err := ctx.Bind(&req); err != nil {
-		return ctx.JSON(http.StatusBadRequest, response{
-			Message: "Failed to parse the data",
-			Status:  false,
+		return ctx.JSON(http.StatusBadRequest, map[string]string{
+			"message": "Failed to parse the data",
+			"status":  "fail",
 		})
 	}
 
 	if err := ctx.Validate(&req); err != nil {
-		return err
+		return ctx.JSON(http.StatusBadRequest, map[string]string{
+			"message": err.Error(),
+			"status":  "fail",
+		})
 	}
 
 	user := ctx.Get("user").(*models.User)
 
+	if !user.IsLeader {
+		return ctx.JSON(http.StatusUnauthorized, map[string]string{
+			"message": "user is not a leader",
+			"status":  "fail",
+		})
+	}
+
 	if user.TeamID == uuid.Nil {
-		return ctx.JSON(http.StatusConflict, response{
-			Message: "The user is not in a team",
-			Status:  false,
+		return ctx.JSON(http.StatusForbidden, map[string]string{
+			"message": "The user is not in a team",
+			"status":  "fail",
 		})
 	}
 
@@ -75,63 +82,100 @@ func CreateProject(ctx echo.Context) error {
 		var pgerr *pgconn.PgError
 		if errors.As(err, &pgerr) {
 			if pgerr.Code == "23505" {
-				return ctx.JSON(http.StatusExpectationFailed, response{
-					Message: "The team already has an project",
-					Status:  false,
+				return ctx.JSON(http.StatusConflict, map[string]string{
+					"message": "project alread present",
+					"status":  "fail",
 				})
 			}
 		}
-		return ctx.JSON(http.StatusInternalServerError, response{
-			Message: "Failed to create the project " + err.Error(),
-			Status:  false,
+		return ctx.JSON(http.StatusInternalServerError, map[string]string{
+			"message": "Failed to create the project " + err.Error(),
+			"status":  "error",
 		})
 	}
 
-	return ctx.JSON(http.StatusAccepted, response{
-		Message: "Project successfully created",
-		Status:  true,
+	return ctx.JSON(http.StatusAccepted, map[string]string{
+		"message": "Project successfully created",
+		"status":  "success",
 	})
 }
 
 func UpdateProject(ctx echo.Context) error {
-	var req models.CreateUpdateProjectRequest
+	var req models.UpdateProjectRequest
 
 	if err := ctx.Bind(&req); err != nil {
-		return ctx.JSON(http.StatusBadRequest, response{
-			Message: "Failed to parse the data",
-			Status:  false,
+		return ctx.JSON(http.StatusBadRequest, map[string]string{
+			"message": "Failed to parse the data",
+			"status":  "fail",
 		})
 	}
 
 	if err := ctx.Validate(&req); err != nil {
-		return err
+		return ctx.JSON(http.StatusBadRequest, map[string]string{
+			"message": err.Error(),
+			"status":  "fail",
+		})
 	}
 
 	user := ctx.Get("user").(*models.User)
 
-	if user.TeamID == uuid.Nil {
-		return ctx.JSON(http.StatusConflict, response{
-			Message: "The user is not in a team",
-			Status:  false,
+	if !user.IsLeader {
+		return ctx.JSON(http.StatusUnauthorized, map[string]string{
+			"message": "user is not a leader",
+			"status":  "fail",
 		})
 	}
 
-	err := services.UpdateProject(req, user.TeamID)
+	if user.TeamID == uuid.Nil {
+		return ctx.JSON(http.StatusForbidden, map[string]string{
+			"message": "The user is not in a team",
+			"status":  "fail",
+		})
+	}
+
+	curr, err := services.GetProject(user.TeamID)
 	if err != nil {
-		if errors.Is(err, errors.New("invalid teamid")) {
-			return ctx.JSON(http.StatusExpectationFailed, response{
-				Message: "The team has not created an project",
-				Status:  false,
+		if errors.Is(err, sql.ErrNoRows) {
+			return ctx.JSON(http.StatusNotFound, map[string]string{
+				"message": "project not found",
+				"status":  "fail",
 			})
 		}
-		return ctx.JSON(http.StatusInternalServerError, response{
-			Message: "Failed to update the project" + err.Error(),
-			Status:  false,
+		return ctx.JSON(http.StatusInternalServerError, map[string]string{
+			"message": "db error : " + err.Error(),
+			"status":  "fail",
 		})
 	}
 
-	return ctx.JSON(http.StatusAccepted, response{
-		Message: "Project successfully updated",
-		Status:  true,
+	if req.Name == "" {
+		req.Name = curr.Name
+	}
+	if req.Description == "" {
+		req.Description = curr.Description
+	}
+	if req.Track == "" {
+		req.Track = curr.Track
+	}
+	if req.GithubLink == "" {
+		req.GithubLink = curr.GithubLink
+	}
+	if req.FigmaLink == "" {
+		req.FigmaLink = curr.FigmaLink
+	}
+	if req.Others == "" {
+		req.Others = curr.Others
+	}
+
+	err = services.UpdateProject(req, user.TeamID)
+	if err != nil {
+		return ctx.JSON(http.StatusInternalServerError, map[string]string{
+			"message": "Failed to update the project" + err.Error(),
+			"status":  "error",
+		})
+	}
+
+	return ctx.JSON(http.StatusAccepted, map[string]string{
+		"message": "Project successfully updated",
+		"status":  "success",
 	})
 }

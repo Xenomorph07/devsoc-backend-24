@@ -5,9 +5,9 @@ import (
 	"github.com/CodeChefVIT/devsoc-backend-24/internal/models"
 )
 
-func InsertUser(user models.User) error {
+func InsertUser(user *models.User) error {
 	_, err := database.DB.Exec(
-		"INSERT INTO users (id, first_name, last_name, reg_no, email, password, gender, phone, role, college, is_added, is_banned, is_vitian, is_verified, is_profile_complete, city, state) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)",
+		"INSERT INTO users (id, first_name, last_name, reg_no, email, password, gender, phone, role, college, is_added, is_banned, is_vitian, is_verified, is_profile_complete, is_leader, city, state, country) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19)",
 		user.ID,
 		user.FirstName,
 		user.LastName,
@@ -23,8 +23,10 @@ func InsertUser(user models.User) error {
 		user.IsVitian,
 		user.IsVerified,
 		user.IsProfileComplete,
+		user.IsLeader,
 		user.City,
 		user.State,
+		user.Country,
 	)
 	return err
 }

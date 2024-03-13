@@ -9,19 +9,22 @@ import (
 )
 
 func CreateTeam(team models.Team) error {
-	tx, err := database.DB.BeginTx(context.Background(), &sql.TxOptions{Isolation: sql.LevelSerializable})
-
+	tx, err := database.DB.BeginTx(
+		context.Background(),
+		&sql.TxOptions{Isolation: sql.LevelSerializable},
+	)
 	if err != nil {
 		return err
 	}
 
-	query := "INSERT INTO teams (id,name,code,round,leader_id) values ($1,$2,$3,$4,$5)"
+	query := "INSERT INTO teams (id, name, code, round, leader_id) values ($1,$2,$3,$4,$5)"
 	_, err = tx.Exec(query, team.ID, team.Name, team.Code, team.Round, team.LeaderID)
 	if err != nil {
 		tx.Rollback()
 		return err
 	}
-	query = "UPDATE users SET team_id = $1 WHERE id = $2"
+
+	query = "UPDATE users SET team_id = $1, is_leader = true WHERE id = $2"
 	_, err = tx.Exec(query, team.ID, team.LeaderID)
 	if err != nil {
 		tx.Rollback()

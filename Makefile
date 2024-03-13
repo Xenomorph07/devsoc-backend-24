@@ -1,8 +1,9 @@
 # Define variables
 DOCKER_COMPOSE = docker compose
+URI = "host=localhost port=5430 user=admin password=password123 dbname=devsoc-24-backend"
 
 # Targets
-.PHONY: build up down logs restart clean
+.PHONY: build up down logs restart clean migrate-up migrate-down
 
 build:
 	$(DOCKER_COMPOSE) up --build -d
@@ -21,6 +22,12 @@ restart:
 
 clean:
 	$(DOCKER_COMPOSE) down -v
+
+migrate-up:
+	cd db/migrations && goose postgres $(URI) up && cd ../..
+
+migrate-down:
+	cd db/migrations && goose postgres $(URI) down-to 0 && cd ../..
 
 # Help target
 help:
