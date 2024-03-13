@@ -11,6 +11,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/labstack/echo/v4"
 	"github.com/redis/go-redis/v9"
 	"golang.org/x/crypto/bcrypt"
@@ -354,6 +355,15 @@ func UpdateUser(ctx echo.Context) error {
 	}
 
 	if err := services.UpdateUser(&user.User); err != nil {
+		var pgerr *pgconn.PgError
+		if errors.As(err, &pgerr) {
+			if pgerr.Code == "23505" {
+				return ctx.JSON(http.StatusConflict, map[string]string{
+					"message": "vit email already exists",
+					"status":  "failed to complete user profile",
+				})
+			}
+		}
 		return ctx.JSON(http.StatusInternalServerError, map[string]interface{}{
 			"status":  "error",
 			"message": err.Error(),
