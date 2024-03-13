@@ -244,13 +244,6 @@ func LeaveTeam(ctx echo.Context) error {
 		})
 	}
 
-	if err := services.UpdateUserTeamDetails(uuid.Nil, user.ID); err != nil {
-		return ctx.JSON(http.StatusInternalServerError, map[string]string{
-			"message": err.Error(),
-			"status":  "failed to leave team",
-		})
-	}
-
 	if team.LeaderID == user.ID {
 		if err := services.DeleteTeam(user.TeamID, user.ID); err != nil {
 			return ctx.JSON(http.StatusInternalServerError, map[string]string{
@@ -262,6 +255,13 @@ func LeaveTeam(ctx echo.Context) error {
 		return ctx.JSON(http.StatusOK, map[string]string{
 			"message": "team deleted successfully",
 			"status":  "success",
+		})
+	}
+
+	if err := services.UpdateUserTeamDetails(uuid.Nil, user.ID); err != nil {
+		return ctx.JSON(http.StatusInternalServerError, map[string]string{
+			"message": err.Error(),
+			"status":  "failed to leave team",
 		})
 	}
 

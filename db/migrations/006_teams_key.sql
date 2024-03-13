@@ -1,9 +1,0 @@
--- +goose Up
-ALTER TABLE users
-DROP CONSTRAINT fk_teams;
-
-ALTER TABLE users
-ADD CONSTRAINT fk_teams
-FOREIGN KEY (team_id)
-REFERENCES teams(id)
-ON UPDATE CASCADE;
