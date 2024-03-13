@@ -15,7 +15,7 @@ type Idea struct {
 
 type IdeaRequest struct {
 	Title       string `json:"title"                 validate:"required,min=1,max=50"`
-	Description string `json:"description"           validate:"required,min=50,max=200"`
+	Description string `json:"description"           validate:"required,min=50,max=2500"`
 	Track       string `json:"track"                 validate:"required"`
 	Github      string `json:"github_link,omitempty" validate:"omitempty,url"`
 	Figma       string `json:"figma_link,omitempty"  validate:"omitempty,url"`
@@ -24,7 +24,7 @@ type IdeaRequest struct {
 
 type UpdateIdeaRequest struct {
 	Title       string `json:"title,omitempty"       validate:"omitempty,min=1,max=50"`
-	Description string `json:"description,omitempty" validate:"omitempty,min=50,max=200"`
+	Description string `json:"description,omitempty" validate:"omitempty,min=50,max=2500"`
 	Track       string `json:"track,omitempty"`
 	Github      string `json:"github_link,omitempty" validate:"omitempty,url"`
 	Figma       string `json:"figma_link,omitempty"  validate:"omitempty,url"`

@@ -14,7 +14,7 @@ type Project struct {
 
 type ProjectRequest struct {
 	Name        string `json:"name"        validate:"required,min=1,max=50"`
-	Description string `json:"description" validate:"required,min=50,max=200"`
+	Description string `json:"description" validate:"required,min=50,max=2500"`
 	Track       string `json:"track"       validate:"required"`
 	GithubLink  string `json:"github_link" validate:"omitempty,url"`
 	FigmaLink   string `json:"figma_link"  validate:"omitempty,url"`
@@ -23,7 +23,7 @@ type ProjectRequest struct {
 
 type UpdateProjectRequest struct {
 	Name        string `json:"name"        validate:"omitempty,min=1,max=50"`
-	Description string `json:"description" validate:"omitempty,min=50,max=200"`
+	Description string `json:"description" validate:"omitempty,min=50,max=2500"`
 	Track       string `json:"track"`
 	GithubLink  string `json:"github_link" validate:"omitempty,url"`
 	FigmaLink   string `json:"figma_link"  validate:"omitempty,url"`
