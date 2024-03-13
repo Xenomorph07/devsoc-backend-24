@@ -5,9 +5,10 @@ import (
 	"fmt"
 	"log"
 
+	"google.golang.org/api/sheets/v4"
+
 	"github.com/CodeChefVIT/devsoc-backend-24/internal/database"
 	"github.com/CodeChefVIT/devsoc-backend-24/internal/models"
-	"google.golang.org/api/sheets/v4"
 )
 
 func WriteUserToGoogleSheet(user models.User) error {
