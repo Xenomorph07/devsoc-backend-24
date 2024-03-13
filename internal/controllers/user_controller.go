@@ -152,7 +152,7 @@ func CreateUser(ctx echo.Context) error {
 	})
 
 	go func() {
-		if err := utils.SendMail(user.Email, otp); err != nil {
+		if err := utils.SendMail(user.Email, "Here is your otp: ", otp); err != nil {
 			slog.Error("error sending email: " + err.Error())
 		}
 	}()
@@ -503,7 +503,7 @@ func ResendOTP(ctx echo.Context) error {
 	}
 
 	go func() {
-		if err := utils.SendMail(payload.Email, otp); err != nil {
+		if err := utils.SendMail(payload.Email, "Here is your otp: ", otp); err != nil {
 			slog.Error("error sending email: " + err.Error())
 		}
 	}()
@@ -569,7 +569,7 @@ func RequestResetPassword(ctx echo.Context) error {
 	}
 
 	go func() {
-		if err := utils.SendMail(payload.Email, otp); err != nil {
+		if err := utils.SendMail(payload.Email, "Here is your otp: ", otp); err != nil {
 			slog.Error("error sending email: " + err.Error())
 		}
 	}()
