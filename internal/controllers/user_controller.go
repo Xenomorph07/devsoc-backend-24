@@ -153,7 +153,7 @@ func CreateUser(ctx echo.Context) error {
 	})
 
 	go func() {
-		if err := utils.SendMail(user.Email, "Here is your otp: ", otp); err != nil {
+		if err := utils.SendMail(user.Email, "Verification OTP", "Here is your otp: "+fmt.Sprint(otp)); err != nil {
 			slog.Error("error sending email: " + err.Error())
 		}
 	}()
@@ -161,7 +161,6 @@ func CreateUser(ctx echo.Context) error {
 	return ctx.JSON(http.StatusOK, map[string]string{
 		"message": "user creation was successful",
 		"status":  "success",
-		"data":    otp,
 	})
 }
 
@@ -512,8 +511,15 @@ func ResendOTP(ctx echo.Context) error {
 		})
 	}
 
+	var subject string
+	if payload.Type == "resetpass" {
+		subject = "Reset Password"
+	} else {
+		subject = "Verification OTP"
+	}
+
 	go func() {
-		if err := utils.SendMail(payload.Email, "Here is your otp: ", otp); err != nil {
+		if err := utils.SendMail(payload.Email, subject, "Here is your otp: "+fmt.Sprint(otp)); err != nil {
 			slog.Error("error sending email: " + err.Error())
 		}
 	}()
@@ -521,7 +527,6 @@ func ResendOTP(ctx echo.Context) error {
 	return ctx.JSON(http.StatusOK, map[string]string{
 		"status":  "success",
 		"message": "otp resent",
-		"data":    otp,
 	})
 }
 
@@ -579,7 +584,7 @@ func RequestResetPassword(ctx echo.Context) error {
 	}
 
 	go func() {
-		if err := utils.SendMail(payload.Email, "Here is your otp: ", otp); err != nil {
+		if err := utils.SendMail(payload.Email, "Reset Password", "Here is your otp: "+fmt.Sprint(otp)); err != nil {
 			slog.Error("error sending email: " + err.Error())
 		}
 	}()
