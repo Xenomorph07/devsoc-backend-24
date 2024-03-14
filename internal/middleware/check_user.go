@@ -3,7 +3,6 @@ package middleware
 import (
 	"database/sql"
 	"errors"
-	"log"
 	"net/http"
 	"strconv"
 
@@ -109,7 +108,6 @@ func AuthUser(next echo.HandlerFunc) echo.HandlerFunc {
 func CheckAdmin(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		user := c.Get("user").(*models.User)
-		log.Println(user)
 		if user.Role != "admin" {
 			return c.JSON(http.StatusUnauthorized, map[string]string{
 				"message": "the user is not an admin",
