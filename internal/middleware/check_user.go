@@ -11,6 +11,7 @@ import (
 	"github.com/redis/go-redis/v9"
 
 	"github.com/CodeChefVIT/devsoc-backend-24/internal/database"
+	"github.com/CodeChefVIT/devsoc-backend-24/internal/models"
 	services "github.com/CodeChefVIT/devsoc-backend-24/internal/services/user"
 )
 
@@ -77,6 +78,13 @@ func AuthUser(next echo.HandlerFunc) echo.HandlerFunc {
 			}
 		}
 
+		if user.IsBanned {
+			return c.JSON(http.StatusFailedDependency, map[string]string{
+				"message": "user is banned",
+				"status":  "fail",
+			})
+		}
+
 		if !user.IsVerified {
 			return c.JSON(http.StatusForbidden, map[string]string{
 				"message": "not verified",
@@ -93,6 +101,19 @@ func AuthUser(next echo.HandlerFunc) echo.HandlerFunc {
 
 		c.Set("user", &user.User)
 
+		return next(c)
+	}
+}
+
+func CheckAdmin(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		user := c.Get("user").(*models.User)
+		if user.Role != "admin" {
+			return c.JSON(http.StatusUnauthorized, map[string]string{
+				"message": "the user is not an admin",
+				"status":  "fail",
+			})
+		}
 		return next(c)
 	}
 }

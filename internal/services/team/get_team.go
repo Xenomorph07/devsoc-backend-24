@@ -14,13 +14,13 @@ func GetAllTeams() ([]models.GetTeam, error) {
 	var teams []models.GetTeam
 
 	query := `SELECT teams.name,teams.code, teams.leader_id, teams.round ,
-		users.first_name, users.last_name, users.email, users.reg_no, 
+		users.first_name, users.last_name, users.id, users.reg_no, 
 		ideas.title, ideas.description, ideas.track, ideas.github, ideas.figma, ideas.others , 
 		projects.name, projects.description, projects.github, projects.figma, projects.track, projects.others
 	FROM teams
 	INNER JOIN users ON users.team_id = teams.id
-	LEFT JOIN projects ON teams.projectid = projects.id
-	LEFT JOIN ideas ON teams.ideaid = ideas.id`
+	LEFT JOIN projects ON teams.id = projects.teamid
+	LEFT JOIN ideas ON teams.id = ideas.teamid`
 
 	rows, err := database.DB.Query(query)
 	if err != nil {
