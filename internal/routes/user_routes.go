@@ -15,7 +15,12 @@ func UserRoutes(incomingRoutes *echo.Echo) {
 	incomingRoutes.PATCH("/reset-password", controllers.ResetPassword)
 
 	user := incomingRoutes.Group("/user")
-	user.POST("/complete-profile", controllers.CompleteProfile)
+	user.POST(
+		"/complete-profile",
+		controllers.CompleteProfile,
+		middleware.Protected(),
+		middleware.AuthUser,
+	)
 	user.GET("/me", controllers.Dashboard, middleware.Protected(), middleware.AuthUser)
 	user.PATCH("/update", controllers.UpdateUser, middleware.Protected(), middleware.AuthUser)
 }
