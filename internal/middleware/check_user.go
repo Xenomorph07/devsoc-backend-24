@@ -92,13 +92,6 @@ func AuthUser(next echo.HandlerFunc) echo.HandlerFunc {
 			})
 		}
 
-		if !user.IsProfileComplete {
-			return c.JSON(http.StatusLocked, map[string]string{
-				"message": "profile not complete",
-				"status":  "fail",
-			})
-		}
-
 		c.Set("user", &user.User)
 
 		return next(c)

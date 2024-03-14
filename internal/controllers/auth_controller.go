@@ -128,16 +128,6 @@ func Login(ctx echo.Context) error {
 		})
 	}
 
-	if !user.IsProfileComplete {
-		return ctx.JSON(http.StatusLocked, map[string]interface{}{
-			"message": "profile not completed",
-			"status":  "fail",
-			"data": map[string]interface{}{
-				"profile_complete": user.IsProfileComplete,
-			},
-		})
-	}
-
 	ctx.SetCookie(&http.Cookie{
 		Name:     os.Getenv("ACCESS_COOKIE_NAME"),
 		Value:    accessToken,
@@ -158,8 +148,8 @@ func Login(ctx echo.Context) error {
 
 	if !user.IsProfileComplete {
 		return ctx.JSON(http.StatusLocked, map[string]interface{}{
-			"message": "login successful",
-			"status":  "success",
+			"message": "profile not completed",
+			"status":  "fail",
 			"data": map[string]interface{}{
 				"profile_complete": user.IsProfileComplete,
 			},

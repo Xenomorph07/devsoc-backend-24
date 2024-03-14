@@ -165,6 +165,7 @@ func CreateUser(ctx echo.Context) error {
 }
 
 func CompleteProfile(ctx echo.Context) error {
+	loggedIn := ctx.Get("user").(*models.User)
 	var payload models.CompleteUserRequest
 
 	if err := ctx.Bind(&payload); err != nil {
@@ -181,7 +182,7 @@ func CompleteProfile(ctx echo.Context) error {
 		})
 	}
 
-	user, err := services.FindUserByEmail(payload.Email)
+	user, err := services.FindUserByEmail(loggedIn.Email)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return ctx.JSON(http.StatusNotFound, map[string]string{
