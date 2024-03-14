@@ -12,6 +12,13 @@ func AdminRoutes(incomingRoutes *echo.Echo) {
 	admin.Use(middleware.AuthUser)
 	admin.Use(middleware.CheckAdmin)
 
+	admin.GET("/users", controllers.GetAllUsers)
+	admin.GET("/user/:email", controllers.GetUserByEmail)
+	admin.POST("/user/ban", controllers.BanUser)
+	admin.POST("/user/unban", controllers.UnbanUser)
+	admin.GET("/vitians", controllers.GetAllVitians)
+	admin.GET("/females", controllers.GetAllFemales)
+
 	admin.GET("/team/all", controllers.GetTeams)
 	admin.GET("/team/:id", controllers.GetTeamsByID)
 	admin.GET("/team/project/:id", controllers.GetProjectByTeamID)
