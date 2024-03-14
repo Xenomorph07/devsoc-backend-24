@@ -57,7 +57,7 @@ func IsFemale(team models.GetTeam) bool {
 		if err != nil {
 			return false
 		}
-		if userData.Gender != "female" {
+		if userData.Gender != "Female" {
 			return false
 		}
 	}
