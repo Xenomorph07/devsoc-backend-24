@@ -651,6 +651,7 @@ func ResetPassword(ctx echo.Context) error {
 	tries, _ := strconv.Atoi(triesString)
 
 	if tries >= 10 {
+		database.RedisClient.Delete("resetpass" + payload.Email)
 		return ctx.JSON(http.StatusGone, map[string]string{
 			"message": "otp expired",
 			"status":  "fail",
