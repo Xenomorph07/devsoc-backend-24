@@ -11,7 +11,7 @@ import (
 	"github.com/redis/go-redis/v9"
 
 	"github.com/CodeChefVIT/devsoc-backend-24/internal/database"
-	"github.com/CodeChefVIT/devsoc-backend-24/internal/models"
+	models "github.com/CodeChefVIT/devsoc-backend-24/internal/models"
 	services "github.com/CodeChefVIT/devsoc-backend-24/internal/services/user"
 )
 
