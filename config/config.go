@@ -19,9 +19,10 @@ type DatabaseConfig struct {
 }
 
 type RedisConfig struct {
-	REDIS_HOST string `mapstructure:"REDIS_HOST"`
-	REDIS_PORT string `mapstructure:"REDIS_PORT"`
-	DB         int    `mapstructure:"REDIS_DB"`
+	REDIS_HOST     string `mapstructure:"REDIS_HOST"`
+	REDIS_PORT     string `mapstructure:"REDIS_PORT"`
+	DB             int    `mapstructure:"REDIS_DB"`
+	REDIS_PASSWORD string `mapstructure:"REDIS_PASSWORD"`
 }
 
 type Config struct {
@@ -45,9 +46,10 @@ func LoadConfig() *Config {
 			DBPort:         os.Getenv("POSTGRES_PORT"),
 		},
 		RedisConfig: RedisConfig{
-			REDIS_HOST: os.Getenv("REDIS_HOST"),
-			REDIS_PORT: os.Getenv("REDIS_PORT"),
-			DB:         redisDB,
+			REDIS_HOST:     os.Getenv("REDIS_HOST"),
+			REDIS_PORT:     os.Getenv("REDIS_PORT"),
+			DB:             redisDB,
+			REDIS_PASSWORD: os.Getenv("REDIS_PASSWORD"),
 		},
 	}
 }
