@@ -77,6 +77,13 @@ func AuthUser(next echo.HandlerFunc) echo.HandlerFunc {
 			}
 		}
 
+		if user.IsBanned {
+			return c.JSON(http.StatusFailedDependency, map[string]string{
+				"message": "user is banned",
+				"status":  "fail",
+			})
+		}
+
 		if !user.IsVerified {
 			return c.JSON(http.StatusForbidden, map[string]string{
 				"message": "not verified",
