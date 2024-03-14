@@ -1,22 +1,5 @@
 version: '3'
 services:
-  # Existing services...
-  postgres:
-    image: postgres:latest
-    container_name: devsoc-db
-    ports:
-      - '5430:5432'
-    volumes:
-      - postgresDB:/var/lib/postgresql/data
-    env_file:
-      - .env
-
-  redis:
-    image: redis:latest
-    container_name: devsoc-redis
-    env_file:
-      - .env
-
   api:
     build: .
     volumes:
