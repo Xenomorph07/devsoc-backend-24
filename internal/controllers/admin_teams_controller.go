@@ -3,10 +3,10 @@ package controllers
 import (
 	"net/http"
 
-	servic "github.com/CodeChefVIT/devsoc-backend-24/internal/services/idea"
-	service "github.com/CodeChefVIT/devsoc-backend-24/internal/services/projects"
-	services "github.com/CodeChefVIT/devsoc-backend-24/internal/services/team"
-	servi "github.com/CodeChefVIT/devsoc-backend-24/internal/services/user"
+	ideaService "github.com/CodeChefVIT/devsoc-backend-24/internal/services/idea"
+	projectService "github.com/CodeChefVIT/devsoc-backend-24/internal/services/projects"
+	teamService "github.com/CodeChefVIT/devsoc-backend-24/internal/services/team"
+	userService "github.com/CodeChefVIT/devsoc-backend-24/internal/services/user"
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 )
@@ -22,7 +22,7 @@ func GetTeamsByID(ctx echo.Context) error {
 		})
 	}
 
-	team, err := services.FindTeamByTeamID(teamID)
+	team, err := teamService.FindTeamByTeamID(teamID)
 	if err != nil {
 		return ctx.JSON(http.StatusInternalServerError, map[string]string{
 			"message": "Failed to fetch team",
@@ -49,7 +49,7 @@ func GetIdeaByTeamID(ctx echo.Context) error {
 		})
 	}
 
-	team, err := servic.GetIdeaByTeamID(teamID)
+	team, err := ideaService.GetIdeaByTeamID(teamID)
 	if err != nil {
 		return ctx.JSON(http.StatusInternalServerError, map[string]string{
 			"message": "Failed to fetch ideas",
@@ -76,7 +76,7 @@ func GetProjectByTeamID(ctx echo.Context) error {
 		})
 	}
 
-	team, err := service.GetProject(teamID)
+	team, err := projectService.GetProject(teamID)
 	if err != nil {
 		return ctx.JSON(http.StatusInternalServerError, map[string]string{
 			"message": "Failed to get project",
@@ -93,7 +93,7 @@ func GetProjectByTeamID(ctx echo.Context) error {
 }
 
 func GetTeams(ctx echo.Context) error {
-	team, err := services.GetAllTeams()
+	team, err := teamService.GetAllTeams()
 	if err != nil {
 		return ctx.JSON(http.StatusInternalServerError, map[string]string{
 			"message": "Failed to fetch teams",
@@ -118,7 +118,7 @@ func BanTeam(ctx echo.Context) error {
 			"status":  "false",
 		})
 	}
-	err = services.BanTeam(teamID)
+	err = teamService.BanTeam(teamID)
 	if err != nil {
 		return ctx.JSON(http.StatusInternalServerError, map[string]string{
 			"message": "Failed to ban team",
@@ -141,7 +141,7 @@ func UnbanTeam(ctx echo.Context) error {
 			"status":  "false",
 		})
 	}
-	err = services.UnbanTeam(teamID)
+	err = teamService.UnbanTeam(teamID)
 	if err != nil {
 		return ctx.JSON(http.StatusInternalServerError, map[string]string{
 			"message": "Failed to unban team",
@@ -165,7 +165,7 @@ func GetTeamLeader(ctx echo.Context) error {
 			"data":    err.Error(),
 		})
 	}
-	team, err := services.FindTeamByTeamID(teamID)
+	team, err := teamService.FindTeamByTeamID(teamID)
 	if err != nil {
 		return ctx.JSON(http.StatusInternalServerError, map[string]string{
 			"message": "Failed to fetch team",
@@ -173,7 +173,7 @@ func GetTeamLeader(ctx echo.Context) error {
 			"status":  "false",
 		})
 	}
-	user, err := servi.FindUserByID(team.LeaderID)
+	user, err := userService.FindUserByID(team.LeaderID)
 	if err != nil {
 		return ctx.JSON(http.StatusInternalServerError, map[string]string{
 			"message": "Failed to fetch user",
