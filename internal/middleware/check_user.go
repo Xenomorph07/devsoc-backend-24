@@ -3,6 +3,7 @@ package middleware
 import (
 	"database/sql"
 	"errors"
+	"log"
 	"net/http"
 	"strconv"
 
@@ -11,6 +12,7 @@ import (
 	"github.com/redis/go-redis/v9"
 
 	"github.com/CodeChefVIT/devsoc-backend-24/internal/database"
+	"github.com/CodeChefVIT/devsoc-backend-24/internal/models"
 	services "github.com/CodeChefVIT/devsoc-backend-24/internal/services/user"
 )
 
@@ -100,6 +102,20 @@ func AuthUser(next echo.HandlerFunc) echo.HandlerFunc {
 
 		c.Set("user", &user.User)
 
+		return next(c)
+	}
+}
+
+func CheckAdmin(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		user := c.Get("user").(*models.User)
+		log.Println(user)
+		if user.Role != "admin" {
+			return c.JSON(http.StatusUnauthorized, map[string]string{
+				"message": "the user is not an admin",
+				"status":  "fail",
+			})
+		}
 		return next(c)
 	}
 }
