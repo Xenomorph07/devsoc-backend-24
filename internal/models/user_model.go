@@ -101,6 +101,10 @@ type ForgotPasswordRequest struct {
 	Email string `json:"email" validate:"required,email"`
 }
 
+type BanUser struct {
+	Email string `json:"email" validate:"required,email"`
+}
+
 type ResetPasswordRequest struct {
 	Email    string `json:"email"        validate:"required,email"`
 	OTP      string `json:"otp"          validate:"required,min=6,max=6"`
