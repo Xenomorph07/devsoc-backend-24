@@ -46,7 +46,7 @@ type CompleteUserRequest struct {
 	PhoneNumber string `json:"phone"               validate:"required,min=10"`
 	Gender      string `json:"gender"              validate:"required"`
 	IsVitian    *bool  `json:"is_vitian"           validate:"required"`
-	Email       string `json:"email"               validate:"required,email"`
+	// Email       string `json:"email"               validate:"required,email"`
 	VitEmail    string `json:"vit_email,omitempty" validate:"omitempty,email"`
 	HostelBlock string `json:"block"`
 	HostelRoom  string `json:"room"`

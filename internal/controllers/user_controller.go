@@ -165,6 +165,7 @@ func CreateUser(ctx echo.Context) error {
 }
 
 func CompleteProfile(ctx echo.Context) error {
+	loggedIn := ctx.Get("user").(*models.User)
 	var payload models.CompleteUserRequest
 
 	if err := ctx.Bind(&payload); err != nil {
@@ -181,7 +182,7 @@ func CompleteProfile(ctx echo.Context) error {
 		})
 	}
 
-	user, err := services.FindUserByEmail(payload.Email)
+	user, err := services.FindUserByEmail(loggedIn.Email)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return ctx.JSON(http.StatusNotFound, map[string]string{
@@ -279,6 +280,8 @@ func Dashboard(ctx echo.Context) error {
 			"message": err.Error(),
 		})
 	}
+
+	userDetails.Block = utils.TitleCaser.String(userDetails.Block)
 
 	return ctx.JSON(http.StatusOK, map[string]interface{}{
 		"status":  "success",
@@ -576,6 +579,13 @@ func RequestResetPassword(ctx echo.Context) error {
 		})
 	}
 
+	if err := database.RedisClient.Set("resettries"+payload.Email, fmt.Sprint(1), time.Minute*5); err != nil {
+		return ctx.JSON(http.StatusInternalServerError, map[string]string{
+			"message": err.Error(),
+			"status":  "error",
+		})
+	}
+
 	if err := database.RedisClient.Set("resetpass:"+payload.Email, otp, time.Minute*5); err != nil {
 		return ctx.JSON(http.StatusInternalServerError, map[string]string{
 			"message": err.Error(),
@@ -592,7 +602,6 @@ func RequestResetPassword(ctx echo.Context) error {
 	return ctx.JSON(http.StatusOK, map[string]string{
 		"status":  "success",
 		"message": "otp sent",
-		"data":    otp,
 	})
 }
 
@@ -627,6 +636,30 @@ func ResetPassword(ctx echo.Context) error {
 		})
 	}
 
+	triesString, err := database.RedisClient.Get("resettries" + payload.Email)
+	if err != nil {
+		if err == redis.Nil {
+			return ctx.JSON(http.StatusForbidden, map[string]string{
+				"message": "otp expired",
+				"status":  "fail",
+			})
+		}
+		return ctx.JSON(http.StatusInternalServerError, map[string]string{
+			"message": err.Error(),
+			"status":  "error",
+		})
+	}
+
+	tries, _ := strconv.Atoi(triesString)
+
+	if tries >= 10 {
+		database.RedisClient.Delete("resetpass" + payload.Email)
+		return ctx.JSON(http.StatusGone, map[string]string{
+			"message": "otp expired",
+			"status":  "fail",
+		})
+	}
+
 	otp, err := database.RedisClient.Get("resetpass:" + payload.Email)
 	if err != nil {
 		if err == redis.Nil {
@@ -642,6 +675,12 @@ func ResetPassword(ctx echo.Context) error {
 	}
 
 	if payload.OTP != otp {
+		if err := database.RedisClient.Set("resettries"+payload.Email, fmt.Sprint(tries+1), time.Minute*5); err != nil {
+			return ctx.JSON(http.StatusInternalServerError, map[string]string{
+				"message": err.Error(),
+				"status":  "error",
+			})
+		}
 		return ctx.JSON(http.StatusUnauthorized, map[string]string{
 			"message": "Invalid OTP",
 			"status":  "fail",

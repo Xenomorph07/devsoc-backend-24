@@ -1,6 +1,6 @@
 # Define variables
 DOCKER_COMPOSE = docker compose
-URI = "host=localhost port=5430 user=admin password=password123 dbname=devsoc-24-backend"
+URI = "host=139.59.71.66 port=5430 user=admin password=d352F68MX2Hdh2pRFWoB3R9yg dbname=devsoc-24-backend"
 
 # Targets
 .PHONY: build up down logs restart clean migrate-up migrate-down

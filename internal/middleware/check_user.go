@@ -76,6 +76,10 @@ func AuthUser(next echo.HandlerFunc) echo.HandlerFunc {
 					"status":  "fail",
 				})
 			}
+			return c.JSON(http.StatusInternalServerError, map[string]string{
+				"message": err.Error(),
+				"status":  "fail",
+			})
 		}
 
 		if user.IsBanned {
@@ -88,13 +92,6 @@ func AuthUser(next echo.HandlerFunc) echo.HandlerFunc {
 		if !user.IsVerified {
 			return c.JSON(http.StatusForbidden, map[string]string{
 				"message": "not verified",
-				"status":  "fail",
-			})
-		}
-
-		if !user.IsProfileComplete {
-			return c.JSON(http.StatusLocked, map[string]string{
-				"message": "profile not complete",
 				"status":  "fail",
 			})
 		}
