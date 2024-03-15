@@ -320,6 +320,19 @@ func UpdateUser(ctx echo.Context) error {
 		})
 	}
 
+	payload.FirstName = strings.TrimSpace(payload.FirstName)
+	payload.LastName = strings.TrimSpace(payload.LastName)
+	payload.PhoneNumber = strings.TrimSpace(payload.PhoneNumber)
+	payload.Gender = strings.TrimSpace(payload.Gender)
+	payload.VitEmail = strings.TrimSpace(payload.VitEmail)
+	payload.HostelBlock = strings.TrimSpace(payload.HostelBlock)
+	payload.College = strings.TrimSpace(payload.College)
+	payload.City = strings.TrimSpace(payload.City)
+	payload.State = strings.TrimSpace(payload.State)
+	payload.Country = strings.TrimSpace(payload.Country)
+	payload.RegNo = strings.TrimSpace(payload.RegNo)
+	payload.Room = strings.TrimSpace(payload.Room)
+
 	if payload.FirstName != "" {
 		user.FirstName = payload.FirstName
 	}
@@ -332,26 +345,14 @@ func UpdateUser(ctx echo.Context) error {
 	if payload.Gender != "" {
 		user.Gender = payload.Gender
 	}
-	if payload.VitEmail != "" {
-		user.VITDetails.Email = payload.VitEmail
-	}
 	if payload.HostelBlock != "" {
 		user.Block = payload.HostelBlock
 	}
-	if payload.College != "" {
-		user.College = payload.College
-	}
-	if payload.City != "" {
-		user.City = payload.City
-	}
-	if payload.State != "" {
-		user.State = payload.State
-	}
-	if payload.Country != "" {
-		user.Country = payload.Country
-	}
 	if payload.RegNo != "" {
 		user.RegNo = payload.RegNo
+	}
+	if payload.Room != "" {
+		user.Room = payload.Room
 	}
 
 	if err := services.UpdateUser(&user.User); err != nil {
@@ -693,7 +694,7 @@ func ResetPassword(ctx echo.Context) error {
 		})
 	}
 
-	err = services.ResetPassword(payload.Email, string(hashed))
+	err = services.ResetPassword(string(hashed), payload.Email)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return ctx.JSON(http.StatusNotFound, map[string]string{
