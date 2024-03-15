@@ -77,6 +77,57 @@ func CreateTeam(ctx echo.Context) error {
 	})
 }
 
+func UpdateTeamName(ctx echo.Context) error {
+	var payload models.CreateTeamRequest
+
+	if err := ctx.Bind(&payload); err != nil {
+		return ctx.JSON(http.StatusBadRequest, map[string]string{
+			"message": err.Error(),
+			"status":  "fail",
+		})
+	}
+
+	payload.Name = strings.TrimSpace(payload.Name)
+
+	if err := ctx.Validate(&payload); err != nil {
+		return ctx.JSON(http.StatusBadRequest, map[string]string{
+			"message": err.Error(),
+			"status":  "fail",
+		})
+	}
+
+	user := ctx.Get("user").(*models.User)
+	if user.TeamID != uuid.Nil {
+		return ctx.JSON(http.StatusExpectationFailed, map[string]string{
+			"message": "user is already in a team",
+			"status":  "fail",
+		})
+	}
+
+	team, err := services.FindTeamByTeamID(payload.ID)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return ctx.JSON(http.StatusNotFound, map[string]string{
+				"message": "user not found",
+				"status":  "fail",
+			})
+		}
+	}
+
+	err = services.UpdateTeamName(payload.Name, team.ID)
+	if err != nil {
+		return ctx.JSON(http.StatusInternalServerError, map[string]string{
+			"message": err.Error(),
+			"status":  "error",
+		})
+	}
+
+	return ctx.JSON(http.StatusCreated, map[string]interface{}{
+		"message": "team updated successfully",
+		"status":  "success",
+	})
+}
+
 func GetTeamDetails(ctx echo.Context) error {
 	user := ctx.Get("user").(*models.User)
 

@@ -13,7 +13,8 @@ type Team struct {
 }
 
 type CreateTeamRequest struct {
-	Name string `json:"name" validate:"required,min=1,max=50"`
+	ID   uuid.UUID `json:"id"   validate:"required,uuid"`
+	Name string    `json:"name" validate:"required,min=1,max=50"`
 }
 
 type JoinTeamRequest struct {
