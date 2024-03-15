@@ -64,8 +64,15 @@ func CreateIdea(ctx echo.Context) error {
 
 	user := ctx.Get("user").(*models.User)
 
+	if user.TeamID == uuid.Nil {
+		return ctx.JSON(http.StatusForbidden, map[string]string{
+			"message": "user is not in a team",
+			"status":  "fail",
+		})
+	}
+
 	if !user.IsLeader {
-		return ctx.JSON(http.StatusUnauthorized, map[string]string{
+		return ctx.JSON(http.StatusForbidden, map[string]string{
 			"message": "user is not a leader",
 			"status":  "fail",
 		})
