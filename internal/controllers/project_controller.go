@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"errors"
 	"net/http"
+	"strings"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgconn"
@@ -53,6 +54,13 @@ func CreateProject(ctx echo.Context) error {
 			"status":  "fail",
 		})
 	}
+
+	req.Name = strings.TrimSpace(req.Name)
+	req.Description = strings.TrimSpace(req.Description)
+	req.Track = strings.TrimSpace(req.Track)
+	req.GithubLink = strings.TrimSpace(req.GithubLink)
+	req.FigmaLink = strings.TrimSpace(req.FigmaLink)
+	req.Others = strings.TrimSpace(req.Others)
 
 	if err := ctx.Validate(&req); err != nil {
 		return ctx.JSON(http.StatusBadRequest, map[string]string{
@@ -109,6 +117,13 @@ func UpdateProject(ctx echo.Context) error {
 			"status":  "fail",
 		})
 	}
+
+	req.Name = strings.TrimSpace(req.Name)
+	req.Description = strings.TrimSpace(req.Description)
+	req.Track = strings.TrimSpace(req.Track)
+	req.GithubLink = strings.TrimSpace(req.GithubLink)
+	req.FigmaLink = strings.TrimSpace(req.FigmaLink)
+	req.Others = strings.TrimSpace(req.Others)
 
 	if err := ctx.Validate(&req); err != nil {
 		return ctx.JSON(http.StatusBadRequest, map[string]string{
