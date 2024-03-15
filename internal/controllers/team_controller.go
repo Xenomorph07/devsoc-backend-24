@@ -112,7 +112,14 @@ func UpdateTeamName(ctx echo.Context) error {
 		})
 	}
 
-	team, err := services.FindTeamByTeamID(payload.ID)
+	if user.TeamID == uuid.Nil {
+		return ctx.JSON(http.StatusNotFound, map[string]string{
+			"message": "user not in a team",
+			"status":  "fail",
+		})
+	}
+
+	/*team, err := services.FindTeamByTeamID(payload.ID)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return ctx.JSON(http.StatusNotFound, map[string]string{
@@ -120,9 +127,9 @@ func UpdateTeamName(ctx echo.Context) error {
 				"status":  "fail",
 			})
 		}
-	}
+	}*/
 
-	err = services.UpdateTeamName(payload.Name, team.ID)
+	err := services.UpdateTeamName(payload.Name, user.TeamID)
 	if err != nil {
 		return ctx.JSON(http.StatusInternalServerError, map[string]string{
 			"message": err.Error(),
