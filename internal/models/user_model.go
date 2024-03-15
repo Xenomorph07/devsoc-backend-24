@@ -13,7 +13,7 @@ type User struct {
 	RegNo             string    `json:"reg_no"`
 	Email             string    `json:"email"`
 	Password          string    `json:"-"`
-	Phone             string    `json:"phone"`
+	Phone             string    `json:"phone_number"`
 	College           string    `json:"college"`
 	City              string    `json:"city"`
 	State             string    `json:"state"`

@@ -71,13 +71,6 @@ func Login(ctx echo.Context) error {
 		})
 	}
 
-	if !user.IsProfileComplete {
-		return ctx.JSON(http.StatusLocked, map[string]interface{}{
-			"message": "profile not completed",
-			"status":  "fail",
-		})
-	}
-
 	tokenVersionStr, err := database.RedisClient.Get(
 		fmt.Sprintf("token_version:%s", user.User.Email))
 	if err != nil && err != redis.Nil {
