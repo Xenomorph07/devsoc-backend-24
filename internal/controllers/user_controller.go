@@ -39,6 +39,8 @@ func CreateUser(ctx echo.Context) error {
 		})
 	}
 
+	payload.Email = strings.ToLower(payload.Email)
+
 	_, err := services.FindUserByEmail(payload.Email)
 	if err != nil && !errors.Is(err, sql.ErrNoRows) {
 		return ctx.JSON(http.StatusInternalServerError, map[string]string{
@@ -602,6 +604,8 @@ func RequestResetPassword(ctx echo.Context) error {
 		}
 	}()
 
+	fmt.Println(otp)
+
 	return ctx.JSON(http.StatusOK, map[string]string{
 		"status":  "success",
 		"message": "otp sent",
@@ -697,6 +701,9 @@ func ResetPassword(ctx echo.Context) error {
 			"status":  "error",
 		})
 	}
+
+	fmt.Println(hashed)
+	//fmt.Println(ctx.Get("user").(*models.User).Password)
 
 	err = services.ResetPassword(string(hashed), payload.Email)
 	if err != nil {
