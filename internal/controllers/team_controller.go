@@ -104,6 +104,13 @@ func UpdateTeamName(ctx echo.Context) error {
 		})
 	}
 
+	if !user.IsLeader {
+		return ctx.JSON(http.StatusForbidden, map[string]string{
+			"status":  "fail",
+			"message": "user is not leader",
+		})
+	}
+
 	team, err := services.FindTeamByTeamID(payload.ID)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
