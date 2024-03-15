@@ -19,3 +19,8 @@ func UpdateUserTeamDetails(teamid uuid.UUID, id uuid.UUID) error {
 		return err
 	}
 }
+
+func UpdateTeamName(teamName string, id uuid.UUID) error {
+	_, err := database.DB.Exec("UPDATE teams SET name = $1 where id = $2", teamName, id)
+	return err
+}

@@ -15,4 +15,5 @@ func TeamRoutes(incomingRoutes *echo.Echo) {
 	team.POST("/join", controllers.JoinTeam)
 	team.DELETE("/leave", controllers.LeaveTeam)
 	team.POST("/kick", controllers.KickMember)
+	team.PATCH("/update", controllers.UpdateTeamName)
 }
