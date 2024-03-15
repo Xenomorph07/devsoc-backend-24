@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"errors"
 	"net/http"
+	"strings"
 
 	"github.com/CodeChefVIT/devsoc-backend-24/internal/models"
 	services "github.com/CodeChefVIT/devsoc-backend-24/internal/services/idea"
@@ -54,6 +55,13 @@ func CreateIdea(ctx echo.Context) error {
 			"status":  "fail",
 		})
 	}
+
+	req.Title = strings.TrimSpace(req.Title)
+	req.Description = strings.TrimSpace(req.Description)
+	req.Track = strings.TrimSpace(req.Track)
+	req.Figma = strings.TrimSpace(req.Figma)
+	req.Github = strings.TrimSpace(req.Github)
+	req.Others = strings.TrimSpace(req.Others)
 
 	if err := ctx.Validate(&req); err != nil {
 		return ctx.JSON(http.StatusBadRequest, map[string]string{
@@ -109,6 +117,13 @@ func UpdateIdea(ctx echo.Context) error {
 			"status":  "error",
 		})
 	}
+
+	req.Title = strings.TrimSpace(req.Title)
+	req.Description = strings.TrimSpace(req.Description)
+	req.Track = strings.TrimSpace(req.Track)
+	req.Github = strings.TrimSpace(req.Github)
+	req.Figma = strings.TrimSpace(req.Figma)
+	req.Others = strings.TrimSpace(req.Others)
 
 	if err := ctx.Validate(&req); err != nil {
 		return ctx.JSON(http.StatusBadRequest, map[string]string{
