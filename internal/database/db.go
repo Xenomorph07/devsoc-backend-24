@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log/slog"
 	"os"
+	"time"
 
 	"github.com/CodeChefVIT/devsoc-backend-24/config"
 
@@ -15,12 +16,23 @@ var DB *sql.DB
 
 func InitDB(dbConfig config.DatabaseConfig) {
 	var err error
-	uri := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
-		dbConfig.DBHost, dbConfig.DBPort, dbConfig.DBUserName, dbConfig.DBUserPassword, dbConfig.DBName)
+	uri := fmt.Sprintf(
+		"host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
+		dbConfig.DBHost,
+		dbConfig.DBPort,
+		dbConfig.DBUserName,
+		dbConfig.DBUserPassword,
+		dbConfig.DBName,
+	)
 	DB, err = sql.Open("pgx", uri)
 	if err != nil {
 		slog.Error("Failed to connect to database with error: " + err.Error())
 		slog.Info("The connection string used was: " + uri)
 		os.Exit(1)
 	}
+
+	DB.SetMaxIdleConns(10)
+	DB.SetMaxOpenConns(10)
+	DB.SetConnMaxLifetime(30 * time.Minute)
+	DB.SetConnMaxIdleTime(30 * time.Minute)
 }
