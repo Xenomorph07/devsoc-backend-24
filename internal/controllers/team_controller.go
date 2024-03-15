@@ -97,10 +97,11 @@ func UpdateTeamName(ctx echo.Context) error {
 	}
 
 	user := ctx.Get("user").(*models.User)
-	if user.TeamID != uuid.Nil {
-		return ctx.JSON(http.StatusExpectationFailed, map[string]string{
-			"message": "user is already in a team",
+
+	if !user.IsLeader {
+		return ctx.JSON(http.StatusForbidden, map[string]string{
 			"status":  "fail",
+			"message": "user is not leader",
 		})
 	}
 
@@ -122,7 +123,7 @@ func UpdateTeamName(ctx echo.Context) error {
 		})
 	}
 
-	return ctx.JSON(http.StatusCreated, map[string]interface{}{
+	return ctx.JSON(http.StatusOK, map[string]interface{}{
 		"message": "team updated successfully",
 		"status":  "success",
 	})
