@@ -75,6 +75,10 @@ func AuthUser(next echo.HandlerFunc) echo.HandlerFunc {
 					"status":  "fail",
 				})
 			}
+			return c.JSON(http.StatusInternalServerError, map[string]string{
+				"message": err.Error(),
+				"status":  "fail",
+			})
 		}
 
 		if user.IsBanned {

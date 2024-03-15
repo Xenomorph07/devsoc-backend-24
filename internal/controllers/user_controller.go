@@ -281,6 +281,8 @@ func Dashboard(ctx echo.Context) error {
 		})
 	}
 
+	userDetails.Block = utils.TitleCaser.String(userDetails.Block)
+
 	return ctx.JSON(http.StatusOK, map[string]interface{}{
 		"status":  "success",
 		"message": "user details",
