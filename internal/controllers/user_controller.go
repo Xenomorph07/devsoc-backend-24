@@ -456,6 +456,8 @@ func VerifyUser(ctx echo.Context) error {
 		})
 	}
 
+	database.RedisClient.Delete("verification:" + user.User.Email)
+
 	return ctx.JSON(http.StatusOK, map[string]string{
 		"message": "User verified",
 		"status":  "success",
@@ -580,7 +582,7 @@ func RequestResetPassword(ctx echo.Context) error {
 		})
 	}
 
-	if err := database.RedisClient.Set("resettries"+payload.Email, fmt.Sprint(1), time.Minute*5); err != nil {
+	if err := database.RedisClient.Set("resettries:"+payload.Email, fmt.Sprint(1), time.Minute*5); err != nil {
 		return ctx.JSON(http.StatusInternalServerError, map[string]string{
 			"message": err.Error(),
 			"status":  "error",
@@ -637,7 +639,7 @@ func ResetPassword(ctx echo.Context) error {
 		})
 	}
 
-	triesString, err := database.RedisClient.Get("resettries" + payload.Email)
+	triesString, err := database.RedisClient.Get("resettries:" + payload.Email)
 	if err != nil {
 		if err == redis.Nil {
 			return ctx.JSON(http.StatusForbidden, map[string]string{
@@ -654,7 +656,7 @@ func ResetPassword(ctx echo.Context) error {
 	tries, _ := strconv.Atoi(triesString)
 
 	if tries >= 10 {
-		database.RedisClient.Delete("resetpass" + payload.Email)
+		database.RedisClient.Delete("resetpass:" + payload.Email)
 		return ctx.JSON(http.StatusGone, map[string]string{
 			"message": "otp expired",
 			"status":  "fail",
@@ -676,7 +678,7 @@ func ResetPassword(ctx echo.Context) error {
 	}
 
 	if payload.OTP != otp {
-		if err := database.RedisClient.Set("resettries"+payload.Email, fmt.Sprint(tries+1), time.Minute*5); err != nil {
+		if err := database.RedisClient.Set("resettries:"+payload.Email, fmt.Sprint(tries+1), time.Minute*5); err != nil {
 			return ctx.JSON(http.StatusInternalServerError, map[string]string{
 				"message": err.Error(),
 				"status":  "error",
@@ -709,6 +711,8 @@ func ResetPassword(ctx echo.Context) error {
 			"status":  "error",
 		})
 	}
+
+	database.RedisClient.Delete("resetpass:" + payload.Email)
 
 	return ctx.JSON(http.StatusOK, map[string]string{
 		"status":  "success",
