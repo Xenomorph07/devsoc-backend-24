@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"errors"
 	"net/http"
+	"strings"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgconn"
@@ -23,6 +24,8 @@ func CreateTeam(ctx echo.Context) error {
 			"status":  "fail",
 		})
 	}
+
+	payload.Name = strings.TrimSpace(payload.Name)
 
 	if err := ctx.Validate(&payload); err != nil {
 		return ctx.JSON(http.StatusBadRequest, map[string]string{
