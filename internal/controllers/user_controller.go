@@ -261,10 +261,10 @@ func CompleteProfile(ctx echo.Context) error {
 		})
 	}
 
-	// err = services.WriteUserToGoogleSheet(*user)
-	// if err != nil {
-	// 	slog.Error(err.Error())
-	// }
+	err = services.WriteUserToGoogleSheet(user.User)
+	if err != nil {
+		slog.Error(err.Error())
+	}
 
 	return ctx.JSON(http.StatusOK, map[string]string{
 		"message": "user profile updated",
