@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -36,6 +37,8 @@ func Login(ctx echo.Context) error {
 			"status":  "fail",
 		})
 	}
+
+	payload.Email = strings.ToLower(payload.Email)
 
 	user, err := services.FindUserByEmail(payload.Email)
 	if err != nil {
