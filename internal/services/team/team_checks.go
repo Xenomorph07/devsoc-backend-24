@@ -22,7 +22,7 @@ func CheckTeamSize(team_id uuid.UUID) bool {
 	var no_members int
 
 	err := database.DB.QueryRow(query, team_id).Scan(&no_members)
-	if err != nil || no_members > 5 {
+	if err != nil || no_members >= 5 {
 		return false
 	}
 
