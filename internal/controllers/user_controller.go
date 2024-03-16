@@ -39,6 +39,8 @@ func CreateUser(ctx echo.Context) error {
 		})
 	}
 
+	payload.Email = strings.ToLower(payload.Email)
+
 	_, err := services.FindUserByEmail(payload.Email)
 	if err != nil && !errors.Is(err, sql.ErrNoRows) {
 		return ctx.JSON(http.StatusInternalServerError, map[string]string{
