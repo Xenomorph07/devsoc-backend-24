@@ -2,15 +2,14 @@ package routes
 
 import (
 	"github.com/CodeChefVIT/devsoc-backend-24/internal/controllers"
-	"github.com/CodeChefVIT/devsoc-backend-24/internal/middleware"
 	"github.com/labstack/echo/v4"
 )
 
 func AdminRoutes(incomingRoutes *echo.Echo) {
 	admin := incomingRoutes.Group("/admin")
-	admin.Use(middleware.Protected())
+	// admin.Use(middleware.Protected())
 	// admin.Use(middleware.AuthUser)
-	admin.Use(middleware.CheckAdmin)
+	// admin.Use(middleware.CheckAdmin)
 
 	admin.GET("/users", controllers.GetAllUsers)
 	admin.GET("/user/:email", controllers.GetUserByEmail)
