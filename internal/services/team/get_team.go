@@ -12,16 +12,15 @@ import (
 
 func GetAllTeams() ([]models.GetTeam, error) {
 	var teams []models.GetTeam
-	teamMap := make(map[string]*models.GetTeam)
 
-	query := `SELECT teams.name, teams.code, teams.leader_id, teams.round,
-            users.first_name, users.last_name, users.id, users.reg_no,
-            ideas.title, ideas.description, ideas.track, ideas.github, ideas.figma, ideas.others,
-            projects.name, projects.description, projects.github, projects.figma, projects.track, projects.others
-        FROM teams
-        INNER JOIN users ON users.team_id = teams.id
-        LEFT JOIN projects ON teams.id = projects.teamid
-        LEFT JOIN ideas ON teams.id = ideas.teamid`
+	query := `SELECT teams.name,teams.code, teams.leader_id, teams.round ,
+		users.first_name, users.last_name, users.id, users.reg_no, 
+		ideas.title, ideas.description, ideas.track, ideas.github, ideas.figma, ideas.others , 
+		projects.name, projects.description, projects.github, projects.figma, projects.track, projects.others
+	FROM teams
+	INNER JOIN users ON users.team_id = teams.id
+	LEFT JOIN projects ON teams.id = projects.teamid
+	LEFT JOIN ideas ON teams.id = ideas.teamid`
 
 	rows, err := database.DB.Query(query)
 	if err != nil {
@@ -36,7 +35,6 @@ func GetAllTeams() ([]models.GetTeam, error) {
 
 	for rows.Next() {
 		var team models.GetTeam
-
 		values := make([]sql.NullString, len(columns))
 		columnPointers := make([]interface{}, len(columns))
 
@@ -47,30 +45,11 @@ func GetAllTeams() ([]models.GetTeam, error) {
 		if err := rows.Scan(columnPointers...); err != nil {
 			return teams, err
 		}
-		round, err := strconv.Atoi(values[3].String)
-		if err != nil {
-			return teams, err
-		}
-		teamCode := values[1].String
-		if _, ok := teamMap[teamCode]; !ok {
-			team = models.GetTeam{
-				TeamName: values[0].String,
-				TeamCode: teamCode,
-				LeaderID: uuid.MustParse(values[2].String),
-				Round:    round,
-				Ideas:    models.Idea{},
-				Project:  models.Project{},
-				Users:    []models.GetUser{},
-			}
-			teamMap[teamCode] = &team
-		}
 
-		user := models.GetUser{
-			FullName: values[4].String + " " + values[5].String,
-			RegNo:    values[7].String,
-			ID:       uuid.MustParse(values[6].String),
-			IsLeader: values[7].String == values[2].String,
-		}
+		team.TeamName = values[0].String
+		team.TeamCode = values[1].String
+		team.LeaderID = uuid.MustParse(values[2].String)
+		team.Round, _ = strconv.Atoi(values[3].String)
 
 		if values[8].Valid {
 			team.Ideas = models.Idea{
@@ -93,11 +72,23 @@ func GetAllTeams() ([]models.GetTeam, error) {
 				Others:      values[19].String,
 			}
 		}
-		teamMap[teamCode].Users = append(teamMap[teamCode].Users, user)
-	}
 
-	for _, team := range teamMap {
-		teams = append(teams, *team)
+		var isLeader bool
+		if values[7].Valid {
+			isLeader = values[7].String != ""
+		} else {
+			isLeader = false
+		}
+
+		user := models.GetUser{
+			FullName: values[4].String,
+			RegNo:    values[5].String,
+			ID:       uuid.MustParse(values[6].String),
+			IsLeader: isLeader,
+		}
+		team.Users = append(team.Users, user)
+
+		teams = append(teams, team)
 	}
 
 	return teams, nil
@@ -180,33 +171,4 @@ func FindTeamByCode(code string) (models.Team, error) {
 		Scan(&team.ID, &team.Name, &team.Code, &team.Round, &team.LeaderID)
 
 	return team, err
-}
-
-func GetAllFresherTeam() ([]models.GetTeam, error) {
-	var teamFresher []models.GetTeam
-	teams, err := GetAllTeams()
-	if err != nil {
-		return teams, err
-	}
-	for _, team := range teams {
-		if IsFresher(team) {
-			teamFresher = append(teamFresher, team)
-		}
-	}
-	return teamFresher, nil
-
-}
-
-func GetAllFemaleTeams() ([]models.GetTeam, error) {
-	var teamFemale []models.GetTeam
-	teams, err := GetAllTeams()
-	if err != nil {
-		return teams, err
-	}
-	for _, team := range teams {
-		if IsFemale(team) {
-			teamFemale = append(teamFemale, team)
-		}
-	}
-	return teamFemale, nil
 }
