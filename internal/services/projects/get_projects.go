@@ -1,9 +1,6 @@
 package services
 
 import (
-	"database/sql"
-	"errors"
-
 	"github.com/CodeChefVIT/devsoc-backend-24/internal/database"
 	"github.com/CodeChefVIT/devsoc-backend-24/internal/models"
 	"github.com/google/uuid"
@@ -15,13 +12,6 @@ func GetProject(teamid uuid.UUID) (models.Project, error) {
 	err := database.DB.QueryRow(query, teamid).Scan(&proj.Name,
 		&proj.Description, &proj.GithubLink, &proj.FigmaLink,
 		&proj.Track, &proj.Others)
-	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return proj, nil
-		} else {
-			return proj, err
-		}
-	}
 	return proj, err
 }
 
@@ -31,14 +21,7 @@ func GetProjectByID(projectID uuid.UUID) (models.Project, error) {
 	err := database.DB.QueryRow(query, projectID).Scan(&proj.Name,
 		&proj.Description, &proj.GithubLink, &proj.FigmaLink,
 		&proj.Track, &proj.Others)
-	if err != nil {
-		if err == sql.ErrNoRows {
-			return proj, nil
-		} else {
-			return proj, err
-		}
-	}
-	return proj, nil
+	return proj, err
 }
 
 func GetAllProjects() ([]models.AdminGetProject, error) {
