@@ -52,7 +52,7 @@ func GetReviewsByTeamID(teamID uuid.UUID) (reviews []models.TeamReview, err erro
 func GetReviewsByRound(round int) (reviews []models.TeamReview, err error) {
 	var rows *sql.Rows
 	rows, err = database.DB.Query(
-		"SELECT id, team_id, reviewer, innovation_score, functionality_score, design_score, tech_score, presentation_score, comments, total_score FROM reviews WHERE review_round = $1",
+		"SELECT id, team_id, reviewer, innovation_score, functionality_score, design_score, tech_score, presentation_score, comments, total_score, review_round FROM reviews WHERE review_round = $1",
 		round,
 	)
 	if err != nil {
