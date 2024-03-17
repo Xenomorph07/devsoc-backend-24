@@ -142,7 +142,7 @@ func UpdateIdea(ctx echo.Context) error {
 	}
 
 	if !user.IsLeader {
-		return ctx.JSON(http.StatusUnauthorized, map[string]string{
+		return ctx.JSON(http.StatusConflict, map[string]string{
 			"message": "user is not a leader",
 			"status":  "fail",
 		})
