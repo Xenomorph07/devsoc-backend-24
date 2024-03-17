@@ -34,3 +34,8 @@ type UpdateIdeaRequest struct {
 type SelectIdeaRequest struct {
 	IdeaID uuid.UUID `json:"idea_id" validate:"required"`
 }
+
+type AdminGetIdea struct {
+	Idea
+	TeamID uuid.UUID `json:"team_id"`
+}

@@ -41,8 +41,8 @@ func GetProjectByID(projectID uuid.UUID) (models.Project, error) {
 	return proj, nil
 }
 
-func GetAllProjects() ([]models.Project, error) {
-	query := `SELECT name, description, github, figma, track, others FROM projects`
+func GetAllProjects() ([]models.AdminGetProject, error) {
+	query := `SELECT name, description, github, figma, track, others, teamid FROM projects`
 
 	rows, err := database.DB.Query(query)
 	if err != nil {
@@ -50,14 +50,17 @@ func GetAllProjects() ([]models.Project, error) {
 	}
 	defer rows.Close()
 
-	var projects []models.Project
+	var projects []models.AdminGetProject
 
 	for rows.Next() {
-		var proj models.Project
+		var proj models.AdminGetProject
+		var temp string
 		err := rows.Scan(
 			&proj.Name, &proj.Description, &proj.GithubLink, &proj.FigmaLink,
-			&proj.Track, &proj.Others,
+			&proj.Track, &proj.Others, &temp,
 		)
+		proj.TeamID = uuid.MustParse(temp)
+
 		if err != nil {
 			return nil, err
 		}
