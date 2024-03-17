@@ -17,9 +17,14 @@ var RedisClient *RedisRepository
 
 func InitRedis(redisConfig config.RedisConfig) error {
 	client := redis.NewClient(&redis.Options{
-		Addr:     fmt.Sprintf("%s:%s", redisConfig.REDIS_HOST, redisConfig.REDIS_PORT),
-		DB:       0,
-		Password: redisConfig.REDIS_PASSWORD,
+		Addr:         fmt.Sprintf("%s:%s", redisConfig.REDIS_HOST, redisConfig.REDIS_PORT),
+		DB:           0,
+		Password:     redisConfig.REDIS_PASSWORD,
+		DialTimeout:  10 * time.Second,
+		ReadTimeout:  30 * time.Second,
+		WriteTimeout: 30 * time.Second,
+		PoolSize:     10,
+		PoolTimeout:  10 * time.Second,
 	})
 
 	// Verify the connection to Redis

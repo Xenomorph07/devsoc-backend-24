@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"errors"
 	"net/http"
+	"strings"
 
 	"github.com/CodeChefVIT/devsoc-backend-24/internal/models"
 	services "github.com/CodeChefVIT/devsoc-backend-24/internal/services/idea"
@@ -55,6 +56,13 @@ func CreateIdea(ctx echo.Context) error {
 		})
 	}
 
+	req.Title = strings.TrimSpace(req.Title)
+	req.Description = strings.TrimSpace(req.Description)
+	req.Track = strings.TrimSpace(req.Track)
+	req.Figma = strings.TrimSpace(req.Figma)
+	req.Github = strings.TrimSpace(req.Github)
+	req.Others = strings.TrimSpace(req.Others)
+
 	if err := ctx.Validate(&req); err != nil {
 		return ctx.JSON(http.StatusBadRequest, map[string]string{
 			"message": err.Error(),
@@ -64,8 +72,15 @@ func CreateIdea(ctx echo.Context) error {
 
 	user := ctx.Get("user").(*models.User)
 
+	if user.TeamID == uuid.Nil {
+		return ctx.JSON(http.StatusForbidden, map[string]string{
+			"message": "user is not in a team",
+			"status":  "fail",
+		})
+	}
+
 	if !user.IsLeader {
-		return ctx.JSON(http.StatusUnauthorized, map[string]string{
+		return ctx.JSON(http.StatusForbidden, map[string]string{
 			"message": "user is not a leader",
 			"status":  "fail",
 		})
@@ -102,6 +117,13 @@ func UpdateIdea(ctx echo.Context) error {
 			"status":  "error",
 		})
 	}
+
+	req.Title = strings.TrimSpace(req.Title)
+	req.Description = strings.TrimSpace(req.Description)
+	req.Track = strings.TrimSpace(req.Track)
+	req.Github = strings.TrimSpace(req.Github)
+	req.Figma = strings.TrimSpace(req.Figma)
+	req.Others = strings.TrimSpace(req.Others)
 
 	if err := ctx.Validate(&req); err != nil {
 		return ctx.JSON(http.StatusBadRequest, map[string]string{

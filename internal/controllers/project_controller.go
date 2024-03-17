@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"errors"
 	"net/http"
+	"strings"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgconn"
@@ -54,6 +55,13 @@ func CreateProject(ctx echo.Context) error {
 		})
 	}
 
+	req.Name = strings.TrimSpace(req.Name)
+	req.Description = strings.TrimSpace(req.Description)
+	req.Track = strings.TrimSpace(req.Track)
+	req.GithubLink = strings.TrimSpace(req.GithubLink)
+	req.FigmaLink = strings.TrimSpace(req.FigmaLink)
+	req.Others = strings.TrimSpace(req.Others)
+
 	if err := ctx.Validate(&req); err != nil {
 		return ctx.JSON(http.StatusBadRequest, map[string]string{
 			"message": err.Error(),
@@ -63,16 +71,16 @@ func CreateProject(ctx echo.Context) error {
 
 	user := ctx.Get("user").(*models.User)
 
-	if !user.IsLeader {
-		return ctx.JSON(http.StatusUnauthorized, map[string]string{
-			"message": "user is not a leader",
+	if user.TeamID == uuid.Nil {
+		return ctx.JSON(http.StatusForbidden, map[string]string{
+			"message": "user is not in a team",
 			"status":  "fail",
 		})
 	}
 
-	if user.TeamID == uuid.Nil {
+	if !user.IsLeader {
 		return ctx.JSON(http.StatusForbidden, map[string]string{
-			"message": "The user is not in a team",
+			"message": "user is not a leader",
 			"status":  "fail",
 		})
 	}
@@ -109,6 +117,13 @@ func UpdateProject(ctx echo.Context) error {
 			"status":  "fail",
 		})
 	}
+
+	req.Name = strings.TrimSpace(req.Name)
+	req.Description = strings.TrimSpace(req.Description)
+	req.Track = strings.TrimSpace(req.Track)
+	req.GithubLink = strings.TrimSpace(req.GithubLink)
+	req.FigmaLink = strings.TrimSpace(req.FigmaLink)
+	req.Others = strings.TrimSpace(req.Others)
 
 	if err := ctx.Validate(&req); err != nil {
 		return ctx.JSON(http.StatusBadRequest, map[string]string{

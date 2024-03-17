@@ -13,7 +13,7 @@ type User struct {
 	RegNo             string    `json:"reg_no"`
 	Email             string    `json:"email"`
 	Password          string    `json:"-"`
-	Phone             string    `json:"phone"`
+	Phone             string    `json:"phone_number"`
 	College           string    `json:"college"`
 	City              string    `json:"city"`
 	State             string    `json:"state"`
@@ -43,7 +43,7 @@ type VITDetails struct {
 type CompleteUserRequest struct {
 	FirstName   string `json:"first_name"          validate:"required,min=1,max=20"`
 	LastName    string `json:"last_name"           validate:"required,min=1,max=20"`
-	PhoneNumber string `json:"phone"               validate:"required,min=10"`
+	PhoneNumber string `json:"phone_number"        validate:"required,min=10"`
 	Gender      string `json:"gender"              validate:"required"`
 	IsVitian    *bool  `json:"is_vitian"           validate:"required"`
 	// Email       string `json:"email"               validate:"required,email"`
@@ -69,6 +69,7 @@ type UpdateUserRequest struct {
 	State       string `json:"state,omitempty"        validate:"omitempty"`
 	Country     string `json:"country,omitempty"      validate:"omitempty"`
 	RegNo       string `json:"reg_no,omitempty"       validate:"omitempty"`
+	Room        string `json:"room,omitempty"         validate:"omitempty"`
 }
 
 type CreateUserRequest struct {

@@ -39,6 +39,8 @@ func CreateUser(ctx echo.Context) error {
 		})
 	}
 
+	payload.Email = strings.ToLower(payload.Email)
+
 	_, err := services.FindUserByEmail(payload.Email)
 	if err != nil && !errors.Is(err, sql.ErrNoRows) {
 		return ctx.JSON(http.StatusInternalServerError, map[string]string{
@@ -259,10 +261,10 @@ func CompleteProfile(ctx echo.Context) error {
 		})
 	}
 
-	// err = services.WriteUserToGoogleSheet(*user)
-	// if err != nil {
-	// 	slog.Error(err.Error())
-	// }
+	err = services.WriteUserToGoogleSheet(user.User)
+	if err != nil {
+		slog.Error(err.Error())
+	}
 
 	return ctx.JSON(http.StatusOK, map[string]string{
 		"message": "user profile updated",
@@ -322,6 +324,19 @@ func UpdateUser(ctx echo.Context) error {
 		})
 	}
 
+	payload.FirstName = strings.TrimSpace(payload.FirstName)
+	payload.LastName = strings.TrimSpace(payload.LastName)
+	payload.PhoneNumber = strings.TrimSpace(payload.PhoneNumber)
+	payload.Gender = strings.TrimSpace(payload.Gender)
+	payload.VitEmail = strings.TrimSpace(payload.VitEmail)
+	payload.HostelBlock = strings.TrimSpace(payload.HostelBlock)
+	payload.College = strings.TrimSpace(payload.College)
+	payload.City = strings.TrimSpace(payload.City)
+	payload.State = strings.TrimSpace(payload.State)
+	payload.Country = strings.TrimSpace(payload.Country)
+	payload.RegNo = strings.TrimSpace(payload.RegNo)
+	payload.Room = strings.TrimSpace(payload.Room)
+
 	if payload.FirstName != "" {
 		user.FirstName = payload.FirstName
 	}
@@ -334,26 +349,14 @@ func UpdateUser(ctx echo.Context) error {
 	if payload.Gender != "" {
 		user.Gender = payload.Gender
 	}
-	if payload.VitEmail != "" {
-		user.VITDetails.Email = payload.VitEmail
-	}
 	if payload.HostelBlock != "" {
 		user.Block = payload.HostelBlock
 	}
-	if payload.College != "" {
-		user.College = payload.College
-	}
-	if payload.City != "" {
-		user.City = payload.City
-	}
-	if payload.State != "" {
-		user.State = payload.State
-	}
-	if payload.Country != "" {
-		user.Country = payload.Country
-	}
 	if payload.RegNo != "" {
 		user.RegNo = payload.RegNo
+	}
+	if payload.Room != "" {
+		user.Room = payload.Room
 	}
 
 	if err := services.UpdateUser(&user.User); err != nil {
@@ -454,6 +457,8 @@ func VerifyUser(ctx echo.Context) error {
 			"status":  "error",
 		})
 	}
+
+	database.RedisClient.Delete("verification:" + user.User.Email)
 
 	return ctx.JSON(http.StatusOK, map[string]string{
 		"message": "User verified",
@@ -579,7 +584,7 @@ func RequestResetPassword(ctx echo.Context) error {
 		})
 	}
 
-	if err := database.RedisClient.Set("resettries"+payload.Email, fmt.Sprint(1), time.Minute*5); err != nil {
+	if err := database.RedisClient.Set("resettries:"+payload.Email, fmt.Sprint(1), time.Minute*5); err != nil {
 		return ctx.JSON(http.StatusInternalServerError, map[string]string{
 			"message": err.Error(),
 			"status":  "error",
@@ -636,7 +641,7 @@ func ResetPassword(ctx echo.Context) error {
 		})
 	}
 
-	triesString, err := database.RedisClient.Get("resettries" + payload.Email)
+	triesString, err := database.RedisClient.Get("resettries:" + payload.Email)
 	if err != nil {
 		if err == redis.Nil {
 			return ctx.JSON(http.StatusForbidden, map[string]string{
@@ -653,7 +658,7 @@ func ResetPassword(ctx echo.Context) error {
 	tries, _ := strconv.Atoi(triesString)
 
 	if tries >= 10 {
-		database.RedisClient.Delete("resetpass" + payload.Email)
+		database.RedisClient.Delete("resetpass:" + payload.Email)
 		return ctx.JSON(http.StatusGone, map[string]string{
 			"message": "otp expired",
 			"status":  "fail",
@@ -675,7 +680,7 @@ func ResetPassword(ctx echo.Context) error {
 	}
 
 	if payload.OTP != otp {
-		if err := database.RedisClient.Set("resettries"+payload.Email, fmt.Sprint(tries+1), time.Minute*5); err != nil {
+		if err := database.RedisClient.Set("resettries:"+payload.Email, fmt.Sprint(tries+1), time.Minute*5); err != nil {
 			return ctx.JSON(http.StatusInternalServerError, map[string]string{
 				"message": err.Error(),
 				"status":  "error",
@@ -695,7 +700,7 @@ func ResetPassword(ctx echo.Context) error {
 		})
 	}
 
-	err = services.ResetPassword(payload.Email, string(hashed))
+	err = services.ResetPassword(string(hashed), payload.Email)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return ctx.JSON(http.StatusNotFound, map[string]string{
@@ -708,6 +713,8 @@ func ResetPassword(ctx echo.Context) error {
 			"status":  "error",
 		})
 	}
+
+	database.RedisClient.Delete("resetpass:" + payload.Email)
 
 	return ctx.JSON(http.StatusOK, map[string]string{
 		"status":  "success",

@@ -22,10 +22,10 @@ func CheckTeamCode(code string) bool {
 func CheckTeamSize(team_id uuid.UUID) bool {
 	query := `SELECT COUNT(*) WHERE team_id = $1`
 
-	var no_of_member int
+	var no_members int
 
-	err := database.DB.QueryRow(query, team_id).Scan(&no_of_member)
-	if err != nil || no_of_member > 4 {
+	err := database.DB.QueryRow(query, team_id).Scan(&no_members)
+	if err != nil || no_members >= 5 {
 		return false
 	}
 

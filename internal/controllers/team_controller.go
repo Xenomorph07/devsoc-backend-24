@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"errors"
 	"net/http"
+	"strings"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgconn"
@@ -23,6 +24,8 @@ func CreateTeam(ctx echo.Context) error {
 			"status":  "fail",
 		})
 	}
+
+	payload.Name = strings.TrimSpace(payload.Name)
 
 	if err := ctx.Validate(&payload); err != nil {
 		return ctx.JSON(http.StatusBadRequest, map[string]string{
@@ -71,6 +74,81 @@ func CreateTeam(ctx echo.Context) error {
 		"data": map[string]interface{}{
 			"team_code": code,
 		},
+	})
+}
+
+func UpdateTeamName(ctx echo.Context) error {
+	var payload models.CreateTeamRequest
+
+	if err := ctx.Bind(&payload); err != nil {
+		return ctx.JSON(http.StatusBadRequest, map[string]string{
+			"message": err.Error(),
+			"status":  "fail",
+		})
+	}
+
+	payload.Name = strings.TrimSpace(payload.Name)
+
+	if err := ctx.Validate(&payload); err != nil {
+		return ctx.JSON(http.StatusBadRequest, map[string]string{
+			"message": err.Error(),
+			"status":  "fail",
+		})
+	}
+
+	user := ctx.Get("user").(*models.User)
+
+	if !user.IsLeader {
+		return ctx.JSON(http.StatusForbidden, map[string]string{
+			"status":  "fail",
+			"message": "user is not leader",
+		})
+	}
+
+	if !user.IsLeader {
+		return ctx.JSON(http.StatusForbidden, map[string]string{
+			"status":  "fail",
+			"message": "user is not leader",
+		})
+	}
+
+	if user.TeamID == uuid.Nil {
+		return ctx.JSON(http.StatusNotFound, map[string]string{
+			"message": "user not in a team",
+			"status":  "fail",
+		})
+	}
+
+	/*team, err := services.FindTeamByTeamID(payload.ID)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return ctx.JSON(http.StatusNotFound, map[string]string{
+				"message": "user not found",
+				"status":  "fail",
+			})
+		}
+	}*/
+
+	err := services.UpdateTeamName(payload.Name, user.TeamID)
+	if err != nil {
+		var pgerr *pgconn.PgError
+		if errors.As(err, &pgerr) {
+			if pgerr.Code == "23505" {
+				return ctx.JSON(http.StatusConflict, map[string]string{
+					"message": "team name already exists",
+					"status":  "failed to update team",
+				})
+			}
+		}
+		return ctx.JSON(http.StatusInternalServerError, map[string]string{
+			"message": err.Error(),
+			"status":  "error",
+		})
+	}
+
+	return ctx.JSON(http.StatusOK, map[string]interface{}{
+		"message": "team updated successfully",
+		"status":  "success",
 	})
 }
 

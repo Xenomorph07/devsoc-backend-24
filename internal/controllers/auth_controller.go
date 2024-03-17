@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -36,6 +37,8 @@ func Login(ctx echo.Context) error {
 			"status":  "fail",
 		})
 	}
+
+	payload.Email = strings.ToLower(payload.Email)
 
 	user, err := services.FindUserByEmail(payload.Email)
 	if err != nil {
@@ -68,13 +71,6 @@ func Login(ctx echo.Context) error {
 		return ctx.JSON(http.StatusInternalServerError, map[string]string{
 			"message": err.Error(),
 			"status":  "error",
-		})
-	}
-
-	if !user.IsProfileComplete {
-		return ctx.JSON(http.StatusLocked, map[string]interface{}{
-			"message": "profile not completed",
-			"status":  "fail",
 		})
 	}
 
