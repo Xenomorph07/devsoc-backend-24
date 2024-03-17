@@ -28,8 +28,12 @@ func AdminRoutes(incomingRoutes *echo.Echo) {
 
 	admin.GET("/projects/all", controllers.GetAllProject)
 	admin.GET("/ideas/all", controllers.GetAllIdeas)
+	admin.POST("/idea/shortlist", controllers.ShortList, middleware.EditOnly)
 
-	admin.POST("/idea/shortlist", controllers.ShortList)
+	admin.GET("/reviews/:round", controllers.GetReviewsByRound)
+	admin.GET("/reviews/team/:id", controllers.GetReviewsByTeamID)
+	admin.POST("/review", controllers.ReviewTeam, middleware.EditOnly)
+	admin.PATCH("/review", controllers.UpdateReview, middleware.EditOnly)
 
 	//admin.GET("/team/freshers", controllers.GetAllFresherTeams)
 	//admin.GET("/team/females", controllers.GetAllFemaleTeams)

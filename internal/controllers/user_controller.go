@@ -243,7 +243,7 @@ func CompleteProfile(ctx echo.Context) error {
 			if errors.As(err, &pgerr) {
 				if pgerr.Code == "23505" {
 					return ctx.JSON(http.StatusExpectationFailed, map[string]string{
-						"message": "team name already exists",
+						"message": "vit email already exists",
 						"status":  "failed to update team",
 					})
 				}
