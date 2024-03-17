@@ -4,6 +4,9 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/CodeChefVIT/devsoc-backend-24/internal/database"
+	"github.com/CodeChefVIT/devsoc-backend-24/internal/models"
+
+	services "github.com/CodeChefVIT/devsoc-backend-24/internal/services/user"
 )
 
 func CheckTeamCode(code string) bool {
@@ -35,6 +38,28 @@ func CheckUserInTeam(id uuid.UUID, teamid uuid.UUID) bool {
 	err := database.DB.QueryRow(query, teamid, id).Scan(&check)
 	if err != nil || check == 0 {
 		return false
+	}
+	return true
+}
+
+func IsFresher(team models.GetTeam) bool {
+	for _, user := range team.Users {
+		if user.RegNo[:2] != "23" {
+			return false
+		}
+	}
+	return true
+}
+
+func IsFemale(team models.GetTeam) bool {
+	for _, user := range team.Users {
+		userData, err := services.FindUserByID(user.ID)
+		if err != nil {
+			return false
+		}
+		if userData.Gender != "Female" {
+			return false
+		}
 	}
 	return true
 }
