@@ -139,6 +139,11 @@ type ResetPasswordRequest struct {
 	Password string `json:"new_password" validate:"required,min=6"`
 }
 
+type AdminGetTeamUser struct {
+	GetUser
+	Email string `json:"email"`
+}
+
 func NewUser(email string, password string, role string) *User {
 	return &User{
 		ID:                uuid.New(),

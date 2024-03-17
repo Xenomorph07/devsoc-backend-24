@@ -10,7 +10,7 @@ type Idea struct {
 	Github      string    `json:"github_link"`
 	Figma       string    `json:"figma_link"`
 	Others      string    `json:"others"`
-	IsSelected  bool      `json:"-"`
+	IsSelected  bool      `json:"is_selected"`
 }
 
 type IdeaRequest struct {
@@ -33,4 +33,9 @@ type UpdateIdeaRequest struct {
 
 type SelectIdeaRequest struct {
 	IdeaID uuid.UUID `json:"idea_id" validate:"required"`
+}
+
+type AdminGetIdea struct {
+	Idea
+	TeamID uuid.UUID `json:"team_id"`
 }

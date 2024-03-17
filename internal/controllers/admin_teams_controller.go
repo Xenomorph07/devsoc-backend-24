@@ -188,3 +188,35 @@ func GetTeamLeader(ctx echo.Context) error {
 	})
 
 }
+
+/*func GetAllFresherTeams(ctx echo.Context) error {
+	team, err := teamService.GetAllFresherTeam()
+	if err != nil {
+		return ctx.JSON(http.StatusBadRequest, map[string]string{
+			"message": "Failed to fetch teams",
+			"data":    err.Error(),
+			"status":  "false",
+		})
+	}
+	return ctx.JSON(http.StatusAccepted, map[string]interface{}{
+		"message": "Successfully fetched teams",
+		"data":    team,
+		"status":  "true",
+	})
+}
+
+func GetAllFemaleTeams(ctx echo.Context) error {
+	team, err := teamService.GetAllFemaleTeams()
+	if err != nil {
+		return ctx.JSON(http.StatusBadRequest, map[string]string{
+			"message": "Failed to fetch teams",
+			"data":    err.Error(),
+			"status":  "false",
+		})
+	}
+	return ctx.JSON(http.StatusAccepted, map[string]interface{}{
+		"message": "Successfully fetched teams",
+		"data":    team,
+		"status":  "true",
+	})
+}*/

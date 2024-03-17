@@ -7,18 +7,18 @@ import (
 )
 
 func GetIdeaByTeamID(teamid uuid.UUID) (models.Idea, error) {
-	query := "SELECT title, description, track, github, figma, others FROM ideas WHERE teamid = $1"
+	query := "SELECT title, description, track, github, figma, others, is_selected FROM ideas WHERE teamid = $1"
 
 	var idea models.Idea
 
 	err := database.DB.QueryRow(query, teamid).Scan(&idea.Title, &idea.Description,
-		&idea.Track, &idea.Github, &idea.Figma, &idea.Others)
+		&idea.Track, &idea.Github, &idea.Figma, &idea.Others, &idea.IsSelected)
 
 	return idea, err
 }
 
-func GetAllIdeas() ([]models.Idea, error) {
-	query := "SELECT id, title, description, track, github, figma, others FROM ideas"
+func GetAllIdeas() ([]models.AdminGetIdea, error) {
+	query := "SELECT id, title, description, track, github, figma, others, teamid FROM ideas"
 
 	rows, err := database.DB.Query(query)
 	if err != nil {
@@ -26,13 +26,15 @@ func GetAllIdeas() ([]models.Idea, error) {
 	}
 	defer rows.Close()
 
-	var ideas []models.Idea
+	var ideas []models.AdminGetIdea
 	for rows.Next() {
-		var idea models.Idea
+		var idea models.AdminGetIdea
+		var temp string
 		if err := rows.Scan(&idea.ID, &idea.Title, &idea.Description, &idea.Track,
-			&idea.Github, &idea.Figma, &idea.Others); err != nil {
+			&idea.Github, &idea.Figma, &idea.Others, &temp); err != nil {
 			return nil, err
 		}
+		idea.TeamID = uuid.MustParse(temp)
 		ideas = append(ideas, idea)
 	}
 	if err := rows.Err(); err != nil {
