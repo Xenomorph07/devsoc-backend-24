@@ -72,7 +72,7 @@ func CreateProject(ctx echo.Context) error {
 	user := ctx.Get("user").(*models.User)
 
 	if user.TeamID == uuid.Nil {
-		return ctx.JSON(http.StatusForbidden, map[string]string{
+		return ctx.JSON(http.StatusConflict, map[string]string{
 			"message": "user is not in a team",
 			"status":  "fail",
 		})
