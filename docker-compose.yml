@@ -1,5 +1,6 @@
 version: '3'
 services:
+
   api:
     build: .
     ports:
@@ -9,4 +10,3 @@ services:
     env_file:
       - .env
     restart: on-failure
-    
