@@ -189,7 +189,7 @@ func GetTeamLeader(ctx echo.Context) error {
 
 }
 
-func GetAllFresherTeams(ctx echo.Context) error {
+/*func GetAllFresherTeams(ctx echo.Context) error {
 	team, err := teamService.GetAllFresherTeam()
 	if err != nil {
 		return ctx.JSON(http.StatusBadRequest, map[string]string{
@@ -219,4 +219,4 @@ func GetAllFemaleTeams(ctx echo.Context) error {
 		"data":    team,
 		"status":  "true",
 	})
-}
+}*/

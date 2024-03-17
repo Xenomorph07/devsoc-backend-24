@@ -2,6 +2,7 @@ package routes
 
 import (
 	"github.com/CodeChefVIT/devsoc-backend-24/internal/controllers"
+	"github.com/CodeChefVIT/devsoc-backend-24/internal/middleware"
 	"github.com/labstack/echo/v4"
 )
 
@@ -29,6 +30,6 @@ func AdminRoutes(incomingRoutes *echo.Echo) {
 	admin.GET("/projects/all", controllers.GetAllProject)
 	admin.GET("/ideas/all", controllers.GetAllIdeas)
 
-	admin.GET("/team/freshers", controllers.GetAllFresherTeams)
-	admin.GET("/team/females", controllers.GetAllFemaleTeams)
+	//admin.GET("/team/freshers", controllers.GetAllFresherTeams)
+	//admin.GET("/team/females", controllers.GetAllFemaleTeams)
 }
