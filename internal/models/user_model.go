@@ -29,6 +29,29 @@ type User struct {
 	TeamID            uuid.UUID `json:"team_id"`
 }
 
+type AdminUser struct {
+	ID                uuid.UUID `json:"id"`
+	FirstName         string    `json:"first_name"`
+	LastName          string    `json:"last_name"`
+	RegNo             string    `json:"reg_no"`
+	Email             string    `json:"email"`
+	Password          string    `json:"-"`
+	Phone             string    `json:"phone_number"`
+	College           string    `json:"college"`
+	City              string    `json:"city"`
+	State             string    `json:"state"`
+	Country           string    `json:"country"`
+	Gender            string    `json:"gender"`
+	Role              string    `json:"role"`
+	IsBanned          bool      `json:"is_banned"`
+	IsAdded           bool      `json:"is_added"`
+	IsVitian          bool      `json:"is_vitian"`
+	IsVerified        bool      `json:"is_verified"`
+	IsLeader          bool      `json:"is_leader"`
+	IsProfileComplete bool      `json:"is_profile_complete"`
+	TeamID            uuid.UUID `json:"team_id"`
+}
+
 type UserDetails struct {
 	User
 	VITDetails
@@ -46,7 +69,6 @@ type CompleteUserRequest struct {
 	PhoneNumber string `json:"phone_number"        validate:"required,min=10"`
 	Gender      string `json:"gender"              validate:"required"`
 	IsVitian    *bool  `json:"is_vitian"           validate:"required"`
-	// Email       string `json:"email"               validate:"required,email"`
 	VitEmail    string `json:"vit_email,omitempty" validate:"omitempty,email"`
 	HostelBlock string `json:"block"`
 	HostelRoom  string `json:"room"`

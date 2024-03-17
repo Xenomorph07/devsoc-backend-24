@@ -8,4 +8,8 @@ services:
       - .:/app
     env_file:
       - .env
+<<<<<<< HEAD
     restart: on-failure
+=======
+    restart: on-failure
+>>>>>>> 726a9f37c180e1133236d65c47932deaa201ba2b
