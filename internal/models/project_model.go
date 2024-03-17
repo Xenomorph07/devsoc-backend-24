@@ -29,3 +29,8 @@ type UpdateProjectRequest struct {
 	FigmaLink   string `json:"figma_link"  validate:"omitempty,url"`
 	Others      string `json:"others"`
 }
+
+type AdminGetProject struct {
+	Project
+	TeamID uuid.UUID `json:"team_id"`
+}
