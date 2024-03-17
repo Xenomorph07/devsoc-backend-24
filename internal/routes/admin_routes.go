@@ -9,13 +9,12 @@ import (
 func AdminRoutes(incomingRoutes *echo.Echo) {
 	admin := incomingRoutes.Group("/admin")
 	admin.Use(middleware.Protected())
-	// admin.Use(middleware.AuthUser)
 	admin.Use(middleware.CheckAdmin)
 
 	admin.GET("/users", controllers.GetAllUsers)
 	admin.GET("/user/:email", controllers.GetUserByEmail)
-	admin.POST("/user/ban", controllers.BanUser)
-	admin.POST("/user/unban", controllers.UnbanUser)
+	admin.POST("/user/ban", controllers.BanUser, middleware.EditOnly)
+	admin.POST("/user/unban", controllers.UnbanUser, middleware.EditOnly)
 	admin.GET("/vitians", controllers.GetAllVitians)
 	admin.GET("/females", controllers.GetAllFemales)
 
@@ -24,8 +23,8 @@ func AdminRoutes(incomingRoutes *echo.Echo) {
 	admin.GET("/team/project/:id", controllers.GetProjectByTeamID)
 	admin.GET("/team/leader/:id", controllers.GetTeamLeader)
 	admin.GET("/team/idea/:id", controllers.GetIdeaByTeamID)
-	admin.GET("/team/ban/:id", controllers.BanTeam)
-	admin.GET("/team/unban/:id", controllers.UnbanTeam)
+	admin.GET("/team/ban/:id", controllers.BanTeam, middleware.EditOnly)
+	admin.GET("/team/unban/:id", controllers.UnbanTeam, middleware.EditOnly)
 
 	admin.GET("/projects/all", controllers.GetAllProject)
 	admin.GET("/ideas/all", controllers.GetAllIdeas)
