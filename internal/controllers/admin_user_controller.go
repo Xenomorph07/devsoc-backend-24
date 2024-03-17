@@ -172,3 +172,45 @@ func UnbanUser(ctx echo.Context) error {
 		"status":  "success",
 	})
 }
+
+func CheckIn(ctx echo.Context) error {
+	var payload struct {
+		Email string `json:"email" validate:"required"`
+	}
+
+	if err := ctx.Bind(&payload); err != nil {
+		return ctx.JSON(http.StatusBadRequest, map[string]string{
+			"message": err.Error(),
+			"status":  "fail",
+		})
+	}
+
+	user, err := services.FindUserByEmail(payload.Email)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return ctx.JSON(http.StatusNotFound, map[string]string{
+				"message": "User does not exist",
+				"status":  "fail",
+			})
+		}
+		return ctx.JSON(http.StatusInternalServerError, map[string]string{
+			"message": err.Error(),
+			"status":  "error",
+		})
+	}
+
+	user.IsAdded = true
+
+	err = services.UpdateUser(&user.User)
+	if err != nil {
+		return ctx.JSON(http.StatusInternalServerError, map[string]string{
+			"message": err.Error(),
+			"status":  "fail",
+		})
+	}
+
+	return ctx.JSON(http.StatusOK, map[string]string{
+		"message": "checkin successful",
+		"status":  "success",
+	})
+}

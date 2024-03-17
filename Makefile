@@ -1,5 +1,7 @@
 # Define variables
 DOCKER_COMPOSE = docker compose
+URI = "host= port= user= password= dbname=devsoc-24-backend"
+
 URI = "host=139.59.71.66 port=5430 user=admin password=d352F68MX2Hdh2pRFWoB3R9yg dbname=devsoc-24-backend"
 
 # Targets
@@ -27,7 +29,7 @@ migrate-up:
 	cd db/migrations && goose postgres $(URI) up && cd ../..
 
 migrate-down:
-	cd db/migrations && goose postgres $(URI) down-to 0 && cd ../..
+	cd db/migrations && goose postgres $(URI) down && cd ../..
 
 # Help target
 help:

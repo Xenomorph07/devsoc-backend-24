@@ -730,3 +730,140 @@ func ResetPassword(ctx echo.Context) error {
 		"message": "password reset successfully",
 	})
 }
+
+func AdminLogin(ctx echo.Context) error {
+	var payload models.LoginRequest
+
+	if err := ctx.Bind(&payload); err != nil {
+		return ctx.JSON(http.StatusBadRequest, map[string]string{
+			"message": err.Error(),
+			"status":  "fail",
+		})
+	}
+
+	if err := ctx.Validate(&payload); err != nil {
+		return ctx.JSON(http.StatusBadRequest, map[string]string{
+			"message": err.Error(),
+			"status":  "fail",
+		})
+	}
+
+	payload.Email = strings.ToLower(payload.Email)
+
+	user, err := services.FindUserByEmail(payload.Email)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return ctx.JSON(http.StatusNotFound, map[string]string{
+				"message": "user does not exist",
+				"status":  "fail",
+			})
+		}
+		return ctx.JSON(http.StatusInternalServerError, map[string]string{
+			"messsage": err.Error(),
+			"status":   "error",
+		})
+	}
+
+	if !user.IsVerified {
+		return ctx.JSON(http.StatusForbidden, map[string]string{
+			"message": "User is not verified",
+			"status":  "fail",
+		})
+	}
+
+	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(payload.Password)); err != nil {
+		if errors.Is(err, bcrypt.ErrMismatchedHashAndPassword) {
+			return ctx.JSON(http.StatusConflict, map[string]string{
+				"message": "Invalid password",
+				"status":  "fail",
+			})
+		}
+		return ctx.JSON(http.StatusInternalServerError, map[string]string{
+			"message": err.Error(),
+			"status":  "error",
+		})
+	}
+
+	tokenVersionStr, err := database.RedisClient.Get(
+		fmt.Sprintf("token_version:%s", user.User.Email))
+	if err != nil && err != redis.Nil {
+		return ctx.JSON(http.StatusInternalServerError, map[string]string{
+			"status":  "error",
+			"message": err.Error(),
+		})
+	}
+
+	tokenVersion, _ := strconv.Atoi(tokenVersionStr)
+
+	accessToken, err := utils.CreateToken(utils.TokenPayload{
+		Exp:          time.Hour * 24,
+		Email:        user.User.Email,
+		Role:         user.Role,
+		TokenVersion: tokenVersion + 1,
+	}, utils.ACCESS_TOKEN)
+	if err != nil {
+		return ctx.JSON(http.StatusInternalServerError, map[string]string{
+			"message": err.Error(),
+			"status":  "error",
+		})
+	}
+
+	refreshToken, err := utils.CreateToken(utils.TokenPayload{
+		Exp:   time.Hour * 24,
+		Email: user.User.Email,
+	}, utils.REFRESH_TOKEN)
+	if err != nil {
+		return ctx.JSON(http.StatusInternalServerError, map[string]string{
+			"message": err.Error(),
+			"status":  "error",
+		})
+	}
+
+	if err := database.RedisClient.Set(fmt.Sprintf("token_version:%s", user.User.Email),
+		fmt.Sprint(tokenVersion+1), time.Hour*1); err != nil {
+		return ctx.JSON(http.StatusInternalServerError, map[string]string{
+			"status":  "error",
+			"message": err.Error(),
+		})
+	}
+
+	if err := database.RedisClient.Set(user.User.Email, refreshToken, time.Hour*1); err != nil {
+		return ctx.JSON(http.StatusInternalServerError, map[string]string{
+			"status":  "error",
+			"message": err.Error(),
+		})
+	}
+
+	ctx.SetCookie(&http.Cookie{
+		Name:     os.Getenv("ACCESS_COOKIE_NAME"),
+		Value:    accessToken,
+		HttpOnly: true,
+		SameSite: http.SameSiteStrictMode,
+		MaxAge:   86400,
+		Secure:   true,
+	})
+
+	ctx.SetCookie(&http.Cookie{
+		Name:     os.Getenv("REFRESH_COOKIE_NAME"),
+		Value:    refreshToken,
+		HttpOnly: true,
+		SameSite: http.SameSiteStrictMode,
+		MaxAge:   86400,
+		Secure:   true,
+	})
+
+	if !user.IsProfileComplete {
+		return ctx.JSON(http.StatusLocked, map[string]interface{}{
+			"message": "profile not completed",
+			"status":  "fail",
+			"data": map[string]interface{}{
+				"profile_complete": user.IsProfileComplete,
+			},
+		})
+	}
+
+	return ctx.JSON(http.StatusOK, map[string]interface{}{
+		"message": "login successful",
+		"status":  "success",
+	})
+}
