@@ -11,6 +11,7 @@ import (
 	"github.com/redis/go-redis/v9"
 
 	"github.com/CodeChefVIT/devsoc-backend-24/internal/database"
+	"github.com/CodeChefVIT/devsoc-backend-24/internal/models"
 	services "github.com/CodeChefVIT/devsoc-backend-24/internal/services/user"
 )
 
@@ -124,7 +125,7 @@ func CheckAdmin(next echo.HandlerFunc) echo.HandlerFunc {
 
 		email := claims["sub"].(string)
 
-		if claims["role"].(string) != "admin" {
+		if claims["role"].(string) == "user" {
 			return c.JSON(http.StatusForbidden, map[string]string{
 				"message": "not an admin",
 				"status":  "fail",
@@ -179,6 +180,21 @@ func CheckAdmin(next echo.HandlerFunc) echo.HandlerFunc {
 		}
 
 		c.Set("user", &user.User)
+
+		return next(c)
+	}
+}
+
+func EditOnly(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		user := c.Get("user").(*models.User)
+
+		if user.Role == "view" {
+			return c.JSON(http.StatusForbidden, map[string]string{
+				"message": "not allowed to edit",
+				"status":  "fail",
+			})
+		}
 
 		return next(c)
 	}
