@@ -10,7 +10,7 @@ type Idea struct {
 	Github      string    `json:"github_link"`
 	Figma       string    `json:"figma_link"`
 	Others      string    `json:"others"`
-	IsSelected  bool      `json:"-"`
+	IsSelected  bool      `json:"is_selected"`
 }
 
 type IdeaRequest struct {

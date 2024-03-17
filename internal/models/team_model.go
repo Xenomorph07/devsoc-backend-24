@@ -34,3 +34,14 @@ type GetTeam struct {
 	Ideas    Idea      `json:"idea"`
 	Project  Project   `json:"project"`
 }
+
+type AdminGetTeam struct {
+	ID       uuid.UUID          `json:"id"`
+	TeamName string             `json:"team_name"`
+	TeamCode string             `json:"team_code"`
+	LeaderID uuid.UUID          `json:"leader_id"`
+	Round    int                `json:"round"`
+	Users    []AdminGetTeamUser `json:"users"`
+	Ideas    Idea               `json:"idea"`
+	Project  Project            `json:"project"`
+}
