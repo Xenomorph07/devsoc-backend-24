@@ -24,8 +24,8 @@ func AdminRoutes(incomingRoutes *echo.Echo) {
 	admin.GET("/team/project/:id", controllers.GetProjectByTeamID)
 	admin.GET("/team/leader/:id", controllers.GetTeamLeader)
 	admin.GET("/team/idea/:id", controllers.GetIdeaByTeamID)
-	admin.POST("/team/ban/:id", controllers.BanTeam)
-	admin.POST("/team/unban/:id", controllers.UnbanTeam)
+	admin.GET("/team/ban/:id", controllers.BanTeam)
+	admin.GET("/team/unban/:id", controllers.UnbanTeam)
 
 	admin.GET("/projects/all", controllers.GetAllProject)
 	admin.GET("/ideas/all", controllers.GetAllIdeas)

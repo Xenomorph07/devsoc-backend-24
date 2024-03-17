@@ -104,7 +104,7 @@ func GetTeams(ctx echo.Context) error {
 	return ctx.JSON(http.StatusAccepted, map[string]interface{}{
 		"message": "Successfully fetched teams",
 		"data":    team,
-		"status":  "true",
+		"status":  "false",
 	})
 }
 
