@@ -239,6 +239,15 @@ func CompleteProfile(ctx echo.Context) error {
 
 		err := services.InsertVITDetials(user.ID, vitInfo)
 		if err != nil {
+			var pgerr *pgconn.PgError
+			if errors.As(err, &pgerr) {
+				if pgerr.Code == "23505" {
+					return ctx.JSON(http.StatusExpectationFailed, map[string]string{
+						"message": "team name already exists",
+						"status":  "failed to update team",
+					})
+				}
+			}
 			return ctx.JSON(http.StatusInternalServerError, map[string]string{
 				"message": err.Error(),
 				"status":  "error",
