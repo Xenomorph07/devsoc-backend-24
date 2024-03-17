@@ -24,7 +24,7 @@ func ShortlistIdea(team_id uuid.UUID) error {
 		return err
 	}
 
-	_, err = tx.Exec(`UPDATE ideas SET is_selected = true WHERE teamid = $1", team_id`)
+	_, err = tx.Exec(`UPDATE ideas SET is_selected = true WHERE teamid = $1`, team_id)
 	if err != nil {
 		tx.Rollback()
 		return err

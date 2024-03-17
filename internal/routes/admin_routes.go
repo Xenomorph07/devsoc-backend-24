@@ -29,7 +29,7 @@ func AdminRoutes(incomingRoutes *echo.Echo) {
 	admin.GET("/projects/all", controllers.GetAllProject)
 	admin.GET("/ideas/all", controllers.GetAllIdeas)
 
-	admin.POST("/ideas/shortlist", controllers.ShortList)
+	admin.POST("/idea/shortlist", controllers.ShortList)
 
 	//admin.GET("/team/freshers", controllers.GetAllFresherTeams)
 	//admin.GET("/team/females", controllers.GetAllFemaleTeams)
