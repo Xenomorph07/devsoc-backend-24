@@ -115,6 +115,11 @@ type GetUser struct {
 	ID       uuid.UUID `json:"id"`
 	IsLeader bool      `json:"is_leader"`
 }
+
+type GetAdminUser struct {
+	GetUser
+	Email string `json:"email"`
+}
 type ResendOTPRequest struct {
 	Email string `json:"email" validate:"required,email"`
 	Type  string `json:"type"  validate:"required,oneof=verification resetpass"`

@@ -12,5 +12,4 @@ CREATE TABLE IF NOT EXISTS ideas (
 );
 
 -- +goose Down
-
-DROP TABLE ideas;
+DROP TABLE IF EXISTS ideas;

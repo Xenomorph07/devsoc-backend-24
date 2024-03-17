@@ -9,5 +9,4 @@ CREATE TABLE IF NOT EXISTS teams (
 );
 
 -- +goose Down
-
-DROP TABLE teams;
+DROP TABLE IF EXISTS teams;
