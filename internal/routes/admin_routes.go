@@ -15,6 +15,7 @@ func AdminRoutes(incomingRoutes *echo.Echo) {
 	admin.GET("/user/:email", controllers.GetUserByEmail)
 	admin.POST("/user/ban", controllers.BanUser, middleware.EditOnly)
 	admin.POST("/user/unban", controllers.UnbanUser, middleware.EditOnly)
+	admin.POST("/user/checkin", controllers.CheckIn, middleware.EditOnly)
 	admin.GET("/vitians", controllers.GetAllVitians)
 	admin.GET("/females", controllers.GetAllFemales)
 

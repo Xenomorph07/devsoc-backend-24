@@ -13,6 +13,7 @@ func UserRoutes(incomingRoutes *echo.Echo) {
 	incomingRoutes.POST("/resend", controllers.ResendOTP)
 	incomingRoutes.POST("/reset-password", controllers.RequestResetPassword)
 	incomingRoutes.PATCH("/reset-password", controllers.ResetPassword)
+	incomingRoutes.POST("/admin/login", controllers.AdminLogin)
 
 	user := incomingRoutes.Group("/user")
 	user.POST(
