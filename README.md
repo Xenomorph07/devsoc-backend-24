@@ -67,34 +67,15 @@ width="36" height="36" alt="LinkedIn" />
 
 <td>
 <p align="center">
-<img src="https://avatars.githubusercontent.com/u/50650788?v=4" width="200" height="200" alt="Shivam"
+<img src="https://avatars.githubusercontent.com/u/133687995?v=4" width="200" height="200" alt="Prateek"
 style="border: 2px solid grey; width: 170px; height: 170px" />
 </p>
-<p style="font-size: 17px; font-weight: 600">Shivam Sharma</p>
+<p style="font-size: 17px; font-weight: 600">Prateek Srivastava</p>
 <p align="center">
-<a href="https://github.com/Mr-Emerald-Wolf"><img
+<a href="https://github.com/prateek-srivastava001"><img
 src="http://www.iconninja.com/files/241/825/211/round-collaboration-social-github-code-circle-network-icon.svg"
 width="36" height="36" alt="GitHub" /></a>
-<a href="https://www.linkedin.com/in/shivam-sharma-6a0b1b1a7/">
-<img src="http://www.iconninja.com/files/863/607/751/network-linkedin-social-connection-circular-circle-media-icon.svg"
-width="36" height="36" alt="LinkedIn" />
-</a>
-</p>
-</td>
-</tr>
-
-<tr align="center">
-<td>
-<p align="center">
-<img src="https://avatars.githubusercontent.com/u/91564450?v=4" width="200" height="200" alt="Aaditya"
-style="border: 2px solid grey; width: 170px; height: 170px" />
-</p>
-<p style="font-size: 17px; font-weight: 600">Aaditya Mahanta</p>
-<p align="center">
-<a href="https://github.com/aditansh"><img
-src="http://www.iconninja.com/files/241/825/211/round-collaboration-social-github-code-circle-network-icon.svg"
-width="36" height="36" alt="GitHub" /></a>
-<a href="https://www.linkedin.com/in/aadityamahanta/">
+<a href="https://www.linkedin.com/in/prateeksrivastava-/">
 <img src="http://www.iconninja.com/files/863/607/751/network-linkedin-social-connection-circular-circle-media-icon.svg"
 width="36" height="36" alt="LinkedIn" />
 </a>
@@ -118,17 +99,37 @@ width="36" height="36" alt="LinkedIn" />
 </p>
 </td>
 
+</tr>
+
+<tr align="center">
 <td>
 <p align="center">
-<img src="https://avatars.githubusercontent.com/u/133687995?v=4" width="200" height="200" alt="Prateek"
+<img src="https://avatars.githubusercontent.com/u/50650788?v=4" width="200" height="200" alt="Shivam"
 style="border: 2px solid grey; width: 170px; height: 170px" />
 </p>
-<p style="font-size: 17px; font-weight: 600">Prateek Srivastava</p>
+<p style="font-size: 17px; font-weight: 600">Shivam Sharma</p>
 <p align="center">
-<a href="https://github.com/prateek-srivastava001"><img
+<a href="https://github.com/Mr-Emerald-Wolf"><img
 src="http://www.iconninja.com/files/241/825/211/round-collaboration-social-github-code-circle-network-icon.svg"
 width="36" height="36" alt="GitHub" /></a>
-<a href="https://www.linkedin.com/in/prateeksrivastava-/">
+<a href="https://www.linkedin.com/in/shivam-sharma-6a0b1b1a7/">
+<img src="http://www.iconninja.com/files/863/607/751/network-linkedin-social-connection-circular-circle-media-icon.svg"
+width="36" height="36" alt="LinkedIn" />
+</a>
+</p>
+</td>
+
+<td>
+<p align="center">
+<img src="https://avatars.githubusercontent.com/u/91564450?v=4" width="200" height="200" alt="Aaditya"
+style="border: 2px solid grey; width: 170px; height: 170px" />
+</p>
+<p style="font-size: 17px; font-weight: 600">Aaditya Mahanta</p>
+<p align="center">
+<a href="https://github.com/aditansh"><img
+src="http://www.iconninja.com/files/241/825/211/round-collaboration-social-github-code-circle-network-icon.svg"
+width="36" height="36" alt="GitHub" /></a>
+<a href="https://www.linkedin.com/in/aadityamahanta/">
 <img src="http://www.iconninja.com/files/863/607/751/network-linkedin-social-connection-circular-circle-media-icon.svg"
 width="36" height="36" alt="LinkedIn" />
 </a>
