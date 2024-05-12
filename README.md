@@ -30,7 +30,7 @@ The official Backend API for DEVSOC'24 Hackathon Portal
 
 ## Prerequisites:
 
-- [Docker](https://www.docker.com): .
+- [Docker](https://www.docker.com): Docker is a platform for developing, shipping, and running applications using containers.
 - [Postman](https://www.postman.com)/[Apidog](https://apidog.com): A tool to test backend APIs without having to write frontends.
 - [goose](https://github.com/pressly/goose): Goose is a database migration tool. Manage your database schema by creating incremental SQL changes or Go functions.
 
