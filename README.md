@@ -10,8 +10,6 @@ The official Backend API for DEVSOC'24 Hackathon Portal
 
 # How To Run
 
-To run the backend
-
 ## Prerequisites:
 
 - [Docker](https://www.docker.com): A container platform using which we can ensure standards.
