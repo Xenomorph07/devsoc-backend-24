@@ -171,7 +171,8 @@ width="36" height="36" alt="LinkedIn" />
 
 # License
 
-[![License](http://img.shields.io/:license-mit-blue.svg?style=flat-square)](http://badges.mit-license.org)
+Copyright © 2024, [CodeChef-VIT](https://github.com/CodeChefVIT) and all other contributors.
+Released under the [MIT License](LICENSE).
 
 <p align="center">
 Made with :heart: by <a href="https://www.codechefvit.com" target="_blank">CodeChef-VIT</a>
