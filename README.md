@@ -28,3 +28,137 @@ The official Backend API for DEVSOC'24 Hackathon Portal
 4.  Use postman and test the api at the endpoint `http://localhost/api`
 
 # Contributors
+
+<table>
+<tr align="center">
+<td>
+<p align="center">
+<img src="https://avatars.githubusercontent.com/u/71623796?v=4" width="200" height="200" alt="Vedant"
+style="border: 2px solid grey; width: 170px; height: 170px" />
+</p>
+<p style="font-size: 17px; font-weight: 600">Vedant Matanhelia</p>
+<p align="center">
+<a href="https://github.com/DanglingDynamo"><img
+src="http://www.iconninja.com/files/241/825/211/round-collaboration-social-github-code-circle-network-icon.svg"
+width="36" height="36" alt="GitHub" /></a>
+<a href="https://www.linkedin.com/in/vedant-matanhelia-aa171027b/">
+<img src="http://www.iconninja.com/files/863/607/751/network-linkedin-social-connection-circular-circle-media-icon.svg"
+width="36" height="36" alt="LinkedIn" />
+</a>
+</p>
+</td>
+
+<td>
+<p align="center">
+<img src="https://avatars.githubusercontent.com/u/86644389?v=4" width="200" height="200" alt="Aman"
+style="border: 2px solid grey; width: 170px; height: 170px" />
+</p>
+<p style="font-size: 17px; font-weight: 600">Aman L</p>
+<p align="center">
+<a href="https://github.com/Killerrekt"><img
+src="http://www.iconninja.com/files/241/825/211/round-collaboration-social-github-code-circle-network-icon.svg"
+width="36" height="36" alt="GitHub" /></a>
+<a href="https://www.linkedin.com/in/aman-l-922819251/">
+<img src="http://www.iconninja.com/files/863/607/751/network-linkedin-social-connection-circular-circle-media-icon.svg"
+width="36" height="36" alt="LinkedIn" />
+</a>
+</p>
+</td>
+
+<td>
+<p align="center">
+<img src="https://avatars.githubusercontent.com/u/50650788?v=4" width="200" height="200" alt="Shivam"
+style="border: 2px solid grey; width: 170px; height: 170px" />
+</p>
+<p style="font-size: 17px; font-weight: 600">Shivam Sharma</p>
+<p align="center">
+<a href="https://github.com/Mr-Emerald-Wolf"><img
+src="http://www.iconninja.com/files/241/825/211/round-collaboration-social-github-code-circle-network-icon.svg"
+width="36" height="36" alt="GitHub" /></a>
+<a href="https://www.linkedin.com/in/shivam-sharma-6a0b1b1a7/">
+<img src="http://www.iconninja.com/files/863/607/751/network-linkedin-social-connection-circular-circle-media-icon.svg"
+width="36" height="36" alt="LinkedIn" />
+</a>
+</p>
+</td>
+</tr>
+
+<tr align="center">
+<td>
+<p align="center">
+<img src="https://avatars.githubusercontent.com/u/91564450?v=4" width="200" height="200" alt="Aaditya"
+style="border: 2px solid grey; width: 170px; height: 170px" />
+</p>
+<p style="font-size: 17px; font-weight: 600">Aaditya Mahanta</p>
+<p align="center">
+<a href="https://github.com/aditansh"><img
+src="http://www.iconninja.com/files/241/825/211/round-collaboration-social-github-code-circle-network-icon.svg"
+width="36" height="36" alt="GitHub" /></a>
+<a href="https://www.linkedin.com/in/aadityamahanta/">
+<img src="http://www.iconninja.com/files/863/607/751/network-linkedin-social-connection-circular-circle-media-icon.svg"
+width="36" height="36" alt="LinkedIn" />
+</a>
+</p>
+</td>
+
+<td>
+<p align="center">
+<img src="https://avatars.githubusercontent.com/u/84951451?v=4" width="200" height="200" alt="Akshat"
+style="border: 2px solid grey; width: 170px; height: 170px" />
+</p>
+<p style="font-size: 17px; font-weight: 600">Akshat Gupta</p>
+<p align="center">
+<a href="https://github.com/Oik17"><img
+src="http://www.iconninja.com/files/241/825/211/round-collaboration-social-github-code-circle-network-icon.svg"
+width="36" height="36" alt="GitHub" /></a>
+<a href="https://www.linkedin.com/in/akshat-gupta-864b39235/">
+<img src="http://www.iconninja.com/files/863/607/751/network-linkedin-social-connection-circular-circle-media-icon.svg"
+width="36" height="36" alt="LinkedIn" />
+</a>
+</p>
+</td>
+
+<td>
+<p align="center">
+<img src="https://avatars.githubusercontent.com/u/133687995?v=4" width="200" height="200" alt="Prateek"
+style="border: 2px solid grey; width: 170px; height: 170px" />
+</p>
+<p style="font-size: 17px; font-weight: 600">Prateek Srivastava</p>
+<p align="center">
+<a href="https://github.com/prateek-srivastava001"><img
+src="http://www.iconninja.com/files/241/825/211/round-collaboration-social-github-code-circle-network-icon.svg"
+width="36" height="36" alt="GitHub" /></a>
+<a href="https://www.linkedin.com/in/prateeksrivastava-/">
+<img src="http://www.iconninja.com/files/863/607/751/network-linkedin-social-connection-circular-circle-media-icon.svg"
+width="36" height="36" alt="LinkedIn" />
+</a>
+</p>
+</td>
+
+<td>
+<p align="center">
+<img src="https://avatars.githubusercontent.com/u/100862487?v=4" width="200" height="200" alt="Shivam"
+style="border: 2px solid grey; width: 170px; height: 170px" />
+</p>
+<p style="font-size: 17px; font-weight: 600">Shivam Gutgutia</p>
+<p align="center">
+<a href="https://github.com/shivamgutgutia"><img
+src="http://www.iconninja.com/files/241/825/211/round-collaboration-social-github-code-circle-network-icon.svg"
+width="36" height="36" alt="GitHub" /></a>
+<a href="https://www.linkedin.com/in/shivamgutgutia/">
+<img src="http://www.iconninja.com/files/863/607/751/network-linkedin-social-connection-circular-circle-media-icon.svg"
+width="36" height="36" alt="LinkedIn" />
+</a>
+</p>
+</td>
+</tr>
+
+</table>
+
+# License
+
+[![License](http://img.shields.io/:license-mit-blue.svg?style=flat-square)](http://badges.mit-license.org)
+
+<p align="center">
+Made with :heart: by <a href="https://www.codechefvit.com" target="_blank">CodeChef-VIT</a>
+</p>
