@@ -1,8 +1,8 @@
 # Define variables
+include .env
 DOCKER_COMPOSE = docker compose
-URI = "host= port= user= password= dbname=devsoc-24-backend"
 
-URI = "host=139.59.71.66 port=5430 user=admin password=d352F68MX2Hdh2pRFWoB3R9yg dbname=devsoc-24-backend"
+DB_URI = "host=localhost port=${POSTGRES_PORT} user=${POSTGRES_USER} password=${POSTGRES_PASSWORD} dbname=${POSTGRES_DB} sslmode=disable"
 
 # Targets
 .PHONY: build up down logs restart clean migrate-up migrate-down
@@ -41,4 +41,3 @@ help:
 	@echo "  logs       View logs of Docker containers"
 	@echo "  restart    Restart Docker containers"
 	@echo "  clean      Stop, remove containers, and also remove volumes (data)"
-	@echo "  help       Display this help message"
