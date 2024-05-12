@@ -41,7 +41,7 @@ The official Backend API for DEVSOC'24 Hackathon Portal
 3.  Run the migrations: `make migrate-up`
 4.  Use postman and test the api at the endpoint `http://localhost/api`
 
-# Contributors
+# Authors
 
 <table>
 <tr align="center">
