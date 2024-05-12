@@ -8,7 +8,7 @@ The official Backend API for DEVSOC'24 Hackathon Portal
 
 ## Tech Stack
 
-- [Golang](https://go.dev): Docker is a platform for developing, shipping, and running applications using containers.
+- [Golang](https://go.dev): An open-source programming language supported by Google
 
   - [Echo](https://echo.labstack.com/): A fast http router based on the go standard HTTP.
   - [pgx](https://github.com/jackc/pgx): A postgresql driver for go.
