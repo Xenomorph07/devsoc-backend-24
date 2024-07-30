@@ -25,6 +25,7 @@ func AuthUser(next echo.HandlerFunc) echo.HandlerFunc {
 				"status":  "fail",
 			})
 		}
+
 		claims, ok := token.Claims.(jwt.MapClaims)
 		if !ok {
 			return c.JSON(http.StatusUnauthorized, map[string]interface{}{

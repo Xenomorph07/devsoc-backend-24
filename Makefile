@@ -2,7 +2,7 @@
 include .env
 DOCKER_COMPOSE = docker compose
 
-DB_URI = "host=localhost port=${POSTGRES_PORT} user=${POSTGRES_USER} password=${POSTGRES_PASSWORD} dbname=${POSTGRES_DB} sslmode=disable"
+DB_URI = "host=localhost port=6500 user=${POSTGRES_USER} password=${POSTGRES_PASSWORD} dbname=${POSTGRES_DB} sslmode=disable"
 
 # Targets
 .PHONY: build up down logs restart clean migrate-up migrate-down
@@ -26,10 +26,10 @@ clean:
 	$(DOCKER_COMPOSE) down -v
 
 migrate-up:
-	cd db/migrations && goose postgres $(URI) up && cd ../..
+	cd db/migrations && goose postgres $(DB_URI) up && cd ../..
 
 migrate-down:
-	cd db/migrations && goose postgres $(URI) down && cd ../..
+	cd db/migrations && goose postgres $(DB_URI) down && cd ../..
 
 # Help target
 help:
