@@ -22,7 +22,7 @@ func SendMail(to, subject, body string) error {
 		os.Getenv("SMTP_USER"),
 		os.Getenv("SMTP_KEY"),
 	)
-	//dialer.TLSConfig = &tls.Config{InsecureSkipVerify: true} //need to be check later
+	// dialer.TLSConfig = &tls.Config{InsecureSkipVerify: true} //need to be check later
 
 	if err := dialer.DialAndSend(msg); err != nil {
 		return err
